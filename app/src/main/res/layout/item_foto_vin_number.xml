@@ -1,0 +1,63 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <!-- Columna 1: Iconos para tomar o subir foto -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/btnTomarFotoVin"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/camera_2_icon"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/tomar_foto"
+            android:layout_marginEnd="8dp" />
+
+        <ImageButton
+            android:id="@+id/btnSubirFotoVin"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/app_folder_upload_icon"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/subir_foto" />
+    </LinearLayout>
+
+    <!-- Columna 2: Imagen de referencia -->
+    <ImageView
+        android:id="@+id/imgFotoVin"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:layout_weight="1"
+        android:scaleType="centerCrop"
+        android:src="@drawable/images_icon" />
+
+    <!-- Columna 3: Spinner para seleccionar tipo de foto -->
+    <Spinner
+        android:id="@+id/spinnerTipoFotoVin"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:gravity="center"
+        android:background="@android:drawable/btn_dropdown"
+        style="@style/SpinnerTextStyle" />
+
+    <!-- Columna 4: Botón de borrar -->
+    <ImageButton
+        android:id="@+id/btnBorrarVin"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/delete_garbage_trash_icon"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/borrar_foto"
+        android:layout_marginStart="8dp" />
+</LinearLayout>

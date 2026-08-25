@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="tipos_foto">
+        <item>front_left</item>
+        <item>front</item>
+        <item>front_right</item>
+        <item>left</item>
+        <item>right</item>
+        <item>back_left</item>
+        <item>back_right</item>
+        <item>back</item>
+        <item>front_side_grilled</item>
+        <item>front_side_hood</item>
+        <item>front_side_left_bumper</item>
+        <item>front_side_left_head_light</item>
+        <item>front_side_right_bumper</item>
+        <item>front_side_right_head_light</item>
+        <item>front_side_windshield</item>
+        <item>left_side_fender</item>
+        <item>left_side_front_left_door</item>
+        <item>left_side_front_left_tyre</item>
+        <item>left_side_front_left_window</item>
+        <item>left_side_quarter_panel</item>
+        <item>left_side_rear_left_door</item>
+    </string-array>
+</resources>
+
+

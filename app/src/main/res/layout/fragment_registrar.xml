@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".RegistrarFragment">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:elevation="4dp"
+        android:theme="@style/ToolbarTheme"
+        app:title="@string/registrar_fragment_label" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".RegistrarFragment">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/dondestamos"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            tools:context=".ui.ui.login.LoginActivity">
+
+            <ImageView
+                android:id="@+id/logo_enpartes"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="27dp"
+                android:layout_marginTop="48dp"
+                android:layout_marginEnd="19dp"
+                android:layout_marginBottom="554dp"
+                android:contentDescription="@string/descripcion_logo_enpartes"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.5"
+                app:srcCompat="@drawable/logo_enpartes" />
+
+            <LinearLayout
+                android:id="@+id/linearLayoutRegistrar"
+                android:layout_width="381dp"
+                android:layout_height="202dp"
+                android:layout_marginStart="31dp"
+                android:layout_marginTop="200dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="358dp"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias=".7"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <EditText
+                    android:id="@+id/etUsername"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:hint="@string/username_hint" />
+
+                <EditText
+                    android:id="@+id/etEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:hint="@string/email_hint_2" />
+
+                <EditText
+                    android:id="@+id/etPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:hint="@string/password_hint"
+                    android:inputType="textPassword" />
+
+                <EditText
+                    android:id="@+id/etRePassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/confirm_password_hint"
+                    android:inputType="textPassword" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearLayoutBotones"
+                android:layout_width="356dp"
+                android:layout_height="90dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="32dp"
+                android:orientation="vertical"
+                android:gravity="center_horizontal|center_vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayoutRegistrar"
+                app:layout_constraintVertical_bias="0.0">
+
+                <Button
+                    android:id="@+id/btnRegistrar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/CustomButtonStyle"
+                    android:text="@string/action_registrar"
+                    app:layout_constraintTop_toBottomOf="@+id/linearLayoutRegistrar" />
+
+                <TextView
+                    android:id="@+id/btnDerechos"
+                    android:layout_width="match_parent"
+                    android:layout_height="23dp"
+                    android:layout_marginBottom="24dp"
+                    android:gravity="center"
+                    android:text="@string/ver_derechos"
+                    android:textColor="@color/colorNegro"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toBottomOf="@+id/btnRegistrar"
+                    tools:layout_editor_absoluteX="103dp" />
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/RegistrarProgressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="137dp"
+                android:layout_height="108dp"
+                android:layout_marginStart="110dp"
+                android:layout_marginTop="502dp"
+                android:layout_marginEnd="148dp"
+                android:layout_marginBottom="105dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

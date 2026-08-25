@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+        <item
+            android:id="@+id/nav_gallery"
+            android:icon="@drawable/avatar_profile_icon_128"
+            android:title="@string/perfil_de_usuario"
+            android:checkable="true"/>
+
+        <item
+            android:id="@+id/nav_consultas_abiertas"
+            android:icon="@drawable/page_search_icon"
+            android:title="@string/menu_consultas_abiertas" />
+
+        <item
+            android:id="@+id/nav_reportar_siniestro"
+            android:icon="@drawable/car_crash_2_icon"
+            android:title="@string/menu_siniestro" />
+        <item
+            android:id="@+id/nav_consultar_siniestro"
+            android:icon="@drawable/file_format_paper_icon"
+            android:title="@string/menu_consulta_siniestro" />
+
+    <item
+        android:id="@+id/spacer_1"
+        android:title=""
+        android:enabled="false" />
+    <item
+        android:id="@+id/spacer_2"
+        android:title=""
+        android:enabled="false" />
+    <item
+        android:id="@+id/spacer_3"
+        android:title=""
+        android:enabled="false" />
+    <item
+        android:id="@+id/spacer_4"
+        android:title=""
+        android:enabled="false" />
+    <item
+        android:id="@+id/spacer_5"
+        android:title=""
+        android:enabled="false" />
+    <item
+        android:id="@+id/spacer_6"
+        android:title=""
+        android:enabled="false" />
+
+    <group
+        android:id="@+id/group_exit"
+        android:layout_weight="100">
+        <item
+            android:id="@+id/exitMenuItem"
+            android:icon="@drawable/ic_exit_to_app_black_24dp"
+            android:title="@string/cerrar_sesion" />
+    </group>
+</menu>

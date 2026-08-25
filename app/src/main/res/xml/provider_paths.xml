@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Ruta para archivos en el directorio externo privado de la aplicación -->
+    <external-files-path name="my_files" path="." />
+    <!-- Ruta para archivos en el directorio de caché externo -->
+    <external-cache-path name="my_cache" path="." />
+    <!-- Ruta para archivos en el directorio de archivos internos -->
+    <files-path name="internal_files" path="." />
+    <!-- Ruta para archivos en el directorio público de descargas -->
+    <!--<external-path name="downloads" path="Download" />-->
+    <external-path name="external_files" path="." />
+</paths>
+<!-- directorio externo privado de la aplicación (/storage/emulated/0/Android/data/com.ehome.enpartesapp/files/).-->
+

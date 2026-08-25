@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_presupuestofragment">
+
+    <fragment
+        android:id="@+id/nav_presupuestofragment"
+        android:name="com.ehome.enpartesapp.ui.presupuesto.PresupuestoFragment"
+        android:label="@string/first_fragment_label"
+        tools:layout="@layout/fragment_presupuesto" >
+
+        <action
+            android:id="@+id/action_nav_presupuestofragment_to_reportDisplayFragment"
+            app:destination="@id/reportDisplayFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/reportDisplayFragment"
+        android:name="com.ehome.enpartesapp.ui.presupuesto.ReportDisplayFragment"
+        android:label="fragment_report_display"
+        tools:layout="@layout/fragment_report_display" >
+        <argument
+            android:name="input_data"
+            app:argType="string" />
+        <argument
+            android:name="api_response"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_reportDisplayFragment_to_presupuestofragment"
+            app:destination="@id/nav_presupuestofragment" />
+    </fragment>
+</navigation>

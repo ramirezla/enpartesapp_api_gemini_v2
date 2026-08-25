@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_consultas_abiertas">
+
+    <fragment
+        android:id="@+id/nav_consultas_abiertas"
+        android:name="com.ehome.enpartesapp.ui.home.ConsultasAbiertasFragment"
+        android:label="@string/menu_consultas_abiertas"
+        tools:layout="@layout/fragment_consultasabiertas" >
+
+        <action
+            android:id="@+id/action_nav_consultas_abiertas_to_nav_reclamos"
+            app:destination="@id/nav_reclamos" />
+
+        <action
+            android:id="@+id/action_nav_consultas_abiertas_to_nav_presupuestofragment"
+            app:destination="@id/nav_presupuestofragment" />
+
+        <action
+            android:id="@+id/action_nav_consultas_abiertas_to_nav_consultafragment"
+            app:destination="@id/nav_consultafragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_reclamos"
+        android:name="com.ehome.enpartesapp.ui.reclamos.ReclamosFragment"
+        android:label="@string/menu_reclamos"
+        tools:layout="@layout/fragment_reclamos" >
+
+        <action
+            android:id="@+id/action_nav_reclamos_to_nav_consultas_abiertas"
+            app:destination="@id/nav_consultas_abiertas" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_presupuestofragment"
+        android:name="com.ehome.enpartesapp.ui.presupuesto.PresupuestoFragment"
+        android:label="@string/menu_siniestro"
+        tools:layout="@layout/fragment_presupuesto" >
+
+        <action
+            android:id="@+id/action_nav_presupuestofragment_to_reportDisplayFragment"
+            app:destination="@id/reportDisplayFragment" />
+        <action
+            android:id="@+id/action_presupuestofragment_to_nav_consultas_abiertas"
+            app:destination="@id/nav_consultas_abiertas" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/reportDisplayFragment"
+        android:name="com.ehome.enpartesapp.ui.presupuesto.ReportDisplayFragment"
+        android:label="Reporte del siniestro"
+        tools:layout="@layout/fragment_report_display" >
+        <argument
+            android:name="input_data"
+            app:argType="string" />
+        <argument
+            android:name="api_response"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_reportDisplayFragment_to_presupuestofragment"
+            app:destination="@id/nav_presupuestofragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_consultafragment"
+        android:name="com.ehome.enpartesapp.ui.presupuesto.ConsultaFragment"
+        android:label="@string/menu_consulta_siniestro"
+        tools:layout="@layout/fragment_consulta_siniestro" >
+
+        <action
+            android:id="@+id/action_presupuestofragment_to_nav_consultas_abiertas"
+            app:destination="@id/nav_consultas_abiertas" />
+    </fragment>
+
+</navigation>

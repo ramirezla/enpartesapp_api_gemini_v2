@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:gravity="center_vertical">
+
+    <!-- Columna 1: Iconos para tomar o subir foto -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <!-- Botón para tomar foto -->
+        <ImageButton
+            android:id="@+id/btnTomarFoto"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/camera_2_icon"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/tomar_foto"
+            android:layout_marginEnd="8dp" />
+
+        <!-- Botón para cargar foto -->
+        <ImageButton
+            android:id="@+id/btnSubirFoto"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/app_folder_upload_icon"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/subir_foto" />
+    </LinearLayout>
+
+    <!-- Columna 2: Imagen de referencia -->
+    <ImageView
+        android:id="@+id/imgFoto"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:layout_weight="1"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/miniatura_de_la_foto"
+        android:src="@drawable/images_icon" />
+
+    <!-- Columna 3: Spinner para seleccionar tipo de foto -->
+    <Spinner
+        android:id="@+id/spinnerTipoFoto"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:gravity="center"
+        android:background="@android:drawable/btn_dropdown"
+        style="@style/SpinnerTextStyle" />
+
+    <!-- Columna 4: Botones de agregar y borrar -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <!-- Botón de agregar foto -->
+        <ImageButton
+            android:id="@+id/btnAgregar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/add_photo_1_icon"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/agregar_foto" />
+
+        <!-- Botón de borrar foto -->
+        <ImageButton
+            android:id="@+id/btnBorrar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/delete_garbage_trash_icon"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/borrar_foto"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+</LinearLayout>

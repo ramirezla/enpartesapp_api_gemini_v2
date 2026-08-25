@@ -1,0 +1,222 @@
+<resources>
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+    <string name="version">Versión: %1$s</string>
+    <string name="version_na">Version N/A</string>
+    <string name="solicitando_permisos">Solicitando Permisos.</string>
+    <string name="permisos_denegados">Permisos Denegados</string>
+    <string name="para_usar_la_aplicacion_debes_conceder_todos_los_permisos">Para usar la aplicación, debes conceder todos los permisos.</string>
+
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="registrar_fragment_label">Registrar Usuario</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Siguiente</string>
+    <string name="ver_derechos">Leer terminos y condiciones de uso.</string>
+    <string name="previous">Previous</string>
+    <string name="ver_registrar">Registrar</string>
+
+    <string name="lorem_ipsum">Temporal.....lorem_ipsum.\n\n</string>
+
+    <!-- Texto de la licencia del software -->
+    <string name="licencia_derechos">El conocimiento se entiende como un constructo individual y colectivo que enriquece la diversidad cognitiva, espiritual y cultural de los pueblos, por tanto es un bien intangible que pertenece a la humanidad y que constituye un medio para el ejercicio de la soberanía popular y el desarrollo humano integral. Esta concepción del conocimiento plantea la necesidad de estructurare implementar mecanismos que contrarresten los lineamientos del Capitalismo Cognitivo, para preservar su naturaleza como bien de carácter público. En la actualidad estamos en presencia de un escenario mundial que no reconoce esta condición, sino que favorece el auge de vicios que privilegian la privatización y mercantilización del conocimiento como si fuese un bien agotable y susceptible de disminución en el proceso de apropiación.</string>
+    <string name="licencia_derechos_2">Ahora bien, el Estado venezolano está fundado en un esquema de desarrollo que contempla como eje medular de la acción gubernamental a la sociedad; concebida como sujeto activo del proceso de transformación que pretende generar bienestar y condiciones favorables para vivir bien, por tanto, toda acción que se ejecute no debe privilegiar a las estructuras que, por ejemplo, sostienen a la producción exclusiva de riqueza, sino que debe fortalecer el empoderamiento y el desarrollo social.</string>
+    <string name="licencia_derechos_3">En este contexto es preciso indicar que el software es un conocimiento dotado de las características de pertinencia para el desarrollo social y económico de la nación, y por tanto, resulta necesario estructurar una propuesta de licencia de software que anclada en el contexto político y jurídico venezolano tenga la pretensión de preservar la libertad de este conocimiento. De modo que la licencia que se propone tiene su principal sustento en la Constitución de la República Bolivariana de Venezuela que consagra el proyecto nacional aprobado por el pueblo venezolano en el año 1999. Este instrumento jurídico plantea en el Artículo 98 que “La creación cultural es libre…” y ello puede entenderse como el despliegue de distintas prácticas que enriquecen el imaginario y potencian la emancipación de nuestro pueblo hacia la consolidación de un entorno cultural autónomo.</string>
+    <string name="licencia_derechos_4">La licencia también encuentra sentido en la Ley de Infogobierno, específicamente en el Artículo 35 que se refiere al uso de licencias para garantizar la libertad del conocimiento vinculado al software utilizado por el poder público, cuando establece “Las licencias para programas informáticos usados por el poder público deben permitir el acceso al código fuente y a la transferencia del conocimiento asociado para su comprensión, la libertad de modificación, libertad de uso y libertad de publicación y distribución del código fuente y sus modificaciones…”. La existencia de esta norma da cuenta del proceso de generación de software en un sustrato caracterizado por lalibertad que engloba buenas prácticas asociadas a los modos a través de los cuales éste se construye, pues es posible observar formas de compartir, de intercambiar, de dialogar, de participar, de colaborar y de mejorar. En consecuencia, el ejercicio de la libertad demanda de la sociedad un rol activo que sustente la toma de decisiones en propósitos conscientes y sin la injerencia de razones, causas y actores externos, como una forma de cultivar la cultura a partir de la cual se es y se puede ser en sociedad.</string>
+    <string name="licencia_derechos_5">En adelante se presentan los términos y condiciones de la Licencia de Software:</string>
+    <string name="licencia_consideraciones_1"><b>CONSIDERACIONES GENERALES</b></string>
+    <string name="licencia_consideraciones_2"><b>Cláusula Primera: Objeto.</b></string>
+    <string name="licencia_consideraciones_3">La presente licencia tiene por objeto establecer los fundamentos, términos y condiciones que determinan el uso, copia, modificación y distribución del software que se genera con aporte total o parcial de recursos públicos.</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="app_name">enpartesapp</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Usuario</string>
+    <string name="nav_header_subtitle">laenpartes@gmail.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Configuración</string>
+    <string name="menu_grupo_cosultas">Consultas</string>
+    <string name="menu_consultas_abiertas">Consultas Abiertas</string>
+    <string name="menu_reclamos">Reclamos</string>
+    <string name="menu_grupo_solicitudes">Solicitudes</string>
+    <string name="menu_solicitudes_abiertas">Solicitudes Abiertas</string>
+    <string name="menu_siniestro">Valoración de daños</string>
+    <string name="menu_consulta_siniestro">Consultar siniestro</string>
+    <string name="menu_grupo_piezas">Piezas</string>
+    <string name="menu_piezas_abiertas">Piezas Abiertas</string>
+    <string name="menu_piezas_por_entregar">Piezas por Entregar</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Iniciar sesión</string>
+    <string name="action_sign_in_short">Iniciar</string>
+    <string name="welcome">"Bienvenido !"</string>
+    <string name="invalid_username">No tiene una cuenta válida</string>
+    <string name="invalid_password">La clave debe ser mayor a 5 caracteres</string>
+    <string name="credenciales_invalidos">Credenciales inválidos</string>
+    <string name="login_failed">"Error de acceso"</string>
+    <string name="no_tiene_cuenta">"No tiene cuenta? Registrate"</string>
+    <string name="descripcion_logo_enpartes">"Logo de enpartes"</string>
+    <string name="valor_en_verde">"542.5"</string>
+    <string name="cuenta_usuario_item">Cuenta</string>
+    <string name="perfil_de_usuario">Perfil de usuario</string>
+    <string name="salir_item">Salir</string>
+    <string name="cerrar_sesion">Cerrar sesión</string>
+    <string name="esta_seguro_que_desea_salir">¿Esta seguro que desea salir?</string>
+    <string name="action_registrar">Registrar usuario</string>
+    <string name="cantidad_verdes">"478.9"</string>
+    <string name="nocuenta_description">"Ir a la pagina para crear y/o resetear password"</string>
+    <string name="hint_cuenta_usuario">"Cuenta del usuario de enpartes.com"</string>
+    <string name="buscar_vehículo">"Buscar vehículo"</string>
+    <string name="indicacion_busqueda">"Indique al menos un campo para buscar el vehículo en el sistema y presione la tecla Enter o pulse el botón Buscar."</string>
+    <string name="title_activity_registro">RegistroActivity</string>
+    <string name="derechos_fragment_label">Derechos, terminos y condiciones de uso.</string>
+    <string name="accept_license">Lei y estoy de acuerdo.</string>
+    <string name="seleccionar">Seleccionar</string>
+
+    <string name="borrar_foto">Borrar foto.</string>
+    <string name="agregar_foto">Agrregar imagen.</string>
+    <string name="imagen_referencia">Referencia</string>
+    <string name="tomar_foto">Tomar foto.</string>
+    <string name="subir_foto">Subir imagen.</string>
+    <string name="error_message">Error: %1$s</string>
+    <string name="previsualizacion_foto">Previsualizacion de la foto</string>
+    <string name="AI_cloud">"MotionsCloud Vehicle Assessment Report\nPowered by AI Computer Vision Technologies"</string>
+    <string name="general_info_format">Número de caso: %1$s\nNúmero de Vin: %2$s\nDetalles de reparación: (P. Mano de obra $: %3$s)|Mano de obra $: %4$s</string>
+    <string name="linea_separador">_________________________________________________</string>
+    <string name="totals_format">Sub total partes y piezas: %1$s\nSub total pintura: %2$s\nSub total mano de obra: %3$s\nSub total: %4$s\nImpuesto: %5$s\nTotal: %6$s</string>
+    <string name="miniatura_de_la_foto">Miniatura de la imagen.</string>
+
+    <!-- Textos de Mensajes -->
+    <string name="ingrese_placa_o_serial_del_vehiculo">Ingrese la placa o el Serial del vehículo.</string>
+    <string name="ingresar_case_number_token">Debe ingresar un Case Number o un Case Token.</string>
+    <string name="debe_ingresar_case_number_token_para_descargar_el_pdf">Debe ingresar un Case Number para descargar el PDF.</string>
+    <string name="solicitud_incorrecta_verifique_los_datos">Solicitud incorrecta. Verifique los datos ingresados.</string>
+    <string name="esperar_10_a_15_minutos">No se encontró información del caso. Ten en cuenta que la evaluación puede tardar entre 10 y 15 minutos. Por favor, intenta nuevamente más tarde.</string>
+    <string name="error_interno_del_servidor">Error interno del servidor.</string>
+    <string name="error_desconocido">Error desconocido: %1$d</string>
+    <string name="error_desconocido_texto">Error desconocido: </string>
+    <string name="error_desconocido_texto_formato">Error desconocido: %1$s</string>
+    <string name="error_en_la_solicitud">Error en la solicitud: %1$d - %2$s</string>
+    <string name="respuesta_del_servidor">Respuesta del servidor: %1$s</string>
+    <string name="error">Error %1$s</string>
+    <string name="error_texto">Error</string>
+    <string name="ok_texto">OK</string>
+    <string name="iniciando_descarga">Iniciando descarga.</string>
+    <string name="url">URL: %1$s</string>
+    <string name="cuerpo_de_la_solicitud">Cuerpo de la solicitud: %1$s</string>
+    <string name="respuesta_exitosa">Respuesta exitosa: %1$d</string>
+    <string name="la_respuesta_del_servidor_esta_vacia">La respuesta del servidor está vacía.</string>
+    <string name="pdf_guardado_en">PDF guardado en: %1$s</string>
+    <string name="no_hay_aplicación_para_abrir_pdf">No hay aplicación para abrir PDF</string>
+    <string name="error_al_guardar_el_archivo">Error al guardar el archivo: %1$s</string>
+    <string name="error_de_seguridad_al_acceder_al_archivo">Error de seguridad al acceder al archivo: %1$s</string>
+    <string name="sin_informacion">Sin informacion</string>
+    <string name="error_en_la_respuesta">Error en la respuesta: %1$d - %2$s</string>
+    <string name="no_se_encontr_informacion_para_los_parametros_proporcionados">No se encontró información para los parámetros proporcionados.</string>
+    <string name="error_de_red">Error de red: %1$s</string>
+    <string name="permiso_de_almacenamiento_denegado">Permiso de almacenamiento denegado.</string>
+    <string name="no_hay_conexion_de_red_disponible">No hay conexión de red disponible</string>
+    <string name="confirmar_salir">Confirmar salir</string>
+    <string name="si">Si</string>
+    <string name="no">No</string>
+    <string name="api_error">API Error</string>
+    <string name="api_response">API Respuesta</string>
+    <string name="api_failure">API Falla</string>
+    <string name="error_de_red_en_caso_de_falla">Error de red en caso de falla.</string>
+    <string name="error_de_red_desconocido">Error de red desconocido.</string>
+    <string name="no_se_encontraron_resultados">No se encontraron resultados.</string>
+    <string name="ingrese_la_placa_o_el_serial">Ingrese la placa o el serial</string>
+    <string name="lista_de_reclamos">Listado de reclamos</string>
+    <string name="respuesta_vacia_del_servidor">Respuesta vacia del servidor</string>
+    <string name="error_al_procesar_la_respuesta_del_servidor">Error al procesar la respuesta del servidor</string>
+
+    <string name="id_solicitud">ID Solicitud: %s</string>
+    <string name="sin_numero">Sin número: %s</string>
+    <string name="numero_de_reclamo">Número de Reclamo: %s</string>
+    <string name="fecha_de_reclamo">Fecha de Reclamo: %s</string>
+    <string name="partes_y_piezas">Partes y Piezas</string>
+    <string name="partes_y_piezas_nombre">Partes y Piezas: %s</string>
+    <string name="descripcion">Description: %s</string>
+    <string name="status">Status: %s</string>
+    <string name="cantidad">Cantidad: %s</string>
+    <string name="condicion">Condición: %s</string>
+    <string name="error_al_analizar_la_fecha">Error al analizar la fecha: %s</string>
+    <string name="id_del_reclamo_es_cero">Id del reclamo es cero</string>
+    <string name="error_en_la_solicitud_del_api">Error en la solicitud del API: %s</string>
+    <string name="error_cargando_la_informacion_de_los_reclamos">Error cargando la información de los reclamos.</string>
+    <string name="fecha_invalida">Fecha invalida</string>
+    <string name="no_se_encontraron_reclamos">No se encontraron reclamos</string>
+    <string name="datos_del_vehiculo">Datos del vehículo</string>
+    <string name="numero_reclamo">Número reclamo:</string>
+    <string name="fecha_reclamo">Fecha Reclamo:</string>
+    <string name="id_de_solicitud">ID Solicitud:</string>
+    <string name="marca">Marca:</string>
+    <string name="modelo">Modelo:</string>
+    <string name="anno">Año:</string>
+    <string name="vehiculo_id">ID del vehículo:</string>
+    <string name="caracteristicas">Características:</string>
+    <string name="placa">Placa:</string>
+    <string name="serial">Serial:</string>
+    <string name="vin">Vin:</string>
+    <string name="informacion">Información:</string>
+    <string name="ver_pdf">Información</string>
+    <string name="desea_ver_el_pdf">Desea ver el pdf con fotos?</string>
+    <string name="no_se_encontro_url_pdf">No se encontro url del pdf</string>
+    <string name="no_hay_aplicacion_para_abrir_pdf">No hay aplicacion para abrir el pdf</string>
+    <string name="prompt_username">Usuario</string>
+    <string name="action_login">INICIAR SESION</string>
+    <string name="register_new_account">No tiene cuenta? Registrese aqui</string>
+    <string name="consult">Consultar</string>
+    <string name="plate_number">Nro. Placa:</string>
+    <string name="serial_number">Nro. de Serial:</string>
+    <string name="search">Buscar</string>
+    <string name="take_picture">Tomar foto</string>
+    <string name="upload_picture">Subir foto</string>
+    <string name="register">Registrar</string>
+    <string name="download_pdf">Descargar PDF</string>
+    <string name="case_number_hint">Case Number</string>
+    <string name="case_token_hint">Case Token</string>
+    <string name="case_number_hint_2">Número de caso</string>
+    <string name="inspection_date_hint">Fecha de Inspección</string>
+    <string name="vehicle_brand_label">Marca del vehículo</string>
+    <string name="vehicle_model_label">Modelo del vehículo</string>
+    <string name="vehicle_type_label">Tipo del vehículo</string>
+    <string name="vehicle_year_hint">Año del Vehículo</string>
+    <string name="vehicle_color_label">Color del vehículo</string>
+    <string name="country_label">País</string>
+    <string name="state_label">Estado</string>
+    <string name="city_label">Ciudad</string>
+    <string name="full_name_hint">Nombre completo</string>
+    <string name="email_hint">Email</string>
+    <string name="vin_number_hint">Número de VIN</string>
+    <string name="vehicle_photos_label">Fotos del Vehículo</string>
+    <string name="cancel_button">Cancelar</string>
+    <string name="accept_button">Aceptar</string>
+    <string name="username_hint">Username</string>
+    <string name="email_hint_2">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="confirm_password_hint">Confirmar Password</string>
+    <string name="retry_button">Reintentar</string>
+    <string name="exit_button">Salir</string>
+
+    <string name="detail_info_format">
+        <![CDATA[
+        <b>Lado 1:</b> %1$s<br/>
+        <b>Lado 2:</b> %2$s<br/>
+        <b>Daño:</b> %3$s<br/>
+        <b>Tratamiento:</b> %4$s<br/>
+        <b>Costo de la pieza o parte:</b> %5$s<br/>
+        <b>Hora de pintura:</b> %6$s<br/>
+        <b>Costo material de pintura:</b> %7$s<br/>
+        <b>Horas de trabajo:</b> %8$s<br/>
+        <b>Mano de obra:</b> %9$s<br/>
+        ]]>
+    </string>
+
+</resources>
+
+    

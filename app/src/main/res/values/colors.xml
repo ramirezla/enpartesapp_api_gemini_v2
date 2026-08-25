@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="colorNegro">#000000</color>
+    <color name="my_button_color">#2C40A1</color>
+    <color name="light_blue">#E0F2F7</color>
+    <color name="light_gray">#F0F0F0</color>
+
+    <color name="select_button_color">#FF4081</color>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimaryButton">#3F51B5</color>
+
+    <color name="app_bar_main_azul">#2C40A1</color>
+    <color name="iron">#CCCCCC</color>
+    <color name="colorPrimaryDarkButton">#293583</color>
+    <color name="colorBlanco">#FFFFFF</color>
+    <color name="blue">#00abea</color>
+    <color name="naranja">#fc2b01</color>
+    <color name="rojo">#D50000</color>
+    <color name="naranjaclaro">#c8fc2b01</color>
+    <color name="window_background">#FFF5F5F5</color>
+    <color name="primaryColor">#346D7D</color>
+    <color name="primaryDarkColor">#1F515F</color>
+    <color name="accentColor">#03A9F4</color>
+    <color name="grisBajo">#d0d2d1</color>
+    <color name="grisMedio">#AAACAB</color>
+    <color name="grisAlto">#757675</color>
+    <color name="transparente">#00F5F5F5</color>
+    <color name="azultransparente">#7c2b388e</color>
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="windowBackground">#FFFFFF</color>
+    <color name="navigationBarColor">#000000</color>
+    <color name="colortabseleccionado">#fc2b01</color>
+    <color name="blue_pressed">#1976D2</color>
+    <color name="my_high_contrast_text_color">#FF000000</color> <!-- Black -->
+    <color name="my_high_contrast_background_color">#FFFFFFFF</color> <!-- White -->
+    <color name="my_low_contrast_text_color">#FF000000</color> <!-- Black -->
+    <color name="my_low_contrast_background_color">#FFFFFFFF</color> <!-- White -->
+</resources>
