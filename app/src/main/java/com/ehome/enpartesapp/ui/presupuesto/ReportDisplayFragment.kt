@@ -220,38 +220,40 @@ class ReportDisplayFragment : Fragment() {
 
         // Descripción de daños
         builder.append("--- DESCRIPCIÓN DE DAÑOS ---\n")
-        val damage = json.getJSONObject("DescripcionDanosExistentes")
-        damage.keys().forEach { key ->
+        val damage = json.optJSONObject("DescripcionDanosExistentes")
+        damage?.keys()?.forEach { key ->
             builder.append("$key: ${damage.getString(key)}\n")
         }
         builder.append("\n")
 
         // Piezas afectadas y costos
         builder.append("--- PIEZAS AFECTADAS Y COSTOS ---\n")
-        val piezas = json.getJSONArray("ListadoPiezasAfectadas")
+        val piezas = json.optJSONArray("ListadoPiezasAfectadas")
         //val costoHora = json.getJSONObject("DatosGenerales").getDouble("CostoHoraManoObra")
         val costoHora = json.optJSONObject("DatosGenerales")?.optDouble("CostoHoraManoObra", 0.0) ?: 0.0
         var totalManoObra = 0.0
         var totalPiezas = 0.0
 
-        for (i in 0 until piezas.length()) {
-            val pieza = piezas.getJSONObject(i)
-            val nombre = pieza.optString("Pieza", "Pieza desconocida")
-            val accion = pieza.optString("Accion", "N/A")
-            val costoPieza = pieza.optDouble("CostoPieza", 0.0)
-            val manoObra = getManoObraObject(pieza)
+        if (piezas != null) {
+            for (i in 0 until piezas.length()) {
+                val pieza = piezas.getJSONObject(i)
+                val nombre = pieza.optString("Pieza", "Pieza desconocida")
+                val accion = pieza.optString("Accion", "N/A")
+                val costoPieza = pieza.optDouble("CostoPieza", 0.0)
+                val manoObra = getManoObraObject(pieza)
 
-            builder.append("$nombre ($accion)\n")
-            manoObra?.keys()?.forEach { tipo ->
-                if (tipo != "TotalHoras") {
-                    val horas = manoObra.optDouble(tipo, 0.0)
-                    val costo = horas * costoHora
-                    builder.append("  $tipo: $${"%.2f".format(costo)} (${horas}h * $${costoHora}/h)\n")
-                    totalManoObra += costo
+                builder.append("$nombre ($accion)\n")
+                manoObra?.keys()?.forEach { tipo ->
+                    if (tipo != "TotalHoras") {
+                        val horas = manoObra.optDouble(tipo, 0.0)
+                        val costo = horas * costoHora
+                        builder.append("  $tipo: $${"%.2f".format(costo)} (${horas}h * $${costoHora}/h)\n")
+                        totalManoObra += costo
+                    }
                 }
+                builder.append("  Costo pieza: $${"%.2f".format(costoPieza)}\n\n")
+                totalPiezas += costoPieza
             }
-            builder.append("  Costo pieza: $${"%.2f".format(costoPieza)}\n\n")
-            totalPiezas += costoPieza
         }
 
         // Totales
@@ -262,9 +264,11 @@ class ReportDisplayFragment : Fragment() {
 
         // Consideraciones adicionales
         builder.append("--- CONSIDERACIONES ADICIONALES ---\n")
-        val consideraciones = json.getJSONArray("ConsideracionesAdicionales")
-        for (i in 0 until consideraciones.length()) {
-            builder.append("- ${consideraciones.getString(i)}\n")
+        val consideraciones = json.optJSONArray("ConsideracionesAdicionales")
+        if (consideraciones != null) {
+            for (i in 0 until consideraciones.length()) {
+                builder.append("- ${consideraciones.getString(i)}\n")
+            }
         }
 
         return builder.toString()
@@ -275,8 +279,12 @@ class ReportDisplayFragment : Fragment() {
             "HorasManoObra", "HorasManoDeObra", "Trabajo", "Labores")
 
         for (key in possibleKeys) {
-            if (pieza.has(key)) {
-                return pieza.getJSONObject(key)
+            val value = pieza.opt(key)
+            if (value is JSONObject) {
+                return value
+            } else if (value is Number) {
+                // Si es un número (horas), lo envolvemos en un JSONObject para que el resto de la lógica funcione
+                return JSONObject().put("Mano de Obra ($key)", value.toDouble())
             }
         }
         return null
@@ -284,7 +292,8 @@ class ReportDisplayFragment : Fragment() {
 
     private fun JSONObject.getFirstMatchingKey(vararg keys: String): JSONObject? {
         for (key in keys) {
-            if (this.has(key)) return this.getJSONObject(key)
+            val value = this.opt(key)
+            if (value is JSONObject) return value
         }
         return null
     }
@@ -295,50 +304,54 @@ class ReportDisplayFragment : Fragment() {
         // 1. Descripción de daños
         val damageCard = view?.findViewById<View>(R.id.cvDamageDescription)
         val damageText = view?.findViewById<TextView>(R.id.tvDamageDescriptionContent)
-        val damage = json.getJSONObject("DescripcionDanosExistentes")
-        val damageFormatted = damage.keys().asSequence().joinToString("\n\n") { key ->
-            "$key: ${damage.getString(key)}"
+        val damage = json.optJSONObject("DescripcionDanosExistentes")
+        if (damage != null) {
+            val damageFormatted = damage.keys().asSequence().joinToString("\n\n") { key ->
+                "$key: ${damage.getString(key)}"
+            }
+            damageText?.text = damageFormatted
+            damageCard?.visibility = View.VISIBLE
         }
-        damageText?.text = damageFormatted
-        damageCard?.visibility = View.VISIBLE
 
         // 2. Listado de piezas
         val partsCard = view?.findViewById<View>(R.id.cvAffectedParts)
         val container = view?.findViewById<LinearLayout>(R.id.llAffectedPartsContainer)
-        val piezas = json.getJSONArray("ListadoPiezasAfectadas")
+        val piezas = json.optJSONArray("ListadoPiezasAfectadas")
         //val costoHora = json.getJSONObject("DatosGenerales").getDouble("CostoHoraManoObra")
         val costoHora = json.optJSONObject("DatosGenerales")?.optDouble("CostoHoraManoObra", 0.0) ?: 0.0
 
         var totalManoObra = 0.0
         var totalPiezas = 0.0
 
-        for (i in 0 until piezas.length()) {
-            val pieza = piezas.getJSONObject(i)
-            val nombre = pieza.optString("Pieza", "Pieza desconocida")
-            val accion = pieza.optString("Accion", "N/A")
-            val costoPieza = pieza.optDouble("CostoPieza", 0.0)
-            val manoObra = getManoObraObject(pieza)
+        if (piezas != null) {
+            for (i in 0 until piezas.length()) {
+                val pieza = piezas.getJSONObject(i)
+                val nombre = pieza.optString("Pieza", "Pieza desconocida")
+                val accion = pieza.optString("Accion", "N/A")
+                val costoPieza = pieza.optDouble("CostoPieza", 0.0)
+                val manoObra = getManoObraObject(pieza)
 
-            val piezaTextView = TextView(requireContext())
-            piezaTextView.text = buildString {
-                append("$nombre\n")
-                manoObra?.keys()?.forEach { tipo ->
-                    if (tipo != "TotalHoras") {
-                        val horas = manoObra.optDouble(tipo, 0.0)
-                        val costo = horas * costoHora
-                        append("  Costo de $tipo: $%.2f (%.1f horas * $%.2f/hora)\n".format(costo, horas, costoHora))
-                        totalManoObra += costo
+                val piezaTextView = TextView(requireContext())
+                piezaTextView.text = buildString {
+                    append("$nombre\n")
+                    manoObra?.keys()?.forEach { tipo ->
+                        if (tipo != "TotalHoras") {
+                            val horas = manoObra.optDouble(tipo, 0.0)
+                            val costo = horas * costoHora
+                            append("  Costo de $tipo: $%.2f (%.1f horas * $%.2f/hora)\n".format(costo, horas, costoHora))
+                            totalManoObra += costo
+                        }
                     }
+                    append("  Costo de Pieza ($accion): $%.2f\n".format(costoPieza))
+                    totalPiezas += costoPieza
                 }
-                append("  Costo de Pieza ($accion): $%.2f\n".format(costoPieza))
-                totalPiezas += costoPieza
+                piezaTextView.layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                piezaTextView.setPadding(0, 0, 0, 16)
+                container?.addView(piezaTextView)
             }
-            piezaTextView.layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            piezaTextView.setPadding(0, 0, 0, 16)
-            container?.addView(piezaTextView)
         }
 
         view?.findViewById<TextView>(R.id.tvTotalLaborCost)?.text = "$%.2f".format(totalManoObra)
@@ -349,12 +362,14 @@ class ReportDisplayFragment : Fragment() {
         // 3. Consideraciones adicionales
         val considerationsCard = view?.findViewById<View>(R.id.cvAdditionalConsiderations)
         val considerationsText = view?.findViewById<TextView>(R.id.tvAdditionalConsiderationsContent)
-        val consideraciones = json.getJSONArray("ConsideracionesAdicionales")
-        val formatted = (0 until consideraciones.length()).joinToString("\n\n") {
-            "- ${consideraciones.getString(it)}"
+        val consideraciones = json.optJSONArray("ConsideracionesAdicionales")
+        if (consideraciones != null) {
+            val formatted = (0 until consideraciones.length()).joinToString("\n\n") {
+                "- ${consideraciones.getString(it)}"
+            }
+            considerationsText?.text = formatted
+            considerationsCard?.visibility = View.VISIBLE
         }
-        considerationsText?.text = formatted
-        considerationsCard?.visibility = View.VISIBLE
     }
 
     private fun parseAndPopulateInputData(inputData: String) {

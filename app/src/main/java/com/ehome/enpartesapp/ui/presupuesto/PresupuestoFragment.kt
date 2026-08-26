@@ -148,7 +148,7 @@ class PresupuestoFragment : Fragment() {
     var HF_API_KEY = ""
 
     private var fotoList: MutableList<FotoItem> = mutableListOf()
-    
+
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: FotoAdapter
     private var currentPhotoUri: Uri? = null
@@ -188,7 +188,7 @@ class PresupuestoFragment : Fragment() {
             "Camaro","Caprice","Captiva","Cavalier","Cobalt","Colorado","Corvette","Cruze","D-Max","Epica/Tosca",
             "Equinox","Express","HHR","Impala","Joy","Lanus","Lumina","Malibu","Monte Carlo","Nexia/Cielo/Racer","N300",
             "N400","Optra/Lacetti/Nubira","Onix","Orlando","Prizm","S-10 Blazer/Jimmy","S10 Pickup/Sonoma","SS","SSR","Sail",
-            "Silverado","Spark/Matiz/Beato","Suburban","Tacuma/Rezzo/Vivant","Tahoe","TrailBlazer","Tracker","Traverse",
+            "Silverado","Spark/Matiz/Beato","Suburban","Tahoe","TrailBlazer","Tracker","Traverse",
             "Uplander","Venture","Volt"),
         "Chery" to arrayOf("Seleccione un modelo...", "A1","A11","A13","A15","A3/M11","A5","Eastar/B11","Exceed/Exceed TX",
             "IndiS","Karry Youya","QQ3/S11","QQ6/S21","Tiggo","Tiggo 2 Pro","Tiggo 3/3x/2 (A13T)", "Tiggo 4 Pro","Tiggo 5 (T21)",
@@ -284,8 +284,9 @@ class PresupuestoFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // geminiModel = GenerativeModel(modelName = "gemini-1.5-flash", apiKey = BuildConfig.GEMINI_API_KEY)
-        geminiModel = GenerativeModel(modelName = "gemini-3.7-flash", apiKey = BuildConfig.GEMINI_API_KEY)
+        // Cambiado a gemini-1.5-flash para corregir el error 404
+        // Otros modelos: gemini-2.5-flash, gemini-3.6-flash, gemini-3.7-flash
+        geminiModel = GenerativeModel(modelName = "gemini-3.6-flash", apiKey = BuildConfig.GEMINI_API_KEY)
 
         requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
