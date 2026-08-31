@@ -143,14 +143,32 @@ class ReportDisplayFragment : Fragment() {
             val fileName = "Reporte_${caseNumber}_${safeDate}.txt"
 
             // Crear intent para guardar en Google Drive
+            // https://drive.google.com/drive/folders/1P6M15944n7ALXk4HAs1lgb3tZSxSNXBh?usp=drive_link
+
             val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TITLE, fileName)
-                // Intentar abrir directamente la carpeta ValoracionDeDannos
-                putExtra(DocumentsContract.EXTRA_INITIAL_URI,
-                    "content://com.google.android.apps.docs.storage/document/acc=1;root=ValoracionDeDannos")
+
+                // El ID real de la carpeta de Google Drive
+                val folderId = "https://drive.google.com/drive/folders/1P6M15944n7ALXk4HAs1lgb3tZSxSNXBh?usp=drive_link"
+                val driveUri = DocumentsContract.buildDocumentUri(
+                    "com.google.android.apps.docs.storage",
+                    "acc=1;doc=$folderId"
+                )
+
+                putExtra(DocumentsContract.EXTRA_INITIAL_URI, driveUri)
             }
+
+//          Cambio para usar drive.google.com/drive/folders/1P6M15944n7ALXk4HAs1lgb3tZSxSNXBh?usp=drive_link
+//            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+//                addCategory(Intent.CATEGORY_OPENABLE)
+//                type = "text/plain"
+//                putExtra(Intent.EXTRA_TITLE, fileName)
+//                // Intentar abrir directamente la carpeta ValoracionDeDannos
+//                putExtra(DocumentsContract.EXTRA_INITIAL_URI,
+//                    "content://com.google.android.apps.docs.storage/document/acc=1;root=ValoracionDeDannos")
+//            }
 
             startActivityForResult(intent, REQUEST_CODE_CREATE_FILE)
         } catch (e: Exception) {
