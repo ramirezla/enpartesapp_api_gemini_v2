@@ -3,7 +3,7 @@
  * Propósito: Gestiona la interfaz de usuario y la lógica para generar informes de presupuesto y daños de vehículos mediante IA.
  *
  * Este fragmento permite a los usuarios ingresar información del vehículo, capturar o subir fotos de daños,
- * y generar un informe detallado utilizando varios modelos de IA (Gemini, OpenAI, Hugging Face).
+ * y generar un informe detallado utilizando el modelo de IA Google Gemini.
  * Información Crítica (Muy Relevante para la IA), Estos datos afectan directamente la precisión de la estimación de costos y la identificación de piezas:
  * 1.- Marca y Modelo: Es fundamental. Los costos de las piezas y la complejidad del desarme varían drásticamente entre un "Toyota Corolla" y un "Acura MDX".
  * 2.- Año del Vehículo: Crucial para la compatibilidad de piezas. Un modelo 2010 y uno 2024 del mismo vehículo pueden tener componentes estructurales y tecnológicos (como sensores) totalmente diferentes.
@@ -54,11 +54,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
@@ -176,14 +171,10 @@ class FotoAdapter(
  * Fragmento para crear un informe de presupuesto/daños de vehículo.
  *
  * Este fragmento recopila datos del vehículo (marca, modelo, año, etc.) y fotos de los daños.
- * Utiliza modelos de IA (Gemini, ChatGPT o Hugging Face) para generar un informe de daños detallado
+ * Utiliza el modelo de IA Google Gemini para generar un informe de daños detallado
  * y costos estimados basados en la información e imágenes proporcionadas.
  */
 class PresupuestoFragment : Fragment() {
-
-    var OPENAI_API_KEY = ""
-    var HF_MODEL = ""
-    var HF_API_KEY = ""
 
     private var fotoList: MutableList<FotoItem> = mutableListOf()
 
@@ -923,250 +914,6 @@ class PresupuestoFragment : Fragment() {
 
                     Toast.makeText(requireContext(), "Error al conectar con la API de Gemini: ${e.message}", Toast.LENGTH_LONG).show()
                     Log.e("GeminiReport", "Error al conectar con la API de Gemini (UI Thread)", e)
-                }
-            }
-        }
-    }
-
-    /**
-     * Genera un informe de daños utilizando la API OpenAI ChatGPT (GPT-4).
-     *
-     * Prepara un prompt basado en texto con los detalles del vehículo y lo envía a la API de ChatGPT.
-     * Nota: Esta versión actualmente solo envía texto, no las imágenes.
-     */
-    private fun generateDamageReportWithChatGPT() {
-        progressBar.visibility = VISIBLE
-        btnAceptar.isEnabled = false
-        btnCancelar.isEnabled = false
-
-        val vehicleData = mapOf(
-            "marca" to spinnerMarcaVehiculo.selectedItem.toString(),
-            "modelo" to spinnerModeloVehiculo.selectedItem.toString(),
-            "anio" to etVehicleYear.text.toString(),
-            "ubicacion" to spinnerCity.selectedItem.toString() + ", " + spinnerCountry.selectedItem.toString(),
-            "color" to spinnerVehicleColor.selectedItem.toString()
-        )
-        val costoHoraManoObra = 20.0
-
-        val promptText = """
-        Eres un perito automotriz profesional especializado en valoración de daños de vehículos. Tu tarea es generar un informe detallado de daños, indicando si hay partes para reemplazar y reparar para un vehículo chocado.
-
-        Información del vehículo:
-        - Marca: ${vehicleData["marca"]}
-        - Modelo: ${vehicleData["modelo"]}
-        - Año: ${vehicleData["anio"]}
-        - Color: ${vehicleData["color"]}
-        - Ubicación de Valoración: ${vehicleData["ubicacion"]}
-        - Costo por hora de mano de obra: $costoHoraManoObra
-
-        El informe debe contener las siguientes secciones estructuradas en formato JSON:
-        1. "DatosGenerales"
-        2. "DescripcionDanosExistentes"
-        3. "ListadoPiezasAfectadas"
-        4. "ConsideracionesAdicionales"
-
-        Genera el JSON completo sin explicación adicional.
-    """.trimIndent()
-
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val client = OkHttpClient()
-
-                val jsonBody = """
-                {
-                  "model": "gpt-4o",
-                  "messages": [
-                    {"role": "system", "content": "Eres un perito automotriz especializado."},
-                    {"role": "user", "content": ${JSONObject.quote(promptText)}}
-                  ],
-                  "temperature": 0.7
-                }
-            """.trimIndent()
-
-                val request = Request.Builder()
-                    .url("https://api.openai.com/v1/chat/completions")
-                    .addHeader("Authorization", "Bearer $OPENAI_API_KEY")
-                    .addHeader("Content-Type", "application/json")
-                    .post(jsonBody.toRequestBody("application/json".toMediaType()))
-                    .build()
-
-                val response = client.newCall(request).execute()
-                val responseBody = response.body?.string()
-
-                withContext(Dispatchers.Main) {
-                    progressBar.visibility = GONE
-                    btnAceptar.isEnabled = true
-                    btnCancelar.isEnabled = true
-
-                    if (response.isSuccessful && responseBody != null) {
-                        val json = JSONObject(responseBody)
-                        val outputText = json
-                            .getJSONArray("choices")
-                            .getJSONObject(0)
-                            .getJSONObject("message")
-                            .getString("content")
-
-                        val cleanJson = outputText
-                            .substringAfter("```json", outputText)
-                            .substringBefore("```", outputText)
-                            .trim()
-
-                        showDialog("Informe generado por ChatGPT", cleanJson)
-
-                        val bundle = Bundle().apply {
-                            putString("input_data", promptText)
-                            putString("api_response", cleanJson)
-                        }
-                        findNavController().navigate(R.id.action_nav_presupuestofragment_to_reportDisplayFragment, bundle)
-
-                    } else {
-                        Toast.makeText(requireContext(), "Error: ${response.code} - ${response.message}", Toast.LENGTH_LONG).show()
-                        Log.e("ChatGPT", "Fallo en la API: ${responseBody}")
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    progressBar.visibility = GONE
-                    btnAceptar.isEnabled = true
-                    btnCancelar.isEnabled = true
-                    Toast.makeText(requireContext(), "Error al conectar con OpenAI: ${e.message}", Toast.LENGTH_LONG).show()
-                    Log.e("ChatGPT", "Error al llamar a la API de OpenAI", e)
-                }
-            }
-        }
-    }
-
-    private fun formatInputData(vehicleData: Map<String, String>): String {
-        return """
-            --- Información General ---
-            Número de Caso: ${etCaseNumber.text}
-            Fecha de Inspección: ${etDateOfInspection.text}
-            --- Información Vehiculo ---
-            Marca: ${vehicleData["marca"]}
-            Modelo: ${vehicleData["modelo"]}
-            Número de VIN: ${etVINnumber.text}
-            Año: ${vehicleData["anio"]}
-            Color: ${vehicleData["color"]}
-            --- Ubicación ---
-            Ubicación de Valoración: ${vehicleData["ubicacion"]}
-            --- Información Inspector ---
-            Nombre Completo: ${etFullName.text}
-            Email: ${etEmail.text}
-            --- Información de Costos ---
-            Costo por hora de mano de obra: 20.0
-            Fotos adjuntas: ${fotoList.count { it.imagenUri != null }}
-            ---------------------------
-        """.trimIndent()
-    }
-
-    /**
-     * Genera un informe de daños utilizando un modelo alojado en Hugging Face.
-     *
-     * Prepara un prompt basado en texto y lo envía a la API de Inferencia de Hugging Face.
-     */
-    private fun generateDamageReportWithHuggingFace() {
-        progressBar.visibility = VISIBLE
-        btnAceptar.isEnabled = false
-        btnCancelar.isEnabled = false
-
-        val vehicleData = mapOf(
-            "marca" to spinnerMarcaVehiculo.selectedItem.toString(),
-            "modelo" to spinnerModeloVehiculo.selectedItem.toString(),
-            "anio" to etVehicleYear.text.toString(),
-            "ubicacion" to spinnerCity.selectedItem.toString() + ", " + spinnerCountry.selectedItem.toString(),
-            "color" to spinnerVehicleColor.selectedItem.toString()
-        )
-        val costoHoraManoObra = 20.0
-
-        val promptText = """
-        Eres un perito automotriz profesional. Genera un informe detallado de daños en formato JSON con las siguientes secciones:
-        1. "DatosGenerales": Incluye marca, modelo, año, color, ubicación y costo por hora.
-        2. "DescripcionDanosExistentes": Describe los daños por zona.
-        3. "ListadoPiezasAfectadas": Lista de componentes con acción sugerida, horas estimadas y costo.
-        4. "ConsideracionesAdicionales": Puntos importantes a considerar.
-
-        Información del vehículo:
-        - Marca: ${vehicleData["marca"]}
-        - Modelo: ${vehicleData["modelo"]}
-        - Año: ${vehicleData["anio"]}
-        - Color: ${vehicleData["color"]}
-        - Ubicación: ${vehicleData["ubicacion"]}
-        - Costo por hora: $costoHoraManoObra
-
-        Devuelve SOLO el JSON válido sin comentarios adicionales.
-    """.trimIndent()
-
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val client = OkHttpClient()
-                val jsonBody = """
-                {
-                    "inputs": "${promptText.replace("\n", "\\n").replace("\"", "\\\"")}",
-                    "parameters": {
-                        "max_new_tokens": 1500,
-                        "temperature": 0.7,
-                        "return_full_text": false
-                    }
-                }
-                """.trimIndent()
-
-                val request = Request.Builder()
-                    .url("https://api-inference.huggingface.co/models/$HF_MODEL")
-                    .addHeader("Authorization", "Bearer $HF_API_KEY")
-                    .addHeader("Content-Type", "application/json")
-                    .post(jsonBody.toRequestBody("application/json".toMediaType()))
-                    .build()
-
-                val response = client.newCall(request).execute()
-                val responseBody = response.body?.string()
-
-                withContext(Dispatchers.Main) {
-                    progressBar.visibility = GONE
-                    btnAceptar.isEnabled = true
-                    btnCancelar.isEnabled = true
-
-                    if (response.isSuccessful && !responseBody.isNullOrEmpty()) {
-                        try {
-                            // Hugging Face devuelve un array de objetos, tomamos el primero
-                            val jsonArray = JSONArray(responseBody)
-                            val jsonOutput = if (jsonArray.length() > 0) {
-                                jsonArray.getJSONObject(0).getString("generated_text")
-                            } else {
-                                throw JSONException("Respuesta vacía")
-                            }
-
-                            // Limpiar la respuesta si es necesario
-                            val cleanJson = jsonOutput
-                                .substringAfter("{", jsonOutput)
-                                .substringBeforeLast("}") + "}"
-                                .replace("\\n", "\n")
-                                .replace("\\\"", "\"")
-
-                            val reportJson = JSONObject(cleanJson)
-                            showDialog("Informe generado por Hugging Face", reportJson.toString(2))
-
-                            val bundle = Bundle().apply {
-                                putString("input_data", formatInputData(vehicleData))
-                                putString("api_response", reportJson.toString(2))
-                            }
-                            findNavController().navigate(R.id.action_nav_presupuestofragment_to_reportDisplayFragment, bundle)
-
-                        } catch (e: JSONException) {
-                            Toast.makeText(requireContext(), "Error al procesar la respuesta JSON: ${e.message}", Toast.LENGTH_LONG).show()
-                            Log.e("HuggingFace", "Error parsing JSON: $responseBody", e)
-                        }
-                    } else {
-                        Toast.makeText(requireContext(), "Error en la API: ${response.code} - ${response.message}", Toast.LENGTH_LONG).show()
-                        Log.e("HuggingFace", "API error: ${response.code} - $responseBody")
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    progressBar.visibility = GONE
-                    btnAceptar.isEnabled = true
-                    btnCancelar.isEnabled = true
-                    Toast.makeText(requireContext(), "Error de conexión: ${e.message}", Toast.LENGTH_LONG).show()
-                    Log.e("HuggingFace", "Network error", e)
                 }
             }
         }
