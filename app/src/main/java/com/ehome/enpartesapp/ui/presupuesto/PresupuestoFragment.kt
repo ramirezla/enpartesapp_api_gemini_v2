@@ -442,9 +442,15 @@ class PresupuestoFragment : Fragment() {
 
         spinnerTipoFotoVin.setSelection(0)
 
+        val oldSize = fotoList.size
         fotoList.clear()
         fotoList.add(FotoItem())
-        adapter.notifyDataSetChanged()
+        
+        if (oldSize > 0) {
+            adapter.notifyItemRangeRemoved(0, oldSize)
+        }
+        adapter.notifyItemInserted(0)
+        
         Log.d("PresupuestoFragment", "Formulario limpiado.")
     }
 
@@ -560,7 +566,7 @@ class PresupuestoFragment : Fragment() {
         } else {
             fotoList.clear()
             fotoList.add(FotoItem())
-            adapter.notifyDataSetChanged()
+            adapter.notifyItemChanged(0)
             Log.d("PresupuestoFragment", "Última línea de foto borrada y restablecida a una por defecto.")
         }
     }
