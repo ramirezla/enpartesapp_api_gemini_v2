@@ -2,6 +2,12 @@ package com.ehome.enpartesapp.ui.presupuesto
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.pdf.PdfDocument
+import android.net.Uri
 import android.os.Bundle
 import android.provider.DocumentsContract
 import android.util.Log
@@ -9,6 +15,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -16,6 +23,7 @@ import androidx.fragment.app.Fragment
 import com.ehome.enpartesapp.R
 import org.json.JSONObject
 import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -61,16 +69,37 @@ class ReportDisplayFragment : Fragment() {
         tvInspectorEmailValue = view.findViewById(R.id.tvInspectorEmailValue)
         tvCostPerHourValue = view.findViewById(R.id.tvCostPerHourValue)
 
+        val llPhotosContainer: LinearLayout = view.findViewById(R.id.llPhotosContainer)
+        val cvAnalyzedPhotos: View = view.findViewById(R.id.cvAnalyzedPhotos)
+
         //val btnBack: Button = view.findViewById(R.id.btnVolver)
         val btnSaveLocal: Button = view.findViewById(R.id.btnSaveLocal)
         val btnSaveDrive: Button = view.findViewById(R.id.btnSaveDrive)
 
-        // Procesar datos de entrada
         arguments?.let {
             val inputData = it.getString("input_data") ?: ""
             val apiResponse = it.getString("api_response") ?: ""
+            val photoUris = it.getStringArrayList("photo_uris")
+            
             parseAndPopulateInputData(inputData)
             parseApiResponse(apiResponse)
+            
+            if (!photoUris.isNullOrEmpty()) {
+                cvAnalyzedPhotos.visibility = View.VISIBLE
+                photoUris.forEach { uriString ->
+                    val imageView = ImageView(requireContext()).apply {
+                        layoutParams = LinearLayout.LayoutParams(400, 400).apply {
+                            setMargins(0, 0, 16, 0)
+                        }
+                        scaleType = ImageView.ScaleType.CENTER_CROP
+                        setImageURI(Uri.parse(uriString))
+                        setOnClickListener {
+                            // Opcional: mostrar imagen en pantalla completa o diálogo
+                        }
+                    }
+                    llPhotosContainer.addView(imageView)
+                }
+            }
         }
 
         // Configurar listeners de botones
@@ -114,9 +143,14 @@ class ReportDisplayFragment : Fragment() {
             val reportFile = File(reportsDir, "Reporte_${caseNumber}_${safeDate}.txt")
             reportFile.writeText(formattedReport)
 
+            // Generar y guardar PDF
+            val photoUris = arguments?.getStringArrayList("photo_uris") ?: arrayListOf()
+            val pdfFile = File(reportsDir, "Reporte_${caseNumber}_${safeDate}.pdf")
+            generatePdfReport(formattedReport, photoUris, pdfFile)
+
             Toast.makeText(
                 requireContext(),
-                "Reportes guardados en:\n${reportsDir.absolutePath}",
+                "Reportes guardados (JSON, TXT, PDF) en:\n${reportsDir.absolutePath}",
                 Toast.LENGTH_LONG
             ).show()
         } catch (e: Exception) {
@@ -138,16 +172,12 @@ class ReportDisplayFragment : Fragment() {
         }
 
         try {
-            //val formattedReport = formatFullReport(apiResponse)
             val safeDate = inspectionDate.replace("/", "-").replace(":", "-")
-            val fileName = "Reporte_${caseNumber}_${safeDate}.txt"
-
-            // Crear intent para guardar en Google Drive
-            // https://drive.google.com/drive/folders/1P6M15944n7ALXk4HAs1lgb3tZSxSNXBh?usp=drive_link
+            val fileName = "Reporte_${caseNumber}_${safeDate}.pdf"
 
             val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
-                type = "text/plain"
+                type = "application/pdf"
                 putExtra(Intent.EXTRA_TITLE, fileName)
 
                 // El ID real de la carpeta de Google Drive
@@ -189,14 +219,25 @@ class ReportDisplayFragment : Fragment() {
                 try {
                     val apiResponse = arguments?.getString("api_response") ?: return
                     val formattedReport = formatFullReport(apiResponse)
+                    val photoUris = arguments?.getStringArrayList("photo_uris") ?: arrayListOf()
 
-                    requireContext().contentResolver.openOutputStream(uri)?.use {
-                        it.write(formattedReport.toByteArray())
+                    // Creamos un archivo temporal para generar el PDF
+                    val tempFile = File(requireContext().cacheDir, "temp_report.pdf")
+                    generatePdfReport(formattedReport, photoUris, tempFile)
+
+                    // Escribimos el contenido del archivo temporal al URI de Drive
+                    requireContext().contentResolver.openOutputStream(uri)?.use { outputStream ->
+                        tempFile.inputStream().use { inputStream ->
+                            inputStream.copyTo(outputStream)
+                        }
                     }
+                    
+                    // Borramos el temporal
+                    tempFile.delete()
 
                     Toast.makeText(
                         requireContext(),
-                        "Reporte guardado en Google Drive",
+                        "Reporte PDF guardado en Google Drive",
                         Toast.LENGTH_LONG
                     ).show()
                 } catch (e: Exception) {
@@ -290,6 +331,136 @@ class ReportDisplayFragment : Fragment() {
         }
 
         return builder.toString()
+    }
+
+    private fun generatePdfReport(reportText: String, photoUris: List<String>, outputFile: File) {
+        val pdfDocument = PdfDocument()
+        val paint = Paint()
+        val titlePaint = Paint()
+
+        // Configuración de página (A4 aprox 595 x 842)
+        val pageWidth = 595
+        val pageHeight = 842
+        var pageNumber = 1
+        var pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+        var page = pdfDocument.startPage(pageInfo)
+        var canvas = page.canvas
+
+        paint.textSize = 12f
+        titlePaint.textSize = 16f
+        titlePaint.isFakeBoldText = true
+
+        val x = 50f
+        var y = 50f
+        val margin = 50f
+        val contentWidth = pageWidth - (margin * 2)
+
+        // Escribir texto del reporte
+        val lines = reportText.split("\n")
+        for (line in lines) {
+            // Verificar si necesitamos una nueva página para el texto
+            if (y > pageHeight - margin) {
+                pdfDocument.finishPage(page)
+                pageNumber++
+                pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+                page = pdfDocument.startPage(pageInfo)
+                canvas = page.canvas
+                y = margin
+            }
+
+            if (line.startsWith("===") || line.startsWith("---")) {
+                canvas.drawText(line, x, y, titlePaint)
+            } else {
+                // Manejar líneas largas (envoltura simple)
+                if (paint.measureText(line) > contentWidth) {
+                    val words = line.split(" ")
+                    var currentLine = ""
+                    for (word in words) {
+                        if (paint.measureText("$currentLine $word") > contentWidth) {
+                            canvas.drawText(currentLine, x, y, paint)
+                            y += 20f
+                            currentLine = word
+                        } else {
+                            currentLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+                        }
+                    }
+                    canvas.drawText(currentLine, x, y, paint)
+                } else {
+                    canvas.drawText(line, x, y, paint)
+                }
+            }
+            y += 20f
+        }
+
+        // Agregar separador antes de las fotos
+        if (y > pageHeight - 100) {
+            pdfDocument.finishPage(page)
+            pageNumber++
+            pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+            page = pdfDocument.startPage(pageInfo)
+            canvas = page.canvas
+            y = margin
+        }
+        
+        y += 20f
+        canvas.drawLine(x, y, pageWidth - x, y, paint)
+        y += 30f
+        canvas.drawText("--- FOTOS ANALIZADAS ---", x, y, titlePaint)
+        y += 40f
+
+        // Agregar fotos
+        for (uriString in photoUris) {
+            try {
+                val uri = Uri.parse(uriString)
+                val inputStream = requireContext().contentResolver.openInputStream(uri)
+                val originalBitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream?.close()
+
+                if (originalBitmap != null) {
+                    // Escalar bitmap para que quepa en la página
+                    val maxWidth = contentWidth
+                    val maxHeight = pageHeight / 3f
+                    
+                    val scale = Math.min(maxWidth / originalBitmap.width, maxHeight / originalBitmap.height)
+                    val scaledWidth = (originalBitmap.width * scale).toInt()
+                    val scaledHeight = (originalBitmap.height * scale).toInt()
+                    
+                    val scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, scaledWidth, scaledHeight, true)
+
+                    // Verificar si cabe en la página actual
+                    if (y + scaledHeight > pageHeight - margin) {
+                        pdfDocument.finishPage(page)
+                        pageNumber++
+                        pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+                        page = pdfDocument.startPage(pageInfo)
+                        canvas = page.canvas
+                        y = margin
+                    }
+
+                    canvas.drawBitmap(scaledBitmap, x, y, paint)
+                    y += scaledHeight + 20f
+                    
+                    // Opcional: liberar memoria
+                    if (scaledBitmap != originalBitmap) {
+                        scaledBitmap.recycle()
+                    }
+                    originalBitmap.recycle()
+                }
+            } catch (e: Exception) {
+                Log.e("PdfReport", "Error agregando imagen al PDF: ${e.message}")
+            }
+        }
+
+        pdfDocument.finishPage(page)
+
+        try {
+            pdfDocument.writeTo(FileOutputStream(outputFile))
+            Log.d("PdfReport", "PDF generado exitosamente en: ${outputFile.absolutePath}")
+        } catch (e: Exception) {
+            Log.e("PdfReport", "Error escribiendo PDF: ${e.message}")
+        } finally {
+            pdfDocument.close()
+        }
     }
 
     private fun getManoObraObject(pieza: JSONObject): JSONObject? {

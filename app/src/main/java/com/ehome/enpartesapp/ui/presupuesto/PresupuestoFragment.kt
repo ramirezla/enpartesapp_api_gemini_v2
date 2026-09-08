@@ -4,6 +4,7 @@
  *
  * Este fragmento permite a los usuarios ingresar información del vehículo, capturar o subir fotos de daños,
  * y generar un informe detallado utilizando el modelo de IA Google Gemini.
+ *
  * Información Crítica (Muy Relevante para la IA), Estos datos afectan directamente la precisión de la estimación de costos y la identificación de piezas:
  * 1.- Marca y Modelo: Es fundamental. Los costos de las piezas y la complejidad del desarme varían drásticamente entre un "Toyota Corolla" y un "Acura MDX".
  * 2.- Año del Vehículo: Crucial para la compatibilidad de piezas. Un modelo 2010 y uno 2024 del mismo vehículo pueden tener componentes estructurales y tecnológicos (como sensores) totalmente diferentes.
@@ -888,6 +889,12 @@ class PresupuestoFragment : Fragment() {
                             val bundle = Bundle().apply {
                                 putString("input_data", commonInfo) // Tus datos de entrada
                                 putString("api_response", reportJson.toString(2)) // La respuesta JSON de la API
+                                // Pasar las URIs de las fotos
+                                val photoUris = ArrayList<String>()
+                                fotoList.forEach { item ->
+                                    item.imagenUri?.let { photoUris.add(it.toString()) }
+                                }
+                                putStringArrayList("photo_uris", photoUris)
                             }
                             findNavController().navigate(R.id.action_nav_presupuestofragment_to_reportDisplayFragment, bundle)
                             //limpiarFormulario()

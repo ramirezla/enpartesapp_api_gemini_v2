@@ -203,6 +203,7 @@
     <string name="retry_button">Reintentar</string>
     <string name="exit_button">Salir</string>
     <string name="campos_obligatorios">* Campos obligatorios</string>
+    <string name="fotos_analizadas_label">--- Fotos Analizadas ---</string>
 
     <string name="detail_info_format">
         <![CDATA[
