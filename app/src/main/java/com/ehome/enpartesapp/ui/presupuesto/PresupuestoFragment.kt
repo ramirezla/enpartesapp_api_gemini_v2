@@ -12,6 +12,11 @@
  * 4.- Ubicación (País/Ciudad): Muy relevante para que la IA ajuste los precios de los repuestos y la mano de obra al mercado local (ej. precios en Ecuador vs. Chile).
  * 5.- Costo de Mano de Obra: Esencial para que el cálculo matemático del presupuesto sea correcto.
  * 6.- Color: Relevante para el cálculo de los materiales de pintura, ya que algunos colores (como perlados o tricapas) son más costosos de aplicar y preparar.
+
+ * 1. Nueva Sección Visual: He añadido un componente CardView en la pantalla de reporte titulado "--- Fotos Analizadas ---".
+ * 2. Carrusel de Imágenes: Las fotos se muestran en un carrusel horizontal justo antes de los botones de guardado. Esto permite ver todas las imágenes capturadas sin ocupar demasiado espacio vertical.
+ * 3. Carga Dinámica: El ReportDisplayFragment ahora recibe las rutas de las fotos desde el formulario inicial y las renderiza automáticamente al cargar el informe.
+ * 4. Internacionalización: He añadido el recurso de texto necesario en   strings.xml para mantener las buenas prácticas del proyecto.
  */
 package com.ehome.enpartesapp.ui.presupuesto
 
