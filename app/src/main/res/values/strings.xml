@@ -182,18 +182,18 @@
     <string name="case_token_hint">Case Token</string>
     <string name="case_number_hint_2">Número de caso</string>
     <string name="inspection_date_hint">Fecha de Inspección</string>
-    <string name="vehicle_brand_label">Marca del vehículo</string>
-    <string name="vehicle_model_label">Modelo del vehículo</string>
+    <string name="vehicle_brand_label">Marca del vehículo *</string>
+    <string name="vehicle_model_label">Modelo del vehículo *</string>
     <string name="vehicle_type_label">Tipo del vehículo</string>
-    <string name="vehicle_year_hint">Año del Vehículo</string>
-    <string name="vehicle_color_label">Color del vehículo</string>
-    <string name="country_label">País</string>
-    <string name="state_label">Estado</string>
-    <string name="city_label">Ciudad</string>
+    <string name="vehicle_year_hint">Año del Vehículo *</string>
+    <string name="vehicle_color_label">Color del vehículo *</string>
+    <string name="country_label">País *</string>
+    <string name="state_label">Estado *</string>
+    <string name="city_label">Ciudad *</string>
     <string name="full_name_hint">Nombre completo</string>
     <string name="email_hint">Email</string>
     <string name="vin_number_hint">Número de VIN</string>
-    <string name="vehicle_photos_label">Fotos del Vehículo</string>
+    <string name="vehicle_photos_label">Fotos del Vehículo *</string>
     <string name="cancel_button">Cancelar</string>
     <string name="accept_button">Aceptar</string>
     <string name="username_hint">Username</string>
@@ -202,6 +202,7 @@
     <string name="confirm_password_hint">Confirmar Password</string>
     <string name="retry_button">Reintentar</string>
     <string name="exit_button">Salir</string>
+    <string name="campos_obligatorios">* Campos obligatorios</string>
 
     <string name="detail_info_format">
         <![CDATA[

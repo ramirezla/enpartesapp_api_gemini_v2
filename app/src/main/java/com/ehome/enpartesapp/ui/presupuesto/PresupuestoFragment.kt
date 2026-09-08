@@ -4,6 +4,13 @@
  *
  * Este fragmento permite a los usuarios ingresar información del vehículo, capturar o subir fotos de daños,
  * y generar un informe detallado utilizando varios modelos de IA (Gemini, OpenAI, Hugging Face).
+ * Información Crítica (Muy Relevante para la IA), Estos datos afectan directamente la precisión de la estimación de costos y la identificación de piezas:
+ * 1.- Marca y Modelo: Es fundamental. Los costos de las piezas y la complejidad del desarme varían drásticamente entre un "Toyota Corolla" y un "Acura MDX".
+ * 2.- Año del Vehículo: Crucial para la compatibilidad de piezas. Un modelo 2010 y uno 2024 del mismo vehículo pueden tener componentes estructurales y tecnológicos (como sensores) totalmente diferentes.
+ * 3.- Imágenes (Fotos): Es el dato más importante. Sin las fotos, la IA no tiene base para "ver" el daño.
+ * 4.- Ubicación (País/Ciudad): Muy relevante para que la IA ajuste los precios de los repuestos y la mano de obra al mercado local (ej. precios en Ecuador vs. Chile).
+ * 5.- Costo de Mano de Obra: Esencial para que el cálculo matemático del presupuesto sea correcto.
+ * 6.- Color: Relevante para el cálculo de los materiales de pintura, ya que algunos colores (como perlados o tricapas) son más costosos de aplicar y preparar.
  */
 package com.ehome.enpartesapp.ui.presupuesto
 
@@ -459,50 +466,48 @@ class PresupuestoFragment : Fragment() {
     }
 
     /**
-     * Valida que todos los campos de texto y spinners obligatorios estén completos.
+     * Valida que los campos obligatorios (Año, Marca, Modelo, Color y Ubicación) estén completos.
+     * Los campos como Número de Caso, Nombre, Email, VIN y Fecha de Inspección son opcionales.
      *
-     * @return Verdadero si todos los campos son válidos, falso en caso contrario.
+     * @return Verdadero si los campos obligatorios son válidos, falso en caso contrario.
      */
     private fun validarCampos(): Boolean {
-        Log.d("Validacion", "Iniciando validación de campos.")
-        val campos = listOf(
-            etCaseNumber.text,
-            etFullName.text,
-            etEmail.text,
-            etDateOfInspection.text,
-            etVINnumber.text,
-            etVehicleYear.text
-        )
-        val spinners = listOf(
-            spinnerTipoVehiculo,
-            spinnerMarcaVehiculo,
-            spinnerModeloVehiculo,
-            spinnerVehicleColor,
-            spinnerCountry,
-            spinnerState,
-            spinnerCity
-        )
+        Log.d("Validacion", "Iniciando validación de campos obligatorios.")
 
-        for (campo in campos) {
-            if (campo.isNullOrBlank()) {
-                Log.d("Validacion", "Campo vacío detectado.")
-                return false
-            }
-        }
-
-        for (spinner in spinners) {
-            if (spinner.selectedItemPosition == 0) {
-                Log.d("Validacion", "Spinner no seleccionado detectado.")
-                return false
-            }
-        }
-
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(etEmail.text.toString()).matches()) {
-            Log.d("Validacion", "Formato de email inválido.")
-            Toast.makeText(requireContext(), "Por favor, ingrese un email válido", Toast.LENGTH_SHORT).show()
+        // Validar Año (Obligatorio)
+        if (etVehicleYear.text.isNullOrBlank()) {
+            Log.d("Validacion", "Año del vehículo vacío.")
+            Toast.makeText(requireContext(), "El año del vehículo es obligatorio", Toast.LENGTH_SHORT).show()
             return false
         }
-        Log.d("Validacion", "Validación de campos completada y exitosa.")
+
+        // Validar Spinners Obligatorios
+        val spinnersObligatorios = mapOf(
+            spinnerMarcaVehiculo to "Marca",
+            spinnerModeloVehiculo to "Modelo",
+            spinnerVehicleColor to "Color",
+            spinnerCountry to "País",
+            spinnerState to "Estado/Provincia",
+            spinnerCity to "Ciudad"
+        )
+
+        for ((spinner, nombre) in spinnersObligatorios) {
+            if (spinner.selectedItemPosition == 0) {
+                Log.d("Validacion", "Spinner $nombre no seleccionado.")
+                Toast.makeText(requireContext(), "El campo $nombre es obligatorio", Toast.LENGTH_SHORT).show()
+                return false
+            }
+        }
+
+        // Validar formato de Email SOLO si no está vacío
+        val email = etEmail.text.toString()
+        if (email.isNotBlank() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Log.d("Validacion", "Formato de email inválido.")
+            Toast.makeText(requireContext(), "Por favor, ingrese un email válido o déjelo en blanco", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        Log.d("Validacion", "Validación de campos obligatorios exitosa.")
         return true
     }
 
@@ -861,22 +866,25 @@ class PresupuestoFragment : Fragment() {
                             val reportJson = JSONObject(cleanJsonOutput)
                             Log.d("GeminiReport", "Informe generado por Gemini:\n${reportJson.toString(2)}")
 
-                            // Información común del usuario y vehículo
+                            // Función auxiliar para manejar valores vacíos
+                            fun getValOrDefault(text: String?): String = if (text.isNullOrBlank()) "No especificado" else text
+
+                            // Información común del usuario y vehículo para el resumen
                             val commonInfo = """
                                 --- Información General ---
-                                Número de Caso: ${etCaseNumber.text}
-                                Fecha de Inspección: ${etDateOfInspection.text}
+                                Número de Caso: ${getValOrDefault(etCaseNumber.text?.toString())}
+                                Fecha de Inspección: ${getValOrDefault(etDateOfInspection.text?.toString())}
                                 --- Información Vehiculo ---
                                 Marca: ${vehicleData["marca"]}
                                 Modelo: ${vehicleData["modelo"]}
-                                Número de VIN: ${etVINnumber.text}
+                                Número de VIN: ${getValOrDefault(etVINnumber.text?.toString())}
                                 Año: ${vehicleData["anio"]}
                                 Color: ${vehicleData["color"]}
                                 --- Ubicación ---
                                 Ubicación de Valoración: ${vehicleData["ubicacion"]}
                                 --- Información Inspector ---
-                                Nombre Completo: ${etFullName.text}
-                                Email: ${etEmail.text}
+                                Nombre Completo: ${getValOrDefault(etFullName.text?.toString())}
+                                Email: ${getValOrDefault(etEmail.text?.toString())}
                                 --- Información de Costos ---
                                 Costo por hora de mano de obra: $costoHoraManoObra
                                 Fotos adjuntas: ${imagesForGemini.size}
