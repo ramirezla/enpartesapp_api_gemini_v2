@@ -1,3 +1,10 @@
+/**
+ * Archivo: PresupuestoFragment.kt
+ * Propósito: Gestiona la interfaz de usuario y la lógica para generar informes de presupuesto y daños de vehículos mediante IA.
+ *
+ * Este fragmento permite a los usuarios ingresar información del vehículo, capturar o subir fotos de daños,
+ * y generar un informe detallado utilizando varios modelos de IA (Gemini, OpenAI, Hugging Face).
+ */
 package com.ehome.enpartesapp.ui.presupuesto
 
 import android.Manifest
@@ -54,12 +61,29 @@ import java.util.Date
 import java.util.Locale
 import com.ehome.enpartesapp.BuildConfig
 
+/**
+ * Clase de datos que representa un ítem de foto en el informe de presupuesto.
+ *
+ * @property imagenUri El URI de la imagen capturada o subida.
+ * @property tipoFoto El tipo o categoría de la foto (ej. frontal, lateral, VIN).
+ * @property isFotoTomada Bandera booleana que indica si la foto fue tomada con la cámara o subida desde la galería.
+ */
 data class FotoItem(
     var imagenUri: Uri? = null,
     var tipoFoto: String = "",
     var isFotoTomada: Boolean = false
 )
 
+/**
+ * Adaptador para el RecyclerView que muestra y gestiona las fotos del vehículo.
+ *
+ * @property context El contexto de la aplicación.
+ * @property fotoList La lista de [FotoItem] a mostrar.
+ * @property onAddClickListener Callback para cuando se hace clic en el botón "Agregar".
+ * @property onDeleteClickListener Callback para cuando se hace clic en el botón "Borrar" para una posición específica.
+ * @property onTakePhotoClickListener Callback para cuando se hace clic en el botón "Tomar Foto" para una posición específica.
+ * @property onUploadPhotoClickListener Callback para cuando se hace clic en el botón "Subir Foto" para una posición específica.
+ */
 class FotoAdapter(
     private val context: Context,
     private val fotoList: MutableList<FotoItem>,
@@ -141,6 +165,13 @@ class FotoAdapter(
     }
 }
 
+/**
+ * Fragmento para crear un informe de presupuesto/daños de vehículo.
+ *
+ * Este fragmento recopila datos del vehículo (marca, modelo, año, etc.) y fotos de los daños.
+ * Utiliza modelos de IA (Gemini, ChatGPT o Hugging Face) para generar un informe de daños detallado
+ * y costos estimados basados en la información e imágenes proporcionadas.
+ */
 class PresupuestoFragment : Fragment() {
 
     var OPENAI_API_KEY = ""
@@ -386,6 +417,9 @@ class PresupuestoFragment : Fragment() {
         return view
     }
 
+    /**
+     * Limpia todos los campos del formulario y restablece la lista de fotos.
+     */
     private fun limpiarFormulario() {
         etCaseNumber.text?.clear()
         etFullName.text?.clear()
@@ -410,6 +444,9 @@ class PresupuestoFragment : Fragment() {
         Log.d("PresupuestoFragment", "Formulario limpiado.")
     }
 
+    /**
+     * Valida los datos del formulario y las fotos del vehículo. Si son válidos, inicia la generación del informe de daños.
+     */
     private fun validarYProcesarDatos() {
         Log.d("PresupuestoFragment", "validarYProcesarDatos() called.")
         if (validarCampos() && validarFotosVehiculo()) {
@@ -421,6 +458,11 @@ class PresupuestoFragment : Fragment() {
         }
     }
 
+    /**
+     * Valida que todos los campos de texto y spinners obligatorios estén completos.
+     *
+     * @return Verdadero si todos los campos son válidos, falso en caso contrario.
+     */
     private fun validarCampos(): Boolean {
         Log.d("Validacion", "Iniciando validación de campos.")
         val campos = listOf(
@@ -464,6 +506,11 @@ class PresupuestoFragment : Fragment() {
         return true
     }
 
+    /**
+     * Valida que se haya agregado al menos una foto y que todas las fotos tengan un URI de imagen y un tipo seleccionado.
+     *
+     * @return Verdadero si las fotos son válidas, falso en caso contrario.
+     */
     private fun validarFotosVehiculo(): Boolean {
         Log.d("Validacion", "Iniciando validación de fotos del vehículo.")
         if (fotoList.isEmpty()) {
@@ -487,12 +534,21 @@ class PresupuestoFragment : Fragment() {
         return true
     }
 
+    /**
+     * Agrega un nuevo [FotoItem] vacío a la lista y notifica al adaptador.
+     */
     private fun agregarLinea() {
         fotoList.add(FotoItem())
         adapter.notifyItemInserted(fotoList.size - 1)
         Log.d("PresupuestoFragment", "Nueva línea de foto agregada. Total: ${fotoList.size}")
     }
 
+    /**
+     * Elimina un [FotoItem] en la posición especificada.
+     * Si es el último ítem, lo limpia en lugar de eliminarlo para mantener al menos una fila.
+     *
+     * @param position La posición del ítem a eliminar.
+     */
     private fun borrarLinea(position: Int) {
         if (fotoList.size > 1) {
             fotoList.removeAt(position)
@@ -507,6 +563,9 @@ class PresupuestoFragment : Fragment() {
         }
     }
 
+    /**
+     * Muestra un [DatePickerDialog] para seleccionar la fecha de inspección.
+     */
     private fun mostrarDatePicker() {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -523,6 +582,10 @@ class PresupuestoFragment : Fragment() {
         datePickerDialog.show()
     }
 
+    /**
+     * Muestra un diálogo para seleccionar el año del vehículo.
+     * Personaliza un [DatePickerDialog] para mostrar solo el selector de año.
+     */
     private fun mostrarYearPicker() {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -544,6 +607,12 @@ class PresupuestoFragment : Fragment() {
         yearPickerDialog.show()
     }
 
+    /**
+     * Activa la cámara para tomar una foto para una posición específica en la lista.
+     * Verifica primero los permisos de la cámara.
+     *
+     * @param position La posición del ítem de foto en el adaptador.
+     */
     private fun tomarFoto(position: Int) {
         Log.d("PresupuestoFragment", "Attempting to take photo for position $position.")
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -570,11 +639,22 @@ class PresupuestoFragment : Fragment() {
         }
     }
 
+    /**
+     * Lanza el selector de archivos del sistema para subir una imagen desde la galería.
+     *
+     * @param position La posición del ítem de foto en el adaptador.
+     */
     private fun subirFoto(position: Int) {
         Log.d("PresupuestoFragment", "Attempting to upload photo for position $position.")
         uploadPhotoLauncher.launch("image/*")
     }
 
+    /**
+     * Crea un archivo temporal en el directorio de almacenamiento externo de la aplicación para guardar una foto capturada.
+     *
+     * @param tipoFoto El tipo de foto, utilizado en el nombre del archivo.
+     * @return El [File] creado.
+     */
     private fun crearArchivoTemporal(tipoFoto: String): File {
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val storageDir: File? = requireContext().getExternalFilesDir(null)
@@ -598,6 +678,9 @@ class PresupuestoFragment : Fragment() {
         Log.d("PresupuestoFragment", "Spinner Tipo Vehículo configurado.")
     }
 
+    /**
+     * Configura el Spinner para las marcas de vehículos y establece un listener para actualizar el Spinner de modelos.
+     */
     private fun configurarSpinnerMarcasVehiculosEcuador() {
         val marcas = modelosPorMarca.keys.toTypedArray()
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, marcas)
@@ -676,6 +759,13 @@ class PresupuestoFragment : Fragment() {
         Log.d("PresupuestoFragment", "Spinner City configurado para estado: $state")
     }
 
+    /**
+     * Genera un informe de daños utilizando el modelo de IA Google Gemini.
+     *
+     * Este método prepara un prompt con los datos del vehículo, convierte las imágenes seleccionadas en bitmaps,
+     * y las envía a la API de Gemini. Se espera que la respuesta sea una cadena JSON
+     * que represente el informe de daños, la cual luego se procesa y muestra.
+     */
     private fun generateDamageReport() {
         Log.d("GeminiReport", "generateDamageReport() called. Preparando prompt e imágenes.")
 
@@ -830,6 +920,12 @@ class PresupuestoFragment : Fragment() {
         }
     }
 
+    /**
+     * Genera un informe de daños utilizando la API OpenAI ChatGPT (GPT-4).
+     *
+     * Prepara un prompt basado en texto con los detalles del vehículo y lo envía a la API de ChatGPT.
+     * Nota: Esta versión actualmente solo envía texto, no las imágenes.
+     */
     private fun generateDamageReportWithChatGPT() {
         progressBar.visibility = VISIBLE
         btnAceptar.isEnabled = false
@@ -955,6 +1051,11 @@ class PresupuestoFragment : Fragment() {
         """.trimIndent()
     }
 
+    /**
+     * Genera un informe de daños utilizando un modelo alojado en Hugging Face.
+     *
+     * Prepara un prompt basado en texto y lo envía a la API de Inferencia de Hugging Face.
+     */
     private fun generateDamageReportWithHuggingFace() {
         progressBar.visibility = VISIBLE
         btnAceptar.isEnabled = false
@@ -1063,6 +1164,12 @@ class PresupuestoFragment : Fragment() {
         }
     }
 
+    /**
+     * Convierte un [Uri] en un [Bitmap].
+     *
+     * @param uri El URI de la imagen a convertir.
+     * @return El [Bitmap] resultante, o nulo si falla la conversión.
+     */
     private fun uriToBitmap(uri: Uri): Bitmap? {
         return try {
             requireContext().contentResolver.openInputStream(uri)?.use { inputStream ->
