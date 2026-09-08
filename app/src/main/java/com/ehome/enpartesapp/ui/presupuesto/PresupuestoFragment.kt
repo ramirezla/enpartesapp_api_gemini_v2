@@ -768,28 +768,39 @@ class PresupuestoFragment : Fragment() {
     }
 
     /**
-     * Muestra un diálogo para seleccionar el año del vehículo.
-     * Personaliza un [DatePickerDialog] para mostrar solo el selector de año.
+     * Muestra un diálogo para seleccionar el año del vehículo utilizando un NumberPicker.
+     * Esto evita el uso de DatePickerDialog para selección de solo año, eliminando warnings de deprecación.
      */
     private fun mostrarYearPicker() {
         val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
+        val currentYear = calendar.get(Calendar.YEAR)
+        
+        val numberPicker = android.widget.NumberPicker(requireContext()).apply {
+            minValue = 1950 // Año mínimo razonable para vehículos
+            maxValue = currentYear + 1 // Permitir el año siguiente (modelos nuevos)
+            value = if (etVehicleYear.text.isNullOrBlank()) currentYear else etVehicleYear.text.toString().toInt()
+            wrapSelectorWheel = false
+        }
 
-        val yearPickerDialog = DatePickerDialog(
-            requireContext(),
-            AlertDialog.THEME_HOLO_LIGHT,
-            { _, selectedYear, _, _ ->
-                etVehicleYear.setText(selectedYear.toString())
-                Log.d("PresupuestoFragment", "Año del vehículo seleccionado: $selectedYear")
-            },
-            year,
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        )
+        val container = android.widget.FrameLayout(requireContext()).apply {
+            val params = android.widget.FrameLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                gravity = android.view.Gravity.CENTER
+            }
+            addView(numberPicker, params)
+        }
 
-        yearPickerDialog.datePicker.findViewById<View>(resources.getIdentifier("android:id/day", null, null))?.visibility = View.GONE
-        yearPickerDialog.datePicker.findViewById<View>(resources.getIdentifier("android:id/month", null, null))?.visibility = View.GONE
-        yearPickerDialog.show()
+        AlertDialog.Builder(requireContext())
+            .setTitle("Seleccione el Año")
+            .setView(container)
+            .setPositiveButton("Aceptar") { _, _ ->
+                etVehicleYear.setText(numberPicker.value.toString())
+                Log.d("PresupuestoFragment", "Año del vehículo seleccionado: ${numberPicker.value}")
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     /**
