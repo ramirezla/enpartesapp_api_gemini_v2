@@ -17,7 +17,19 @@
  * 2. Carrusel de Imágenes: Las fotos se muestran en un carrusel horizontal justo antes de los botones de guardado. Esto permite ver todas las imágenes capturadas sin ocupar demasiado espacio vertical.
  * 3. Carga Dinámica: El ReportDisplayFragment ahora recibe las rutas de las fotos desde el formulario inicial y las renderiza automáticamente al cargar el informe.
  * 4. Internacionalización: He añadido el recurso de texto necesario en   strings.xml para mantener las buenas prácticas del proyecto.
+
+Nuevo Mapa de Costos (laborCostByCountry): He definido valores estimados en USD por hora para cada país basándome en promedios de mercado para talleres independientes:
+ * Estados Unidos: $120.0
+ * Argentina: $60.0 (ajustado por volatilidad)
+ * Brasil / Uruguay: $35.0
+ * Chile / Panamá: $30.0
+ * Colombia: $28.0
+ * México / Costa Rica: $25.0
+ * Ecuador / Perú / Venezuela: $20.0
+ * Bolivia / Paraguay: $15.0 - $18.0
+ * Lógica Dinámica en el Reporte: En el método generateDamageReport(), ahora la variable costoHoraManoObra ya no es fija. El sistema detecta qué país seleccionó el usuario en el formulario y extrae el valor correspondiente del mapa. Si el país no está en la lista, utiliza el valor base de $20.0 por seguridad.
  */
+
 package com.ehome.enpartesapp.ui.presupuesto
 
 import android.Manifest
@@ -249,14 +261,18 @@ class PresupuestoFragment : Fragment() {
         "Otra" to arrayOf("Seleccione un modelo...", "Otro Modelo")
     )
 
-    private val colors = arrayOf("Seleccione un color...", "Blanco","Blanco Perlado","Blanco Hueso",
-        "Negro","Negro Brillante","Negro Mate","Gris","Gris Plata","Gris Oscuro","Gris Grafito",
-        "Gris Acero","Gris Cemento","Beige","Champán","Azul","Azul Marino","Azul Cielo",
-        "Azul Eléctrico","Azul Rey","Azul Petróleo","Azul Noche","Rojo","Rojo Vino","Rojo Cereza",
-        "Rojo Brillante","Rojo Naranja","Verde","Verde Oscuro","Verde Oliva","Verde Lima",
-        "Verde Esmeralda","Verde Menta","Amarillo","Amarillo Patito","Naranja","Naranja Cobrizo",
-        "Marrón","Marrón Chocolate","Bronce","Cobre","Púrpura","Morado","Lila","Rosado","Dorado",
-        "Turquesa","Crema","Otro")
+    private val colors = arrayOf(
+        "Seleccione un color...",
+        "Amarillo", "Azul", "Azul Cielo", "Azul Eléctrico", "Azul Marino", "Azul Metálico", "Azul Noche", "Azul Petróleo", "Azul Rey",
+        "Beige", "Blanco", "Blanco Hueso", "Blanco Perlado", "Bronce",
+        "Café / Marrón", "Champán", "Cobre", "Crema", "Dorado",
+        "Gris", "Gris Acero", "Gris Cemento", "Gris Grafito", "Gris Oscuro", "Gris Plata",
+        "Morado / Púrpura", "Naranja", "Naranja Cobrizo",
+        "Negro", "Negro Brillante", "Negro Mate", "Plateado",
+        "Rojo", "Rojo Brillante", "Rojo Cereza", "Rojo Vino", "Rosado",
+        "Turquesa", "Verde", "Verde Esmeralda", "Verde Lima", "Verde Menta", "Verde Oliva", "Verde Oscuro",
+        "Otro"
+    )
 
     private val countries = arrayOf(
         "Seleccione un país...",
@@ -270,8 +286,8 @@ class PresupuestoFragment : Fragment() {
         "Bolivia" to arrayOf("Seleccione un estado...", "Cochabamba", "La Paz", "Santa Cruz"),
         "Brasil" to arrayOf("Seleccione un estado...", "Bahia", "Minas Gerais", "Paraná", "Rio de Janeiro", "São Paulo"),
         "Chile" to arrayOf("Seleccione un estado...", "Antofagasta", "Biobío", "Región Metropolitana", "Valparaíso"),
-        "Colombia" to arrayOf("Seleccione un estado...", "Antioquia", "Atlántico", "Bolívar", "Cundinamarca", "Valle del Cauca"),
-        "Costa Rica" to arrayOf("Seleccione un estado...", "Alajuela", "Heredia", "San José"),
+        "Colombia" to arrayOf("Seleccione un estado...", "Amazonas", "Antioquia", "Arauca", "Atlántico", "Bolívar", "Boyacá", "Caldas", "Caquetá", "Casanare", "Cauca", "Cesar", "Chocó", "Córdoba", "Cundinamarca", "Guainía", "Guaviare", "Huila", "La Guajira", "Magdalena", "Meta", "Nariño", "Norte de Santander", "Putumayo", "Quindío", "Risaralda", "San Andrés y Providencia", "Santander", "Sucre", "Tolima", "Valle del Cauca", "Vaupés", "Vichada"),
+        "Costa Rica" to arrayOf("Seleccione un estado...", "Alajuela", "Cartago", "Guanacaste", "Heredia", "Limón", "Puntarenas", "San José"),
         "Ecuador" to arrayOf(
             "Seleccione un estado...",
             "Azuay", "Bolívar", "Cañar", "Carchi", "Chimborazo", "Cotopaxi", "El Oro", "Esmeraldas",
@@ -279,30 +295,80 @@ class PresupuestoFragment : Fragment() {
             "Napo", "Orellana", "Pastaza", "Pichincha", "Santa Elena", "Santo Domingo de los Tsáchilas",
             "Sucumbíos", "Tungurahua", "Zamora Chinchipe"
         ),
-        "Estados Unidos" to arrayOf("Seleccione un estado...", "California", "Florida", "Illinois", "New York", "Texas"),
-        "México" to arrayOf("Seleccione un estado...", "Ciudad de México", "Estado de México", "Jalisco", "Nuevo León", "Puebla"),
-        "Panamá" to arrayOf("Seleccione un estado...", "Chiriquí", "Colón", "Panamá", "Veraguas"),
-        "Paraguay" to arrayOf("Seleccione un estado...", "Alto Paraná", "Asunción", "Central"),
-        "Perú" to arrayOf("Seleccione un estado...", "Arequipa", "Callao", "Cusco", "La Libertad", "Lima"),
-        "Uruguay" to arrayOf("Seleccione un estado...", "Canelones", "Maldonado", "Montevideo"),
-        "Venezuela" to arrayOf("Seleccione un estado...", "Aragua", "Carabobo", "Caracas/Dtto. Capital", "Lara", "Miranda", "Zulia")
+        "Estados Unidos" to arrayOf("Seleccione un estado...", "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"),
+        "México" to arrayOf("Seleccione un estado...", "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua", "Ciudad de México", "Coahuila", "Colima", "Durango", "Estado de México", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"),
+        "Panamá" to arrayOf("Seleccione un estado...", "Bocas del Toro", "Chiriquí", "Coclé", "Colón", "Darién", "Herrera", "Los Santos", "Panamá", "Panamá Oeste", "Veraguas"),
+        "Paraguay" to arrayOf("Seleccione un estado...", "Alto Paraguay", "Alto Paraná", "Amambay", "Asunción", "Boquerón", "Caaguazú", "Caazapá", "Canindeyú", "Central", "Concepción", "Cordillera", "Guairá", "Itapúa", "Misiones", "Ñeembucú", "Paraguarí", "Presidente Hayes", "San Pedro"),
+        "Perú" to arrayOf("Seleccione un estado...", "Amazonas", "Ancash", "Apurímac", "Arequipa", "Ayacucho", "Cajamarca", "Callao", "Cusco", "Huancavelica", "Huánuco", "Ica", "Junín", "La Libertad", "Lambayeque", "Lima", "Loreto", "Madre de Dios", "Moquegua", "Pasco", "Piura", "Puno", "San Martín", "Tacna", "Tumbes", "Ucayali"),
+        "Uruguay" to arrayOf("Seleccione un estado...", "Artigas", "Canelones", "Cerro Largo", "Colonia", "Durazno", "Flores", "Florida", "Lavalleja", "Maldonado", "Montevideo", "Paysandú", "Río Negro", "Rivera", "Rocha", "Salto", "San José", "Soriano", "Tacuarembó", "Treinta y Tres"),
+        "Venezuela" to arrayOf("Seleccione un estado...", "Amazonas", "Anzoátegui", "Apure", "Aragua", "Barinas", "Bolívar", "Carabobo", "Cojedes", "Delta Amacuro", "Distrito Capital", "Falcón", "Guárico", "Lara", "Mérida", "Miranda", "Monagas", "Nueva Esparta", "Portuguesa", "Sucre", "Táchira", "Trujillo", "Vargas (La Guaira)", "Yaracuy", "Zulia")
     )
     private val citiesByState: Map<String, Array<String>> = mapOf(
         "Seleccione un estado..." to arrayOf("Seleccione una ciudad..."),
         // Argentina
-        "Buenos Aires" to arrayOf("Seleccione una ciudad...", "La Plata", "Mar del Plata"),
-        "Córdoba" to arrayOf("Seleccione una ciudad...", "Córdoba", "Villa Carlos Paz"),
+        "Buenos Aires" to arrayOf("Seleccione una ciudad...", "La Plata", "Mar del Plata", "Bahía Blanca", "Tandil"),
+        "Córdoba" to arrayOf("Seleccione una ciudad...", "Córdoba", "Villa Carlos Paz", "Río Cuarto"),
+        "Mendoza" to arrayOf("Seleccione una ciudad...", "Mendoza", "San Rafael"),
+        "Santa Fe" to arrayOf("Seleccione una ciudad...", "Santa Fe", "Rosario"),
+        "Tucumán" to arrayOf("Seleccione una ciudad...", "San Miguel de Tucumán"),
+
+        // Bolivia
+        "Cochabamba" to arrayOf("Seleccione una ciudad...", "Cochabamba"),
+        "La Paz" to arrayOf("Seleccione una ciudad...", "La Paz", "El Alto"),
+        "Santa Cruz" to arrayOf("Seleccione una ciudad...", "Santa Cruz de la Sierra"),
+
         // Brasil
-        "Rio de Janeiro" to arrayOf("Seleccione una ciudad...", "Niterói", "Rio de Janeiro"),
-        "São Paulo" to arrayOf("Seleccione una ciudad...", "Campinas", "São Paulo"),
+        "Bahia" to arrayOf("Seleccione una ciudad...", "Salvador"),
+        "Minas Gerais" to arrayOf("Seleccione una ciudad...", "Belo Horizonte"),
+        "Paraná" to arrayOf("Seleccione una ciudad...", "Curitiba"),
+        "Rio de Janeiro" to arrayOf("Seleccione una ciudad...", "Rio de Janeiro", "Niterói", "Duque de Caxias"),
+        "São Paulo" to arrayOf("Seleccione una ciudad...", "São Paulo", "Campinas", "Santos", "SBC"),
+
         // Chile
-        "Antofagasta" to arrayOf("Seleccione una ciudad...", "Antofagasta"),
-        "Biobío" to arrayOf("Seleccione una ciudad...", "Concepción"),
-        "Región Metropolitana" to arrayOf("Seleccione una ciudad...", "Santiago"),
-        "Valparaíso" to arrayOf("Seleccione una ciudad...", "Valparaíso", "Viña del Mar"),
+        "Antofagasta" to arrayOf("Seleccione una ciudad...", "Antofagasta", "Calama"),
+        "Biobío" to arrayOf("Seleccione una ciudad...", "Concepción", "Talcahuano"),
+        "Región Metropolitana" to arrayOf("Seleccione una ciudad...", "Santiago", "Puente Alto", "Maipú"),
+        "Valparaíso" to arrayOf("Seleccione una ciudad...", "Valparaíso", "Viña del Mar", "Quilpué"),
+
         // Colombia
-        "Antioquia" to arrayOf("Seleccione una ciudad...", "Envigado", "Medellín"),
-        "Cundinamarca" to arrayOf("Seleccione una ciudad...", "Bogotá", "Soacha"),
+        "Amazonas" to arrayOf("Seleccione una ciudad...", "Leticia"),
+        "Antioquia" to arrayOf("Seleccione una ciudad...", "Medellín", "Bello", "Itagüí", "Envigado", "Apartadó", "Rionegro"),
+        "Arauca" to arrayOf("Seleccione una ciudad...", "Arauca"),
+        "Atlántico" to arrayOf("Seleccione una ciudad...", "Barranquilla", "Soledad", "Malambo"),
+        "Bolívar" to arrayOf("Seleccione una ciudad...", "Cartagena", "Magangué"),
+        "Boyacá" to arrayOf("Seleccione una ciudad...", "Tunja", "Duitama", "Sogamoso"),
+        "Caldas" to arrayOf("Seleccione una ciudad...", "Manizales"),
+        "Caquetá" to arrayOf("Seleccione una ciudad...", "Florencia"),
+        "Casanare" to arrayOf("Seleccione una ciudad...", "Yopal"),
+        "Cauca" to arrayOf("Seleccione una ciudad...", "Popayán"),
+        "Cesar" to arrayOf("Seleccione una ciudad...", "Valledupar"),
+        "Chocó" to arrayOf("Seleccione una ciudad...", "Quibdó"),
+        "Córdoba" to arrayOf("Seleccione una ciudad...", "Montería"),
+        "Cundinamarca" to arrayOf("Seleccione una ciudad...", "Bogotá", "Soacha", "Facatativá", "Girardot", "Zipaquirá"),
+        "Guainía" to arrayOf("Seleccione una ciudad...", "Inírida"),
+        "Guaviare" to arrayOf("Seleccione una ciudad...", "San José del Guaviare"),
+        "Huila" to arrayOf("Seleccione una ciudad...", "Neiva"),
+        "La Guajira" to arrayOf("Seleccione una ciudad...", "Riohacha", "Maicao"),
+        "Magdalena" to arrayOf("Seleccione una ciudad...", "Santa Marta", "Ciénaga"),
+        "Meta" to arrayOf("Seleccione una ciudad...", "Villavicencio"),
+        "Nariño" to arrayOf("Seleccione una ciudad...", "Pasto", "Tumaco"),
+        "Norte de Santander" to arrayOf("Seleccione una ciudad...", "Cúcuta", "Ocaña"),
+        "Putumayo" to arrayOf("Seleccione una ciudad...", "Mocoa"),
+        "Quindío" to arrayOf("Seleccione una ciudad...", "Armenia"),
+        "Risaralda" to arrayOf("Seleccione una ciudad...", "Pereira", "Dosquebradas"),
+        "San Andrés y Providencia" to arrayOf("Seleccione una ciudad...", "San Andrés"),
+        "Santander" to arrayOf("Seleccione una ciudad...", "Bucaramanga", "Floridablanca", "Barrancabermeja"),
+        "Sucre" to arrayOf("Seleccione una ciudad...", "Sincelejo"),
+        "Tolima" to arrayOf("Seleccione una ciudad...", "Ibagué"),
+        "Valle del Cauca" to arrayOf("Seleccione una ciudad...", "Cali", "Buenaventura", "Palmira", "Tuluá", "Cartago", "Buga"),
+        "Vaupés" to arrayOf("Seleccione una ciudad...", "Mitú"),
+        "Vichada" to arrayOf("Seleccione una ciudad...", "Puerto Carreño"),
+
+        // Costa Rica
+        "Alajuela" to arrayOf("Seleccione una ciudad...", "Alajuela"),
+        "Heredia" to arrayOf("Seleccione una ciudad...", "Heredia"),
+        "San José" to arrayOf("Seleccione una ciudad...", "San José", "Escazú"),
+
         // Ecuador
         "Azuay" to arrayOf("Seleccione una ciudad...", "Cuenca", "Girón", "Gualaceo", "Paute", "Sígsig"),
         "Bolívar" to arrayOf("Seleccione una ciudad...", "Caluma", "Chimbo", "Guaranda", "San Miguel"),
@@ -328,22 +394,103 @@ class PresupuestoFragment : Fragment() {
         "Sucumbíos" to arrayOf("Seleccione una ciudad...", "Cascales", "Nueva Loja (Lago Agrio)", "Putumayo", "Shushufindi"),
         "Tungurahua" to arrayOf("Seleccione una ciudad...", "Ambato", "Baños de Agua Santa", "Patate", "Pelileo", "Píllaro"),
         "Zamora Chinchipe" to arrayOf("Seleccione una ciudad...", "El Pangui", "Yantzaza", "Zamora", "Zumba"),
+
         // Estados Unidos
-        "California" to arrayOf("Seleccione una ciudad...", "Los Angeles", "San Diego", "San Francisco"),
-        "Florida" to arrayOf("Seleccione una ciudad...", "Miami", "Orlando", "Tampa"),
-        "Texas" to arrayOf("Seleccione una ciudad...", "Austin", "Dallas", "Houston"),
+        "California" to arrayOf("Seleccione una ciudad...", "Los Angeles", "San Diego", "San Francisco", "San Jose", "Fresno"),
+        "Florida" to arrayOf("Seleccione una ciudad...", "Miami", "Orlando", "Tampa", "Jacksonville", "Tallahassee"),
+        "Illinois" to arrayOf("Seleccione una ciudad...", "Chicago", "Aurora", "Rockford"),
+        "New York" to arrayOf("Seleccione una ciudad...", "New York City", "Buffalo", "Rochester", "Albany"),
+        "Texas" to arrayOf("Seleccione una ciudad...", "Houston", "San Antonio", "Dallas", "Austin", "Fort Worth", "El Paso"),
+
         // México
+        "Aguascalientes" to arrayOf("Seleccione una ciudad...", "Aguascalientes"),
+        "Baja California" to arrayOf("Seleccione una ciudad...", "Tijuana", "Mexicali", "Ensenada"),
+        "Baja California Sur" to arrayOf("Seleccione una ciudad...", "La Paz", "Los Cabos"),
+        "Campeche" to arrayOf("Seleccione una ciudad...", "Campeche"),
+        "Chiapas" to arrayOf("Seleccione una ciudad...", "Tuxtla Gutiérrez", "Tapachula"),
+        "Chihuahua" to arrayOf("Seleccione una ciudad...", "Chihuahua", "Ciudad Juárez"),
         "Ciudad de México" to arrayOf("Seleccione una ciudad...", "Ciudad de México"),
-        "Jalisco" to arrayOf("Seleccione una ciudad...", "Guadalajara", "Zapopan"),
-        "Nuevo León" to arrayOf("Seleccione una ciudad...", "Monterrey", "San Pedro Garza García"),
+        "Coahuila" to arrayOf("Seleccione una ciudad...", "Saltillo", "Torreón"),
+        "Colima" to arrayOf("Seleccione una ciudad...", "Colima", "Manzanillo"),
+        "Durango" to arrayOf("Seleccione una ciudad...", "Durango"),
+        "Estado de México" to arrayOf("Seleccione una ciudad...", "Toluca", "Ecatepec", "Naucalpan", "Tlalnepantla"),
+        "Guanajuato" to arrayOf("Seleccione una ciudad...", "Guanajuato", "León", "Irapuato", "Celaya"),
+        "Guerrero" to arrayOf("Seleccione una ciudad...", "Chilpancingo", "Acapulco"),
+        "Hidalgo" to arrayOf("Seleccione una ciudad...", "Pachuca"),
+        "Jalisco" to arrayOf("Seleccione una ciudad...", "Guadalajara", "Zapopan", "Tlaquepaque", "Puerto Vallarta"),
+        "Michoacán" to arrayOf("Seleccione una ciudad...", "Morelia"),
+        "Morelos" to arrayOf("Seleccione una ciudad...", "Cuernavaca"),
+        "Nayarit" to arrayOf("Seleccione una ciudad...", "Tepic"),
+        "Nuevo León" to arrayOf("Seleccione una ciudad...", "Monterrey", "San Nicolás de los Garza", "San Pedro Garza García", "Guadalupe"),
+        "Oaxaca" to arrayOf("Seleccione una ciudad...", "Oaxaca"),
+        "Puebla" to arrayOf("Seleccione una ciudad...", "Puebla", "Tehuacán"),
+        "Querétaro" to arrayOf("Seleccione una ciudad...", "Querétaro"),
+        "Quintana Roo" to arrayOf("Seleccione una ciudad...", "Cancún", "Chetumal", "Playa del Carmen"),
+        "San Luis Potosí" to arrayOf("Seleccione una ciudad...", "San Luis Potosí"),
+        "Sinaloa" to arrayOf("Seleccione una ciudad...", "Culiacán", "Mazatlán"),
+        "Sonora" to arrayOf("Seleccione una ciudad...", "Hermosillo", "Ciudad Obregón"),
+        "Tabasco" to arrayOf("Seleccione una ciudad...", "Villahermosa"),
+        "Tamaulipas" to arrayOf("Seleccione una ciudad...", "Ciudad Victoria", "Reynosa", "Matamoros", "Nuevo Laredo"),
+        "Tlaxcala" to arrayOf("Seleccione una ciudad...", "Tlaxcala"),
+        "Veracruz" to arrayOf("Seleccione una ciudad...", "Xalapa", "Veracruz", "Coatzacoalcos"),
+        "Yucatán" to arrayOf("Seleccione una ciudad...", "Mérida"),
+        "Zacatecas" to arrayOf("Seleccione una ciudad...", "Zacatecas"),
+
         // Panamá
+        "Chiriquí" to arrayOf("Seleccione una ciudad...", "David"),
+        "Colón" to arrayOf("Seleccione una ciudad...", "Colón"),
         "Panamá" to arrayOf("Seleccione una ciudad...", "Ciudad de Panamá", "San Miguelito"),
+        "Veraguas" to arrayOf("Seleccione una ciudad...", "Santiago"),
+
         // Perú
-        "Lima" to arrayOf("Seleccione una ciudad...", "Callao", "Lima Metropolitana"),
+        "Arequipa" to arrayOf("Seleccione una ciudad...", "Arequipa"),
+        "Callao" to arrayOf("Seleccione una ciudad...", "Callao"),
+        "Cusco" to arrayOf("Seleccione una ciudad...", "Cusco"),
+        "La Libertad" to arrayOf("Seleccione una ciudad...", "Trujillo"),
+        "Lima" to arrayOf("Seleccione una ciudad...", "Lima Metropolitana"),
+
         // Venezuela
-        "Caracas/Dtto. Capital" to arrayOf("Seleccione una ciudad...", "Caracas"),
-        "Miranda" to arrayOf("Seleccione una ciudad...", "Baruta", "Chacao", "Los Teques"),
-        "Zulia" to arrayOf("Seleccione una ciudad...", "Cabimas", "Maracaibo")
+        "Amazonas" to arrayOf("Seleccione una ciudad...", "Puerto Ayacucho"),
+        "Anzoátegui" to arrayOf("Seleccione una ciudad...", "Barcelona", "Puerto La Cruz", "Lecheria", "Guanta", "El Tigre", "Anaco"),
+        "Apure" to arrayOf("Seleccione una ciudad...", "San Fernando de Apure"),
+        "Aragua" to arrayOf("Seleccione una ciudad...", "Maracay", "Turmero", "La Victoria"),
+        "Barinas" to arrayOf("Seleccione una ciudad...", "Barinas"),
+        "Bolívar" to arrayOf("Seleccione una ciudad...", "Ciudad Bolívar", "Ciudad Guayana", "Upata"),
+        "Carabobo" to arrayOf("Seleccione una ciudad...", "Valencia", "Puerto Cabello", "Guacara"),
+        "Cojedes" to arrayOf("Seleccione una ciudad...", "San Carlos"),
+        "Delta Amacuro" to arrayOf("Seleccione una ciudad...", "Tucupita"),
+        "Distrito Capital" to arrayOf("Seleccione una ciudad...", "Caracas"),
+        "Falcón" to arrayOf("Seleccione una ciudad...", "Coro", "Punto Fijo"),
+        "Guárico" to arrayOf("Seleccione una ciudad...", "San Juan de los Morros", "Valle de la Pascua", "Calabozo"),
+        "Lara" to arrayOf("Seleccione una ciudad...", "Barquisimeto", "Cabudare", "Carora"),
+        "Mérida" to arrayOf("Seleccione una ciudad...", "Mérida", "El Vigía"),
+        "Miranda" to arrayOf("Seleccione una ciudad...", "Los Teques", "Chacao", "Baruta", "Guarenas", "Guatire", "Petare"),
+        "Monagas" to arrayOf("Seleccione una ciudad...", "Maturín"),
+        "Nueva Esparta" to arrayOf("Seleccione una ciudad...", "La Asunción", "Porlamar"),
+        "Portuguesa" to arrayOf("Seleccione una ciudad...", "Guanare", "Acarigua"),
+        "Sucre" to arrayOf("Seleccione una ciudad...", "Cumaná", "Carúpano"),
+        "Táchira" to arrayOf("Seleccione una ciudad...", "San Cristóbal"),
+        "Trujillo" to arrayOf("Seleccione una ciudad...", "Trujillo", "Valera"),
+        "Vargas (La Guaira)" to arrayOf("Seleccione una ciudad...", "La Guaira", "Catia La Mar"),
+        "Yaracuy" to arrayOf("Seleccione una ciudad...", "San Felipe"),
+        "Zulia" to arrayOf("Seleccione una ciudad...", "Maracaibo", "Cabimas", "Ciudad Ojeda", "San Francisco")
+    )
+
+    private val laborCostByCountry: Map<String, Double> = mapOf(
+        "Argentina" to 60.0,
+        "Bolivia" to 15.0,
+        "Brasil" to 35.0,
+        "Chile" to 30.0,
+        "Colombia" to 28.0,
+        "Costa Rica" to 25.0,
+        "Ecuador" to 20.0,
+        "Estados Unidos" to 120.0,
+        "México" to 25.0,
+        "Panamá" to 30.0,
+        "Paraguay" to 18.0,
+        "Perú" to 20.0,
+        "Uruguay" to 35.0,
+        "Venezuela" to 20.0
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -841,7 +988,9 @@ class PresupuestoFragment : Fragment() {
             return
         }
 
-        val costoHoraManoObra = 20.0 // Double
+        val selectedCountry = spinnerCountry.selectedItem.toString()
+        val costoHoraManoObra = laborCostByCountry[selectedCountry] ?: 20.0
+        
         val promptText = """
             Eres un perito automotriz profesional especializado en valoración de daños de vehículos. Tu tarea es generar un informe detallado de daños, indicando si hay partes para reemplazar y reparar para un vehículo chocado.
 
