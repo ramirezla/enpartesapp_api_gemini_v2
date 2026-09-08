@@ -258,11 +258,20 @@ class PresupuestoFragment : Fragment() {
         "Marrón","Marrón Chocolate","Bronce","Cobre","Púrpura","Morado","Lila","Rosado","Dorado",
         "Turquesa","Crema","Otro")
 
-    private val countries = arrayOf("Seleccione un país...",
-        "Ecuador", "Colombia", "Perú", "Chile", "Argentina")
+    private val countries = arrayOf(
+        "Seleccione un país...",
+        "Argentina", "Bolivia", "Brasil", "Chile", "Colombia", "Costa Rica", "Ecuador", 
+        "Estados Unidos", "México", "Panamá", "Paraguay", "Perú", "Uruguay", "Venezuela"
+    )
 
     private val statesByCountry: Map<String, Array<String>> = mapOf(
         "Seleccione un país..." to arrayOf("Seleccione un estado..."),
+        "Argentina" to arrayOf("Seleccione un estado...", "Buenos Aires", "Córdoba", "Mendoza", "Santa Fe", "Tucumán"),
+        "Bolivia" to arrayOf("Seleccione un estado...", "Cochabamba", "La Paz", "Santa Cruz"),
+        "Brasil" to arrayOf("Seleccione un estado...", "Bahia", "Minas Gerais", "Paraná", "Rio de Janeiro", "São Paulo"),
+        "Chile" to arrayOf("Seleccione un estado...", "Antofagasta", "Biobío", "Región Metropolitana", "Valparaíso"),
+        "Colombia" to arrayOf("Seleccione un estado...", "Antioquia", "Atlántico", "Bolívar", "Cundinamarca", "Valle del Cauca"),
+        "Costa Rica" to arrayOf("Seleccione un estado...", "Alajuela", "Heredia", "San José"),
         "Ecuador" to arrayOf(
             "Seleccione un estado...",
             "Azuay", "Bolívar", "Cañar", "Carchi", "Chimborazo", "Cotopaxi", "El Oro", "Esmeraldas",
@@ -270,50 +279,71 @@ class PresupuestoFragment : Fragment() {
             "Napo", "Orellana", "Pastaza", "Pichincha", "Santa Elena", "Santo Domingo de los Tsáchilas",
             "Sucumbíos", "Tungurahua", "Zamora Chinchipe"
         ),
-        "Colombia" to arrayOf("Seleccione un estado...", "Cundinamarca", "Antioquia", "Valle del Cauca"),
-        "Perú" to arrayOf("Seleccione un estado...", "Lima", "Arequipa", "Cusco"),
-        "Chile" to arrayOf("Seleccione un estado...", "Región Metropolitana", "Valparaíso", "Biobío"),
-        "Argentina" to arrayOf("Seleccione un estado...", "Buenos Aires", "Córdoba", "Santa Fe")
+        "Estados Unidos" to arrayOf("Seleccione un estado...", "California", "Florida", "Illinois", "New York", "Texas"),
+        "México" to arrayOf("Seleccione un estado...", "Ciudad de México", "Estado de México", "Jalisco", "Nuevo León", "Puebla"),
+        "Panamá" to arrayOf("Seleccione un estado...", "Chiriquí", "Colón", "Panamá", "Veraguas"),
+        "Paraguay" to arrayOf("Seleccione un estado...", "Alto Paraná", "Asunción", "Central"),
+        "Perú" to arrayOf("Seleccione un estado...", "Arequipa", "Callao", "Cusco", "La Libertad", "Lima"),
+        "Uruguay" to arrayOf("Seleccione un estado...", "Canelones", "Maldonado", "Montevideo"),
+        "Venezuela" to arrayOf("Seleccione un estado...", "Aragua", "Carabobo", "Caracas/Dtto. Capital", "Lara", "Miranda", "Zulia")
     )
     private val citiesByState: Map<String, Array<String>> = mapOf(
         "Seleccione un estado..." to arrayOf("Seleccione una ciudad..."),
-        //Inicio Ecuador
-        // Sierra
-        "Azuay" to arrayOf("Seleccione una ciudad...", "Cuenca", "Gualaceo", "Paute", "Sígsig", "Girón"),
-        "Bolívar" to arrayOf("Seleccione una ciudad...", "Guaranda", "Chimbo", "San Miguel", "Caluma"),
-        "Cañar" to arrayOf("Seleccione una ciudad...", "Azogues", "Biblián", "Cañar", "La Troncal"),
-        "Carchi" to arrayOf("Seleccione una ciudad...", "Tulcán", "San Gabriel", "El Ángel", "Mira"),
-        "Chimborazo" to arrayOf("Seleccione una ciudad...", "Riobamba", "Guano", "Alausí", "Chambo", "Colta"),
-        "Cotopaxi" to arrayOf("Seleccione una ciudad...", "Latacunga", "Salcedo", "Pujilí", "Saquisilí", "La Maná"),
-        "Imbabura" to arrayOf("Seleccione una ciudad...", "Ibarra", "Otavalo", "Cotacachi", "Atuntaqui", "Pimampiro"),
-        "Loja" to arrayOf("Seleccione una ciudad...", "Loja", "Catamayo", "Cariamanga", "Macará", "Alamor"),
-        "Pichincha" to arrayOf("Seleccione una ciudad...", "Quito", "Cayambe", "Machachi", "Sangolquí", "Pedro Vicente Maldonado", "Tabacundo"), // Sangolquí es cabecera de Rumiñahui
-        "Santo Domingo de los Tsáchilas" to arrayOf("Seleccione una ciudad...", "Santo Domingo", "La Concordia"),
-        "Tungurahua" to arrayOf("Seleccione una ciudad...", "Ambato", "Baños de Agua Santa", "Pelileo", "Píllaro", "Patate"),
-        // Costa
-        "El Oro" to arrayOf("Seleccione una ciudad...", "Machala", "Pasaje", "Santa Rosa", "Huaquillas", "Zaruma", "Piñas"),
-        "Esmeraldas" to arrayOf("Seleccione una ciudad...", "Esmeraldas", "Atacames", "Muisne", "Quinindé", "San Lorenzo"),
-        "Guayas" to arrayOf("Seleccione una ciudad...", "Guayaquil", "Durán", "Daule", "Milagro", "Samborondón", "Playas", "El Triunfo", "Naranjal", "Yaguachi"),
-        "Los Ríos" to arrayOf("Seleccione una ciudad...", "Babahoyo", "Quevedo", "Vinces", "Ventanas", "Puebloviejo", "Baba"),
-        "Manabí" to arrayOf("Seleccione una ciudad...", "Portoviejo", "Manta", "Chone", "El Carmen", "Jipijapa", "Bahía de Caráquez", "Pedernales"),
-        "Santa Elena" to arrayOf("Seleccione una ciudad...", "Santa Elena", "La Libertad", "Salinas", "Manglaralto"),
-        // Amazonía
-        "Morona Santiago" to arrayOf("Seleccione una ciudad...", "Macas", "Gualaquiza", "Sucúa", "Palora"),
-        "Napo" to arrayOf("Seleccione una ciudad...", "Tena", "Archidona", "El Chaco", "Baeza"),
-        "Orellana" to arrayOf("Seleccione una ciudad...", "Puerto Francisco de Orellana (Coca)", "La Joya de los Sachas", "Loreto"),
-        "Pastaza" to arrayOf("Seleccione una ciudad...", "Puyo", "Mera", "Santa Clara", "Arajuno"),
-        "Sucumbíos" to arrayOf("Seleccione una ciudad...", "Nueva Loja (Lago Agrio)", "Shushufindi", "Cascales", "Putumayo"),
-        "Zamora Chinchipe" to arrayOf("Seleccione una ciudad...", "Zamora", "Yantzaza", "Zumba", "El Pangui"),
-        // Región Insular
-        "Galápagos" to arrayOf("Seleccione una ciudad...", "Puerto Baquerizo Moreno", "Puerto Ayora", "Puerto Villamil"),
-        // Fin Ecuador
-        // Inicio Colombia
+        // Argentina
+        "Buenos Aires" to arrayOf("Seleccione una ciudad...", "La Plata", "Mar del Plata"),
+        "Córdoba" to arrayOf("Seleccione una ciudad...", "Córdoba", "Villa Carlos Paz"),
+        // Brasil
+        "Rio de Janeiro" to arrayOf("Seleccione una ciudad...", "Niterói", "Rio de Janeiro"),
+        "São Paulo" to arrayOf("Seleccione una ciudad...", "Campinas", "São Paulo"),
+        // Chile
+        "Antofagasta" to arrayOf("Seleccione una ciudad...", "Antofagasta"),
+        "Biobío" to arrayOf("Seleccione una ciudad...", "Concepción"),
+        "Región Metropolitana" to arrayOf("Seleccione una ciudad...", "Santiago"),
+        "Valparaíso" to arrayOf("Seleccione una ciudad...", "Valparaíso", "Viña del Mar"),
+        // Colombia
+        "Antioquia" to arrayOf("Seleccione una ciudad...", "Envigado", "Medellín"),
         "Cundinamarca" to arrayOf("Seleccione una ciudad...", "Bogotá", "Soacha"),
-        "Antioquia" to arrayOf("Seleccione una ciudad...", "Medellín", "Envigado"),
-        // Fin Colombia
-        // Inicio Perú
-        "Lima" to arrayOf("Seleccione una ciudad...", "Lima Metropolitana", "Callao")
-        // Fin Perú
+        // Ecuador
+        "Azuay" to arrayOf("Seleccione una ciudad...", "Cuenca", "Girón", "Gualaceo", "Paute", "Sígsig"),
+        "Bolívar" to arrayOf("Seleccione una ciudad...", "Caluma", "Chimbo", "Guaranda", "San Miguel"),
+        "Cañar" to arrayOf("Seleccione una ciudad...", "Azogues", "Biblián", "Cañar", "La Troncal"),
+        "Carchi" to arrayOf("Seleccione una ciudad...", "El Ángel", "Mira", "San Gabriel", "Tulcán"),
+        "Chimborazo" to arrayOf("Seleccione una ciudad...", "Alausí", "Chambo", "Colta", "Guano", "Riobamba"),
+        "Cotopaxi" to arrayOf("Seleccione una ciudad...", "La Maná", "Latacunga", "Pujilí", "Salcedo", "Saquisilí"),
+        "El Oro" to arrayOf("Seleccione una ciudad...", "Huaquillas", "Machala", "Pasaje", "Piñas", "Santa Rosa", "Zaruma"),
+        "Esmeraldas" to arrayOf("Seleccione una ciudad...", "Atacames", "Esmeraldas", "Muisne", "Quinindé", "San Lorenzo"),
+        "Galápagos" to arrayOf("Seleccione una ciudad...", "Puerto Ayora", "Puerto Baquerizo Moreno", "Puerto Villamil"),
+        "Guayas" to arrayOf("Seleccione una ciudad...", "Daule", "Durán", "El Triunfo", "Guayaquil", "Milagro", "Naranjal", "Playas", "Samborondón", "Yaguachi"),
+        "Imbabura" to arrayOf("Seleccione una ciudad...", "Atuntaqui", "Cotacachi", "Ibarra", "Otavalo", "Pimampiro"),
+        "Loja" to arrayOf("Seleccione una ciudad...", "Alamor", "Cariamanga", "Catamayo", "Loja", "Macará"),
+        "Los Ríos" to arrayOf("Seleccione una ciudad...", "Baba", "Babahoyo", "Puebloviejo", "Quevedo", "Ventanas", "Vinces"),
+        "Manabí" to arrayOf("Seleccione una ciudad...", "Bahía de Caráquez", "Chone", "El Carmen", "Jipijapa", "Manta", "Pedernales", "Portoviejo"),
+        "Morona Santiago" to arrayOf("Seleccione una ciudad...", "Gualaquiza", "Macas", "Palora", "Sucúa"),
+        "Napo" to arrayOf("Seleccione una ciudad...", "Archidona", "Baeza", "El Chaco", "Tena"),
+        "Orellana" to arrayOf("Seleccione una ciudad...", "La Joya de los Sachas", "Loreto", "Puerto Francisco de Orellana (Coca)"),
+        "Pastaza" to arrayOf("Seleccione una ciudad...", "Arajuno", "Mera", "Puyo", "Santa Clara"),
+        "Pichincha" to arrayOf("Seleccione una ciudad...", "Cayambe", "Machachi", "Pedro Vicente Maldonado", "Quito", "Sangolquí", "Tabacundo"),
+        "Santa Elena" to arrayOf("Seleccione una ciudad...", "La Libertad", "Manglaralto", "Salinas", "Santa Elena"),
+        "Santo Domingo de los Tsáchilas" to arrayOf("Seleccione una ciudad...", "La Concordia", "Santo Domingo"),
+        "Sucumbíos" to arrayOf("Seleccione una ciudad...", "Cascales", "Nueva Loja (Lago Agrio)", "Putumayo", "Shushufindi"),
+        "Tungurahua" to arrayOf("Seleccione una ciudad...", "Ambato", "Baños de Agua Santa", "Patate", "Pelileo", "Píllaro"),
+        "Zamora Chinchipe" to arrayOf("Seleccione una ciudad...", "El Pangui", "Yantzaza", "Zamora", "Zumba"),
+        // Estados Unidos
+        "California" to arrayOf("Seleccione una ciudad...", "Los Angeles", "San Diego", "San Francisco"),
+        "Florida" to arrayOf("Seleccione una ciudad...", "Miami", "Orlando", "Tampa"),
+        "Texas" to arrayOf("Seleccione una ciudad...", "Austin", "Dallas", "Houston"),
+        // México
+        "Ciudad de México" to arrayOf("Seleccione una ciudad...", "Ciudad de México"),
+        "Jalisco" to arrayOf("Seleccione una ciudad...", "Guadalajara", "Zapopan"),
+        "Nuevo León" to arrayOf("Seleccione una ciudad...", "Monterrey", "San Pedro Garza García"),
+        // Panamá
+        "Panamá" to arrayOf("Seleccione una ciudad...", "Ciudad de Panamá", "San Miguelito"),
+        // Perú
+        "Lima" to arrayOf("Seleccione una ciudad...", "Callao", "Lima Metropolitana"),
+        // Venezuela
+        "Caracas/Dtto. Capital" to arrayOf("Seleccione una ciudad...", "Caracas"),
+        "Miranda" to arrayOf("Seleccione una ciudad...", "Baruta", "Chacao", "Los Teques"),
+        "Zulia" to arrayOf("Seleccione una ciudad...", "Cabimas", "Maracaibo")
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
