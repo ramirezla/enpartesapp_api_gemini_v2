@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
@@ -167,7 +166,8 @@ class ReportDisplayFragment : Fragment() {
     private fun saveReportToGoogleDrive() {
         val caseNumber = tvCaseNumberValue?.text.toString()
         val inspectionDate = tvInspectionDateValue?.text.toString()
-        val apiResponse = arguments?.getString("api_response") ?: run {
+        
+        if (arguments?.getString("api_response").isNullOrBlank()) {
             Toast.makeText(requireContext(), "No hay datos de reporte para guardar", Toast.LENGTH_SHORT).show()
             return
         }
@@ -526,14 +526,6 @@ class ReportDisplayFragment : Fragment() {
             }
         }
         return defaultValue
-    }
-
-    private fun JSONObject.getFirstMatchingKey(vararg keys: String): JSONObject? {
-        for (key in keys) {
-            val value = this.opt(key)
-            if (value is JSONObject) return value
-        }
-        return null
     }
 
     private fun parseApiResponse(apiResponse: String) {
