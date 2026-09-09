@@ -21,6 +21,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.ehome.enpartesapp.R
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
@@ -279,7 +280,7 @@ class ReportDisplayFragment : Fragment() {
 
         // Descripción de daños
         builder.append("--- DESCRIPCIÓN DE DAÑOS ---\n")
-        val damage = json.optJSONObject("DescripcionDanosExistentes")
+        val damage = json.optJSONObjectIgnoreCase("DescripcionDanosExistentes")
         damage?.keys()?.forEach { key ->
             builder.append("$key: ${damage.getString(key)}\n")
         }
@@ -287,23 +288,28 @@ class ReportDisplayFragment : Fragment() {
 
         // Piezas afectadas y costos
         builder.append("--- PIEZAS AFECTADAS Y COSTOS ---\n")
-        val piezas = json.optJSONArray("ListadoPiezasAfectadas")
-        //val costoHora = json.getJSONObject("DatosGenerales").getDouble("CostoHoraManoObra")
-        val costoHora = json.optJSONObject("DatosGenerales")?.optDouble("CostoHoraManoObra", 0.0) ?: 0.0
+        val piezas = json.optJSONArrayIgnoreCase("ListadoPiezasAfectadas")
+        
+        val datosGenerales = json.optJSONObjectIgnoreCase("DatosGenerales")
+        val costoHora = datosGenerales?.optDoubleIgnoreCase("CostoHoraManoObra", 0.0) ?: 0.0
+        
         var totalManoObra = 0.0
         var totalPiezas = 0.0
 
         if (piezas != null) {
             for (i in 0 until piezas.length()) {
                 val pieza = piezas.getJSONObject(i)
-                val nombre = pieza.optString("Pieza", "Pieza desconocida")
-                val accion = pieza.optString("Accion", "N/A")
-                val costoPieza = pieza.optDouble("CostoPieza", 0.0)
+                
+                // Mapeo flexible e insensible a mayúsculas
+                val nombre = pieza.optStringIgnoreCase("pieza", "Pieza desconocida")
+                // Soporte especial para sugerencia/accion
+                val accion = pieza.findFirstStringIgnoreCase("suguerencia", "sugerencia", "accion", "Accion", defaultValue = "N/A")
+                val costoPieza = pieza.optDoubleIgnoreCase("CostoPieza", 0.0)
                 val manoObra = getManoObraObject(pieza)
 
                 builder.append("$nombre ($accion)\n")
                 manoObra?.keys()?.forEach { tipo ->
-                    if (tipo != "TotalHoras") {
+                    if (!tipo.equals("TotalHoras", ignoreCase = true)) {
                         val horas = manoObra.optDouble(tipo, 0.0)
                         val costo = horas * costoHora
                         builder.append("  $tipo: $${"%.2f".format(costo)} (${horas}h * $${costoHora}/h)\n")
@@ -323,7 +329,7 @@ class ReportDisplayFragment : Fragment() {
 
         // Consideraciones adicionales
         builder.append("--- CONSIDERACIONES ADICIONALES ---\n")
-        val consideraciones = json.optJSONArray("ConsideracionesAdicionales")
+        val consideraciones = json.optJSONArrayIgnoreCase("ConsideracionesAdicionales")
         if (consideraciones != null) {
             for (i in 0 until consideraciones.length()) {
                 builder.append("- ${consideraciones.getString(i)}\n")
@@ -468,15 +474,58 @@ class ReportDisplayFragment : Fragment() {
             "HorasManoObra", "HorasManoDeObra", "Trabajo", "Labores")
 
         for (key in possibleKeys) {
-            val value = pieza.opt(key)
-            if (value is JSONObject) {
-                return value
-            } else if (value is Number) {
-                // Si es un número (horas), lo envolvemos en un JSONObject para que el resto de la lógica funcione
-                return JSONObject().put("Mano de Obra ($key)", value.toDouble())
+            val actualKey = pieza.findKeyIgnoreCase(key)
+            if (actualKey != null) {
+                val value = pieza.opt(actualKey)
+                if (value is JSONObject) {
+                    return value
+                } else if (value is Number) {
+                    return JSONObject().put("Mano de Obra ($key)", value.toDouble())
+                }
             }
         }
         return null
+    }
+
+    // Extensiones para manejo de JSON insensible a mayúsculas/minúsculas
+    private fun JSONObject.findKeyIgnoreCase(targetKey: String): String? {
+        val keys = this.keys()
+        while (keys.hasNext()) {
+            val key = keys.next()
+            if (key.equals(targetKey, ignoreCase = true)) return key
+        }
+        return null
+    }
+
+    private fun JSONObject.optStringIgnoreCase(key: String, defaultValue: String = ""): String {
+        val actualKey = findKeyIgnoreCase(key)
+        return if (actualKey != null) this.optString(actualKey, defaultValue) else defaultValue
+    }
+
+    private fun JSONObject.optDoubleIgnoreCase(key: String, defaultValue: Double = 0.0): Double {
+        val actualKey = findKeyIgnoreCase(key)
+        return if (actualKey != null) this.optDouble(actualKey, defaultValue) else defaultValue
+    }
+
+    private fun JSONObject.optJSONObjectIgnoreCase(key: String): JSONObject? {
+        val actualKey = findKeyIgnoreCase(key)
+        return if (actualKey != null) this.optJSONObject(actualKey) else null
+    }
+
+    private fun JSONObject.optJSONArrayIgnoreCase(key: String): JSONArray? {
+        val actualKey = findKeyIgnoreCase(key)
+        return if (actualKey != null) this.optJSONArray(actualKey) else null
+    }
+
+    private fun JSONObject.findFirstStringIgnoreCase(vararg keys: String, defaultValue: String = ""): String {
+        for (key in keys) {
+            val actualKey = findKeyIgnoreCase(key)
+            if (actualKey != null) {
+                val value = this.optString(actualKey)
+                if (value.isNotEmpty()) return value
+            }
+        }
+        return defaultValue
     }
 
     private fun JSONObject.getFirstMatchingKey(vararg keys: String): JSONObject? {
@@ -493,7 +542,7 @@ class ReportDisplayFragment : Fragment() {
         // 1. Descripción de daños
         val damageCard = view?.findViewById<View>(R.id.cvDamageDescription)
         val damageText = view?.findViewById<TextView>(R.id.tvDamageDescriptionContent)
-        val damage = json.optJSONObject("DescripcionDanosExistentes")
+        val damage = json.optJSONObjectIgnoreCase("DescripcionDanosExistentes")
         if (damage != null) {
             val damageFormatted = damage.keys().asSequence().joinToString("\n\n") { key ->
                 "$key: ${damage.getString(key)}"
@@ -505,9 +554,10 @@ class ReportDisplayFragment : Fragment() {
         // 2. Listado de piezas
         val partsCard = view?.findViewById<View>(R.id.cvAffectedParts)
         val container = view?.findViewById<LinearLayout>(R.id.llAffectedPartsContainer)
-        val piezas = json.optJSONArray("ListadoPiezasAfectadas")
-        //val costoHora = json.getJSONObject("DatosGenerales").getDouble("CostoHoraManoObra")
-        val costoHora = json.optJSONObject("DatosGenerales")?.optDouble("CostoHoraManoObra", 0.0) ?: 0.0
+        val piezas = json.optJSONArrayIgnoreCase("ListadoPiezasAfectadas")
+        
+        val datosGenerales = json.optJSONObjectIgnoreCase("DatosGenerales")
+        val costoHora = datosGenerales?.optDoubleIgnoreCase("CostoHoraManoObra", 0.0) ?: 0.0
 
         var totalManoObra = 0.0
         var totalPiezas = 0.0
@@ -515,16 +565,18 @@ class ReportDisplayFragment : Fragment() {
         if (piezas != null) {
             for (i in 0 until piezas.length()) {
                 val pieza = piezas.getJSONObject(i)
-                val nombre = pieza.optString("Pieza", "Pieza desconocida")
-                val accion = pieza.optString("Accion", "N/A")
-                val costoPieza = pieza.optDouble("CostoPieza", 0.0)
+                
+                // Mapeo flexible e insensible a mayúsculas para la UI
+                val nombre = pieza.optStringIgnoreCase("pieza", "Pieza desconocida")
+                val accion = pieza.findFirstStringIgnoreCase("suguerencia", "sugerencia", "accion", "Accion", defaultValue = "N/A")
+                val costoPieza = pieza.optDoubleIgnoreCase("CostoPieza", 0.0)
                 val manoObra = getManoObraObject(pieza)
 
                 val piezaTextView = TextView(requireContext())
                 piezaTextView.text = buildString {
                     append("$nombre\n")
                     manoObra?.keys()?.forEach { tipo ->
-                        if (tipo != "TotalHoras") {
+                        if (!tipo.equals("TotalHoras", ignoreCase = true)) {
                             val horas = manoObra.optDouble(tipo, 0.0)
                             val costo = horas * costoHora
                             append("  Costo de $tipo: $%.2f (%.1f horas * $%.2f/hora)\n".format(costo, horas, costoHora))
@@ -551,7 +603,7 @@ class ReportDisplayFragment : Fragment() {
         // 3. Consideraciones adicionales
         val considerationsCard = view?.findViewById<View>(R.id.cvAdditionalConsiderations)
         val considerationsText = view?.findViewById<TextView>(R.id.tvAdditionalConsiderationsContent)
-        val consideraciones = json.optJSONArray("ConsideracionesAdicionales")
+        val consideraciones = json.optJSONArrayIgnoreCase("ConsideracionesAdicionales")
         if (consideraciones != null) {
             val formatted = (0 until consideraciones.length()).joinToString("\n\n") {
                 "- ${consideraciones.getString(it)}"
