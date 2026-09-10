@@ -261,6 +261,10 @@ class ReportDisplayFragment : Fragment() {
         builder.append("=== INFORME DE VALORACIÓN DE DAÑOS ===\n\n")
         builder.append("Fecha generación: ${SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())}\n\n")
 
+        // Obtener el costo por hora de forma robusta
+        val costoHoraStr = tvCostPerHourValue?.text?.toString() ?: "0"
+        val costoHora = extractDouble(costoHoraStr).let { if (it == 0.0) json.findFirstDoubleIgnoreCase("CostoHoraManoObra", "CostoHoraManoObraUSD", "ManoObraCosto", defaultValue = 20.0) else it }
+
         // Información general
         builder.append("--- INFORMACIÓN GENERAL ---\n")
         builder.append("Número de Caso: ${tvCaseNumberValue?.text}\n")
@@ -289,9 +293,6 @@ class ReportDisplayFragment : Fragment() {
         // Piezas afectadas y costos
         builder.append("--- PIEZAS AFECTADAS Y COSTOS ---\n")
         val piezas = json.optJSONArrayIgnoreCase("ListadoPiezasAfectadas")
-        
-        val datosGenerales = json.optJSONObjectIgnoreCase("DatosGenerales")
-        val costoHora = datosGenerales?.optDoubleIgnoreCase("CostoHoraManoObra", 0.0) ?: 0.0
         
         var totalManoObra = 0.0
         var totalPiezas = 0.0
@@ -528,8 +529,30 @@ class ReportDisplayFragment : Fragment() {
         return defaultValue
     }
 
+    private fun JSONObject.findFirstDoubleIgnoreCase(vararg keys: String, defaultValue: Double = 0.0): Double {
+        for (key in keys) {
+            val actualKey = findKeyIgnoreCase(key)
+            if (actualKey != null) {
+                return this.optDouble(actualKey, defaultValue)
+            }
+        }
+        return defaultValue
+    }
+
+    private fun extractDouble(text: String): Double {
+        return try {
+            text.replace("$", "").replace(",", "").trim().toDouble()
+        } catch (e: Exception) {
+            0.0
+        }
+    }
+
     private fun parseApiResponse(apiResponse: String) {
         val json = JSONObject(apiResponse)
+
+        // Obtener costo hora
+        val costoHoraStr = tvCostPerHourValue?.text?.toString() ?: "0"
+        val costoHora = extractDouble(costoHoraStr).let { if (it == 0.0) json.findFirstDoubleIgnoreCase("CostoHoraManoObra", "CostoHoraManoObraUSD", "ManoObraCosto", defaultValue = 20.0) else it }
 
         // 1. Descripción de daños
         val damageCard = view?.findViewById<View>(R.id.cvDamageDescription)
@@ -548,9 +571,6 @@ class ReportDisplayFragment : Fragment() {
         val container = view?.findViewById<LinearLayout>(R.id.llAffectedPartsContainer)
         val piezas = json.optJSONArrayIgnoreCase("ListadoPiezasAfectadas")
         
-        val datosGenerales = json.optJSONObjectIgnoreCase("DatosGenerales")
-        val costoHora = datosGenerales?.optDoubleIgnoreCase("CostoHoraManoObra", 0.0) ?: 0.0
-
         var totalManoObra = 0.0
         var totalPiezas = 0.0
 

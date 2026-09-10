@@ -285,7 +285,7 @@ class PresupuestoFragment : Fragment() {
         "Argentina" to arrayOf("Seleccione un estado...", "Buenos Aires", "Córdoba", "Mendoza", "Santa Fe", "Tucumán"),
         "Bolivia" to arrayOf("Seleccione un estado...", "Cochabamba", "La Paz", "Santa Cruz"),
         "Brasil" to arrayOf("Seleccione un estado...", "Bahia", "Minas Gerais", "Paraná", "Rio de Janeiro", "São Paulo"),
-        "Chile" to arrayOf("Seleccione un estado...", "Antofagasta", "Biobío", "Región Metropolitana", "Valparaíso"),
+        "Chile" to arrayOf("Seleccione un estado...", "Antofagasta", "Araucanía", "Arica y Parinacota", "Atacama", "Aysén", "Biobío", "Coquimbo", "Los Lagos", "Los Ríos", "Magallanes", "Maule", "Metropolitana de Santiago", "O'Higgins", "Tarapacá", "Valparaíso", "Ñuble"),
         "Colombia" to arrayOf("Seleccione un estado...", "Amazonas", "Antioquia", "Arauca", "Atlántico", "Bolívar", "Boyacá", "Caldas", "Caquetá", "Casanare", "Cauca", "Cesar", "Chocó", "Córdoba", "Cundinamarca", "Guainía", "Guaviare", "Huila", "La Guajira", "Magdalena", "Meta", "Nariño", "Norte de Santander", "Putumayo", "Quindío", "Risaralda", "San Andrés y Providencia", "Santander", "Sucre", "Tolima", "Valle del Cauca", "Vaupés", "Vichada"),
         "Costa Rica" to arrayOf("Seleccione un estado...", "Alajuela", "Cartago", "Guanacaste", "Heredia", "Limón", "Puntarenas", "San José"),
         "Ecuador" to arrayOf(
@@ -325,10 +325,22 @@ class PresupuestoFragment : Fragment() {
         "São Paulo" to arrayOf("Seleccione una ciudad...", "São Paulo", "Campinas", "Santos", "SBC"),
 
         // Chile
-        "Antofagasta" to arrayOf("Seleccione una ciudad...", "Antofagasta", "Calama"),
-        "Biobío" to arrayOf("Seleccione una ciudad...", "Concepción", "Talcahuano"),
-        "Región Metropolitana" to arrayOf("Seleccione una ciudad...", "Santiago", "Puente Alto", "Maipú"),
-        "Valparaíso" to arrayOf("Seleccione una ciudad...", "Valparaíso", "Viña del Mar", "Quilpué"),
+        "Antofagasta" to arrayOf("Seleccione una ciudad...", "Antofagasta", "Calama", "Tocopilla"),
+        "Araucanía" to arrayOf("Seleccione una ciudad...", "Temuco", "Angol", "Padre Las Casas"),
+        "Arica y Parinacota" to arrayOf("Seleccione una ciudad...", "Arica"),
+        "Atacama" to arrayOf("Seleccione una ciudad...", "Copiapó", "Vallenar"),
+        "Aysén" to arrayOf("Seleccione una ciudad...", "Coyhaique", "Puerto Aysén"),
+        "Biobío" to arrayOf("Seleccione una ciudad...", "Concepción", "Coronel", "Hualpén", "Los Ángeles", "Talcahuano"),
+        "Coquimbo" to arrayOf("Seleccione una ciudad...", "Coquimbo", "La Serena", "Ovalle"),
+        "Los Lagos" to arrayOf("Seleccione una ciudad...", "Castro", "Osorno", "Puerto Montt", "Puerto Varas"),
+        "Los Ríos" to arrayOf("Seleccione una ciudad...", "La Unión", "Valdivia"),
+        "Magallanes" to arrayOf("Seleccione una ciudad...", "Puerto Natales", "Punta Arenas"),
+        "Maule" to arrayOf("Seleccione una ciudad...", "Constitución", "Curicó", "Linares", "Talca"),
+        "Metropolitana de Santiago" to arrayOf("Seleccione una ciudad...", "La Florida", "Las Condes", "Maipú", "Puente Alto", "San Bernardo", "Santiago"),
+        "O'Higgins" to arrayOf("Seleccione una ciudad...", "Pichilemu", "Rancagua", "San Fernando"),
+        "Tarapacá" to arrayOf("Seleccione una ciudad...", "Alto Hospicio", "Iquique"),
+        "Valparaíso" to arrayOf("Seleccione una ciudad...", "Quillota", "Quilpué", "San Antonio", "Valparaíso", "Villa Alemana", "Viña del Mar"),
+        "Ñuble" to arrayOf("Seleccione una ciudad...", "Chillán", "San Carlos"),
 
         // Colombia
         "Amazonas" to arrayOf("Seleccione una ciudad...", "Leticia"),
