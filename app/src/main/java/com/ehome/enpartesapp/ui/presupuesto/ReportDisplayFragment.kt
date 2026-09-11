@@ -305,19 +305,24 @@ class ReportDisplayFragment : Fragment() {
                 val nombre = pieza.optStringIgnoreCase("pieza", "Pieza desconocida")
                 // Soporte especial para sugerencia/accion
                 val accion = pieza.findFirstStringIgnoreCase("suguerencia", "sugerencia", "accion", "Accion", defaultValue = "N/A")
-                val costoPieza = pieza.optDoubleIgnoreCase("CostoPieza", 0.0)
+                val costoPieza = pieza.findFirstDoubleIgnoreCase("CostoPieza", "CostoMateriales", "CostoReparacion", "monto", defaultValue = 0.0)
                 val manoObra = getManoObraObject(pieza)
 
                 builder.append("$nombre ($accion)\n")
+                var subtotalManoObraItem = 0.0
                 manoObra?.keys()?.forEach { tipo ->
                     if (!tipo.equals("TotalHoras", ignoreCase = true)) {
                         val horas = manoObra.optDouble(tipo, 0.0)
                         val costo = horas * costoHora
                         builder.append("  $tipo: $${"%.2f".format(costo)} (${horas}h * $${costoHora}/h)\n")
-                        totalManoObra += costo
+                        subtotalManoObraItem += costo
                     }
                 }
-                builder.append("  Costo pieza: $${"%.2f".format(costoPieza)}\n\n")
+                totalManoObra += subtotalManoObraItem
+                
+                val labelCosto = if (accion.equals("Reparar", ignoreCase = true)) "Costo Reparación/Mat." else "Costo pieza"
+                builder.append("  $labelCosto: $${"%.2f".format(costoPieza)}\n")
+                builder.append("  SUBTOTAL ÍTEM: $${"%.2f".format(subtotalManoObraItem + costoPieza)}\n\n")
                 totalPiezas += costoPieza
             }
         }
@@ -471,10 +476,11 @@ class ReportDisplayFragment : Fragment() {
     }
 
     private fun getManoObraObject(pieza: JSONObject): JSONObject? {
-        val possibleKeys = listOf("CantidadEstimadoManoObra", "ManoObra", "ManoDeObra",
+        // Primero buscamos por las llaves conocidas
+        val primaryKeys = listOf("CantidadEstimadoManoObra", "ManoObra", "ManoDeObra",
             "HorasManoObra", "HorasManoDeObra", "Trabajo", "Labores")
 
-        for (key in possibleKeys) {
+        for (key in primaryKeys) {
             val actualKey = pieza.findKeyIgnoreCase(key)
             if (actualKey != null) {
                 val value = pieza.opt(actualKey)
@@ -485,6 +491,18 @@ class ReportDisplayFragment : Fragment() {
                 }
             }
         }
+
+        // Si no se encontró, buscamos cualquier llave que contenga "hora", "mano" o "cantidad" y sea un número
+        val keys = pieza.keys()
+        while (keys.hasNext()) {
+            val key = keys.next()
+            val lowerKey = key.lowercase()
+            if ((lowerKey.contains("hora") || lowerKey.contains("mano") || lowerKey.contains("cantidad")) && 
+                pieza.opt(key) is Number && !lowerKey.contains("costo")) {
+                return JSONObject().put("Mano de Obra ($key)", pieza.optDouble(key))
+            }
+        }
+        
         return null
     }
 
@@ -581,21 +599,26 @@ class ReportDisplayFragment : Fragment() {
                 // Mapeo flexible e insensible a mayúsculas para la UI
                 val nombre = pieza.optStringIgnoreCase("pieza", "Pieza desconocida")
                 val accion = pieza.findFirstStringIgnoreCase("suguerencia", "sugerencia", "accion", "Accion", defaultValue = "N/A")
-                val costoPieza = pieza.optDoubleIgnoreCase("CostoPieza", 0.0)
+                val costoPieza = pieza.findFirstDoubleIgnoreCase("CostoPieza", "CostoMateriales", "CostoReparacion", "monto", defaultValue = 0.0)
                 val manoObra = getManoObraObject(pieza)
 
                 val piezaTextView = TextView(requireContext())
                 piezaTextView.text = buildString {
-                    append("$nombre\n")
+                    append("$nombre ($accion)\n")
+                    var subtotalManoObraItem = 0.0
                     manoObra?.keys()?.forEach { tipo ->
                         if (!tipo.equals("TotalHoras", ignoreCase = true)) {
                             val horas = manoObra.optDouble(tipo, 0.0)
                             val costo = horas * costoHora
                             append("  Costo de $tipo: $%.2f (%.1f horas * $%.2f/hora)\n".format(costo, horas, costoHora))
-                            totalManoObra += costo
+                            subtotalManoObraItem += costo
                         }
                     }
-                    append("  Costo de Pieza ($accion): $%.2f\n".format(costoPieza))
+                    totalManoObra += subtotalManoObraItem
+                    
+                    val labelCosto = if (accion.equals("Reparar", ignoreCase = true)) "Materiales/Reparación" else "Repuesto"
+                    append("  Costo de $labelCosto: $%.2f\n".format(costoPieza))
+                    append("  SUBTOTAL: $%.2f\n".format(subtotalManoObraItem + costoPieza))
                     totalPiezas += costoPieza
                 }
                 piezaTextView.layoutParams = ViewGroup.LayoutParams(
