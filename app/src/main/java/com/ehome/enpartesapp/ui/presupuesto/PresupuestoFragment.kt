@@ -43,6 +43,7 @@ import android.icu.util.Calendar
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
@@ -51,8 +52,10 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.NumberPicker
 import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.Toast
@@ -787,19 +790,19 @@ class PresupuestoFragment : Fragment() {
         val calendar = Calendar.getInstance()
         val currentYear = calendar.get(Calendar.YEAR)
         
-        val numberPicker = android.widget.NumberPicker(requireContext()).apply {
+        val numberPicker = NumberPicker(requireContext()).apply {
             minValue = 1950 // Año mínimo razonable para vehículos
             maxValue = currentYear + 1 // Permitir el año siguiente (modelos nuevos)
             value = if (etVehicleYear.text.isNullOrBlank()) currentYear else etVehicleYear.text.toString().toInt()
             wrapSelectorWheel = false
         }
 
-        val container = android.widget.FrameLayout(requireContext()).apply {
-            val params = android.widget.FrameLayout.LayoutParams(
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        val container = FrameLayout(requireContext()).apply {
+            val params = FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply {
-                gravity = android.view.Gravity.CENTER
+                gravity = Gravity.CENTER
             }
             addView(numberPicker, params)
         }
