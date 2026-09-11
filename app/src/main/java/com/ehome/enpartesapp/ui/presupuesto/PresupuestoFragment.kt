@@ -1159,20 +1159,6 @@ class PresupuestoFragment : Fragment() {
         }
     }
 
-    private fun bitmapToFile(context: Context, bitmap: Bitmap, fileName: String): File? {
-        val file = File(context.cacheDir, fileName) // Usar cacheDir para archivos temporales
-        return try {
-            file.outputStream().use { out ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out) // Comprimir con calidad 90
-            }
-            Log.d("PresupuestoFragment", "Bitmap convertido a archivo: ${file.absolutePath}")
-            file
-        } catch (e: Exception) {
-            Log.e("PresupuestoFragment", "Error al convertir Bitmap a archivo: ${e.message}", e)
-            null
-        }
-    }
-
     private fun showDialog(title: String, message: String) {
         AlertDialog.Builder(requireContext())
             .setTitle(title) // Usar el título pasado como parámetro
