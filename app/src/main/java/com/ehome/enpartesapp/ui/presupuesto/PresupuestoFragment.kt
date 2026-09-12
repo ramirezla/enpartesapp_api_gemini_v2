@@ -18,7 +18,7 @@
  * 3. Carga Dinámica: El ReportDisplayFragment ahora recibe las rutas de las fotos desde el formulario inicial y las renderiza automáticamente al cargar el informe.
  * 4. Internacionalización: He añadido el recurso de texto necesario en   strings.xml para mantener las buenas prácticas del proyecto.
 
-Nuevo Mapa de Costos (laborCostByCountry): He definido valores estimados en USD por hora para cada país basándome en promedios de mercado para talleres independientes:
+ * Nuevo Mapa de Costos (laborCostByCountry): He definido valores estimados en USD por hora para cada país basándome en promedios de mercado para talleres independientes:
  * Estados Unidos: $120.0
  * Argentina: $60.0 (ajustado por volatilidad)
  * Brasil / Uruguay: $35.0
@@ -28,6 +28,13 @@ Nuevo Mapa de Costos (laborCostByCountry): He definido valores estimados en USD 
  * Ecuador / Perú / Venezuela: $20.0
  * Bolivia / Paraguay: $15.0 - $18.0
  * Lógica Dinámica en el Reporte: En el método generateDamageReport(), ahora la variable costoHoraManoObra ya no es fija. El sistema detecta qué país seleccionó el usuario en el formulario y extrae el valor correspondiente del mapa. Si el país no está en la lista, utiliza el valor base de $20.0 por seguridad.
+
+ * Mejoras aplicadas al prompt:
+ * 1. Asignación de Rol (Persona): Ahora el modelo actúa como un "Perito Automotriz Senior", lo que enfoca su lenguaje y precisión técnica.
+ * 2.  Delimitadores de Contexto: Utilicé etiquetas tipo XML (<datos_vehiculo>) para separar claramente la información de entrada de las instrucciones.
+ * 3. Instrucciones por Pasos: El proceso de análisis está desglosado en tareas numeradas (Inspección, Determinación, Estimación y Cálculo).
+ * 4. Estructura de Salida Explícita: Proporcioné un esquema JSON detallado con ejemplos de tipos de datos, lo que reduce la variabilidad en la respuesta de la IA.
+ * 5.Restricciones Críticas: Se añadieron advertencias explícitas sobre el idioma, el formato de salida y la integridad del JSON para evitar que la IA incluya texto innecesario.
  */
 
 package com.ehome.enpartesapp.ui.presupuesto
@@ -232,35 +239,35 @@ class PresupuestoFragment : Fragment() {
 
     private val modelosPorMarca: Map<String, Array<String>> = mapOf(
         "Seleccione una marca..." to arrayOf("Seleccione un modelo..."),
-        "Acura" to arrayOf("ILX","MDX","RDX","RL","RLX","RSX","TL","TSX"),
+        "Acura" to arrayOf("Seleccione un modelo...", "ILX", "MDX", "RDX", "RL", "RLX", "RSX", "TL", "TSX"),
+        "Audi" to arrayOf("Seleccione un modelo...", "A1", "A3", "A4", "A5", "A6", "Q2", "Q3", "Q5", "Q7", "Q8"),
         "BAIC" to arrayOf("Seleccione un modelo...", "X35", "X55", "BJ40"),
-        "Chevrolet" to arrayOf("Seleccione un modelo...", "Astro", "Avalanche", "Aveo/Kalos/Sonic","Bolt","C/K Pickup",
-            "Camaro","Caprice","Captiva","Cavalier","Cobalt","Colorado","Corvette","Cruze","D-Max","Epica/Tosca",
-            "Equinox","Express","HHR","Impala","Joy","Lanus","Lumina","Malibu","Monte Carlo","Nexia/Cielo/Racer","N300",
-            "N400","Optra/Lacetti/Nubira","Onix","Orlando","Prizm","S-10 Blazer/Jimmy","S10 Pickup/Sonoma","SS","SSR","Sail",
-            "Silverado","Spark/Matiz/Beato","Suburban","Tahoe","TrailBlazer","Tracker","Traverse",
-            "Uplander","Venture","Volt"),
-        "Chery" to arrayOf("Seleccione un modelo...", "A1","A11","A13","A15","A3/M11","A5","Eastar/B11","Exceed/Exceed TX",
-            "IndiS","Karry Youya","QQ3/S11","QQ6/S21","Tiggo","Tiggo 2 Pro","Tiggo 3/3x/2 (A13T)", "Tiggo 4 Pro","Tiggo 5 (T21)",
-            "Tiggo 7 Pro", "Tiggo 8 Pro", "Tiggo 8 Pro Max", "Arrizo 5","V5/B14"),
-        "Ford" to arrayOf("Seleccione un modelo...", "Bronco","Bronco Sport","C-Max","Cargo","Crown Victoria"
-            ,"E-Series/Econoline","Ecosport","Edge","Escape","Escort","Everest","Excursion","Expedition","Explorer",
-            "F-Series","F-150","Falcon","Fiesta","Figo/Ka","Five Hundred","Flex","Focus","Freestart","Fusion",
-            "Galaxy","Grand C-Max","Grand Tourneo Connect","Kuga","Laser","Mondeo","Mustang","Orion","Probe","Puma",
-            "Ranger","S-Series","S-Max","Taurus","Taurus X/Freestyle","Tempo/Topaz","Territory (SY)","Thunderbird","Transit",
-            "Transit Connect","Transit Courier/Turneo","Transit Courier/Turneo Custom","Windstar","ZX2/Escort ZX2"),
-        "Great Wall" to arrayOf("Seleccione un modelo...", "Deer","Poer","Voleex C30","Wingle 5", "Wingle 7"),
-        "Haval" to arrayOf("Seleccione un modelo...", "Dargo","H6","Haval F7","Haval H2","Haval H3/Hover H3","Haval H5/Hover H5",
-            "Haval H6","Haval H8","Haval H9","Haval M4","H9","Jolion"),
-        "Hyundai" to arrayOf("Seleccione un modelo...", "Tucson", "Creta", "Accent", "Grand i10", "Santa Fe", "Palisade", "Venue", "Staria"),
-        "Jetour" to arrayOf("Seleccione un modelo...", "Dashing","X70","X70 Plus"),
-        "Kia" to arrayOf("Seleccione un modelo...", "Sportage", "Picanto", "Rio", "Soluto", "Seltos", "Sonet", "Stonic", "Carnival", "K2500/K2700"),
-        "Mazda" to arrayOf("Seleccione un modelo...", "BT-50", "CX-5", "CX-30", "Mazda2", "Mazda3", "CX-9"),
-        "Nissan" to arrayOf("Seleccione un modelo...", "Frontier", "Kicks", "Versa", "X-Trail", "Pathfinder", "Qashqai", "Murano"),
-        "Renault" to arrayOf("Seleccione un modelo...", "Duster", "Logan", "Sandero", "Stepway", "Kwid", "Oroch", "Captur"),
-        "Suzuki" to arrayOf("Seleccione un modelo...", "Grand Vitara", "Jimny", "Swift", "S-Preso", "Baleno", "Vitara (nuevo)", "S-Cross"),
-        "Toyota" to arrayOf("Seleccione un modelo...", "Hilux", "Fortuner", "RAV4", "Corolla", "Yaris", "Prado", "Land Cruiser", "Rush", "Agya", "Stout"),
-        "Volkswagen" to arrayOf("Seleccione un modelo...", "Amarok", "T-Cross", "Nivus", "Virtus", "Polo", "Tiguan", "Saveiro", "Taos"),
+        "BMW" to arrayOf("Seleccione un modelo...", "Serie 1", "Serie 2", "Serie 3", "Serie 4", "Serie 5", "X1", "X2", "X3", "X4", "X5", "X6", "X7"),
+        "Chery" to arrayOf("Seleccione un modelo...", "A1", "A11", "A13", "A15", "A3/M11", "A5", "Eastar/B11", "Exceed/Exceed TX", "IndiS", "Karry Youya", "QQ3/S11", "QQ6/S21", "Tiggo", "Tiggo 2 Pro", "Tiggo 3/3x/2 (A13T)", "Tiggo 4 Pro", "Tiggo 5 (T21)", "Tiggo 7 Pro", "Tiggo 8 Pro", "Tiggo 8 Pro Max", "Arrizo 5", "V5/B14"),
+        "Chevrolet" to arrayOf("Seleccione un modelo...", "Astro", "Avalanche", "Aveo/Kalos/Sonic", "Bolt", "C/K Pickup", "Camaro", "Caprice", "Captiva", "Cavalier", "Cobalt", "Colorado", "Corvette", "Cruze", "D-Max", "Epica/Tosca", "Equinox", "Express", "HHR", "Impala", "Joy", "Lanus", "Lumina", "Malibu", "Monte Carlo", "Nexia/Cielo/Racer", "N300", "N400", "Optra/Lacetti/Nubira", "Onix", "Orlando", "Prizm", "S-10 Blazer/Jimmy", "S10 Pickup/Sonoma", "SS", "SSR", "Sail", "Silverado", "Spark/Matiz/Beato", "Suburban", "Tahoe", "TrailBlazer", "Tracker", "Traverse", "Uplander", "Venture", "Volt"),
+        "Citroën" to arrayOf("Seleccione un modelo...", "C3", "C3 Aircross", "C4", "C4 Cactus", "C5 Aircross", "Berlingo", "Jumper"),
+        "Fiat" to arrayOf("Seleccione un modelo...", "Argo", "Cronos", "Fastback", "Mobi", "Pulse", "Strada", "Toro", "Uno", "500", "Ducato", "Fiorino"),
+        "Ford" to arrayOf("Seleccione un modelo...", "Bronco", "Bronco Sport", "C-Max", "Cargo", "Crown Victoria", "E-Series/Econoline", "Ecosport", "Edge", "Escape", "Escort", "Everest", "Excursion", "Expedition", "Explorer", "F-Series", "F-150", "Falcon", "Fiesta", "Figo/Ka", "Five Hundred", "Flex", "Focus", "Freestart", "Fusion", "Galaxy", "Grand C-Max", "Grand Tourneo Connect", "Kuga", "Laser", "Mondeo", "Mustang", "Orion", "Probe", "Puma", "Ranger", "S-Series", "S-Max", "Taurus", "Taurus X/Freestyle", "Tempo/Topaz", "Territory (SY)", "Thunderbird", "Transit", "Transit Connect", "Transit Courier/Turneo", "Transit Courier/Turneo Custom", "Windstar", "ZX2/Escort ZX2"),
+        "Great Wall" to arrayOf("Seleccione un modelo...", "Deer", "Poer", "Voleex C30", "Wingle 5", "Wingle 7"),
+        "Haval" to arrayOf("Seleccione un modelo...", "Dargo", "H6", "Haval F7", "Haval H2", "Haval H3/Hover H3", "Haval H5/Hover H5", "Haval H6", "Haval H8", "Haval H9", "Haval M4", "H9", "Jolion"),
+        "Honda" to arrayOf("Seleccione un modelo...", "Civic", "Accord", "CR-V", "HR-V", "City", "WR-V", "Fit", "Pilot", "Odyssey", "Ridgeline"),
+        "Hyundai" to arrayOf("Seleccione un modelo...", "Tucson", "Creta", "Accent", "Grand i10", "i20", "Santa Fe", "Palisade", "Venue", "Staria", "Elantra", "Kona", "H-1/Starex"),
+        "JAC" to arrayOf("Seleccione un modelo...", "JS2", "JS3", "JS4", "JS6", "JS8", "T6", "T8", "T9"),
+        "Jeep" to arrayOf("Seleccione un modelo...", "Renegade", "Compass", "Commander", "Cherokee", "Grand Cherokee", "Wrangler", "Gladiator"),
+        "Jetour" to arrayOf("Seleccione un modelo...", "Dashing", "X70", "X70 Plus"),
+        "Kia" to arrayOf("Seleccione un modelo...", "Sportage", "Picanto", "Rio", "Soluto", "Seltos", "Sonet", "Stonic", "Carnival", "Cerato/Forte", "K2500/K2700"),
+        "Mazda" to arrayOf("Seleccione un modelo...", "BT-50", "CX-3", "CX-5", "CX-30", "CX-50", "CX-9", "CX-90", "Mazda2", "Mazda3", "Mazda6"),
+        "Mercedes-Benz" to arrayOf("Seleccione un modelo...", "Clase A", "Clase C", "Clase E", "Clase S", "GLA", "GLB", "GLC", "GLE", "GLS", "Sprinter"),
+        "MG" to arrayOf("Seleccione un modelo...", "MG3", "MG5", "MG6", "ZS", "HS", "GT", "RX5", "One", "Marvel R"),
+        "Mitsubishi" to arrayOf("Seleccione un modelo...", "L200", "Outlander", "Montero Sport", "ASX", "Eclipse Cross", "Mirage", "Xpander"),
+        "Nissan" to arrayOf("Seleccione un modelo...", "Frontier", "Kicks", "Versa", "X-Trail", "Pathfinder", "Qashqai", "Murano", "Sentra", "March", "Tiida", "Urvan"),
+        "Peugeot" to arrayOf("Seleccione un modelo...", "208", "2008", "301", "3008", "5008", "408", "Partner", "Expert", "Boxer"),
+        "Ram" to arrayOf("Seleccione un modelo...", "700", "1000", "1500", "2500", "Rampage", "V700"),
+        "Renault" to arrayOf("Seleccione un modelo...", "Duster", "Logan", "Sandero", "Stepway", "Kwid", "Oroch", "Captur", "Koleos", "Master", "Kangoo"),
+        "Subaru" to arrayOf("Seleccione un modelo...", "Forester", "Outback", "XV / Crosstrek", "Impreza", "Evoltis", "WRX"),
+        "Suzuki" to arrayOf("Seleccione un modelo...", "Grand Vitara", "Jimny", "Swift", "S-Presso", "Baleno", "Vitara", "S-Cross", "Ertiga", "Celerio", "Dzire"),
+        "Toyota" to arrayOf("Seleccione un modelo...", "Hilux", "Fortuner", "RAV4", "Corolla", "Corolla Cross", "Yaris", "Prado", "Land Cruiser", "Rush", "Agya", "Stout", "4Runner", "Tacoma", "Tundra", "Prius", "Hiace"),
+        "Volkswagen" to arrayOf("Seleccione un modelo...", "Amarok", "T-Cross", "Nivus", "Virtus", "Polo", "Tiguan", "Saveiro", "Taos", "Gol", "Voyage", "Jetta", "Teramont", "Crafter"),
         "Otra" to arrayOf("Seleccione un modelo...", "Otro Modelo")
     )
 
@@ -1076,6 +1083,7 @@ class PresupuestoFragment : Fragment() {
             - Respuesta: Devuelve exclusivamente el JSON. Sin preámbulos ni comentarios.
             - Integridad: Asegúrate de que el JSON sea válido y esté completo.
         """.trimIndent()
+
         Log.d("GeminiReport", "Prompt de Gemini preparado.")
 
         CoroutineScope(Dispatchers.IO).launch {
