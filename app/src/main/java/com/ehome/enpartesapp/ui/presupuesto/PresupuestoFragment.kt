@@ -1018,34 +1018,72 @@ class PresupuestoFragment : Fragment() {
         val costoHoraManoObra = laborCostByCountry[selectedCountry] ?: 20.0
         
         val promptText = """
-            Eres un perito automotriz profesional especializado en valoración de daños de vehículos. Tu tarea es generar un informe detallado de daños, indicando si hay partes para reemplazar y reparar para un vehículo chocado.
+            ### ROL
+            Eres un Perito Automotriz Senior experto en valoración de colisiones y estimación de reparaciones. Tu objetivo es realizar un análisis visual exhaustivo de las imágenes proporcionadas y generar un presupuesto técnico preciso.
 
-            Información del vehículo:
+            ### CONTEXTO DEL VEHÍCULO
+            <datos_vehiculo>
             - Marca: ${vehicleData["marca"]}
             - Modelo: ${vehicleData["modelo"]}
             - Año: ${vehicleData["anio"]}
             - Color: ${vehicleData["color"]}
-            - Ubicación de Valoración: ${vehicleData["ubicacion"]}
-            - Costo por hora de mano de obra: $costoHoraManoObra
+            - Ubicación: ${vehicleData["ubicacion"]}
+            - Tarifa Mano de Obra: $costoHoraManoObra USD/hora
+            </datos_vehiculo>
 
-            Analiza exhaustivamente las imágenes proporcionadas para identificar todos los daños visibles en la carrocería, estructura y componentes mecánicos.
+            ### INSTRUCCIONES DE ANÁLISIS
+            1. Inspecciona cada imagen buscando deformaciones, roturas, desalineaciones y daños ocultos sugeridos.
+            2. Determina para cada pieza si requiere "Reemplazar" o "Reparar" basado en criterios técnicos de seguridad y estética.
+            3. Estima las horas de mano de obra (MO) necesarias para cada intervención.
+            4. Calcula costos de repuestos o materiales ajustados al mercado de ${vehicleData["ubicacion"]}.
 
-            El informe debe contener las siguientes secciones estructuradas en formato JSON:
-            1.  **"DatosGenerales"**: Con la información del vehículo y el costo por hora de mano de obra utilizada.
-            2.  **"DescripcionDanosExistentes"**: Una descripción detallada de los daños por zona (ej. "Parte Trasera Izquierda").
-            3.  **"ListadoPiezasAfectadas"**: Una lista de componentes que necesitan reemplazo o reparación, con la acción sugerida en una clave llamada suguerencia, 
-                un promedio de horas estimadas para la mano de obra en una clave llamada CantidadEstimadoManoObra a un costo de $costoHoraManoObra por hora de trabajo, 
-                desglosado por tareas (desmontaje, reparación estructural, montaje, pintura, etc.), un promedio de costo estimado en USD para las piezas a reemplazar en una clave llamada CostoPieza, 
-                ajustado a la ubicación de ${vehicleData["ubicacion"]} y notas..
-            4.  **"ConsideracionesAdicionales"**: Puntos importantes a tener en cuenta (daños ocultos, etc.).
+            ### ESPECIFICACIÓN DE SALIDA (JSON)
+            Genera un informe estructurado en formato JSON siguiendo estrictamente este esquema:
 
-            Genera el JSON completo sin ninguna explicación adicional antes o después del código. Asegúrate de que el JSON sea válido.
+            {
+              "DatosGenerales": {
+                "Marca": "...",
+                "Modelo": "...",
+                "Anio": ${vehicleData["anio"]},
+                "Color": "...",
+                "UbicacionValoracion": "...",
+                "CostoHoraManoObra": $costoHoraManoObra
+              },
+              "DescripcionDanosExistentes": {
+                "Zona_Afectada": "Descripción técnica del daño"
+              },
+              "ListadoPiezasAfectadas": [
+                {
+                  "pieza": "Nombre del componente",
+                  "suguerencia": "Reemplazar o Reparar",
+                  "CantidadEstimadoManoObra": {
+                     "Hojalateria": 0.0,
+                     "Pintura": 0.0,
+                     "Mecanica": 0.0,
+                     "TotalHoras": 0.0
+                  },
+                  "CostoPieza": 0.0,
+                  "notas": "Detalles adicionales sobre la pieza o el proceso"
+                }
+              ],
+              "ConsideracionesAdicionales": [
+                "Observaciones sobre daños ocultos o seguridad"
+              ]
+            }
+
+            ### RESTRICCIONES CRÍTICAS
+            - Idioma: Todo el contenido debe estar en ESPAÑOL.
+            - Respuesta: Devuelve exclusivamente el JSON. Sin preámbulos ni comentarios.
+            - Integridad: Asegúrate de que el JSON sea válido y esté completo.
         """.trimIndent()
         Log.d("GeminiReport", "Prompt de Gemini preparado.")
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Log.d("GeminiReport", "Llamando a geminiModel.generateContent().")
+                Log.d(
+                    "GeminiReport",
+                    "Llamando a geminiModel.generateContent()."
+                )
                 val content = content {
                     text(promptText)
                     imagesForGemini.forEach { image(it) }
