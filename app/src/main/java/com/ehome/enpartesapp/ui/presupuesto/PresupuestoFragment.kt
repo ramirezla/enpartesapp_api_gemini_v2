@@ -27,7 +27,7 @@
  * México / Costa Rica: $25.0
  * Ecuador / Perú / Venezuela: $20.0
  * Bolivia / Paraguay: $15.0 - $18.0
- * Lógica Dinámica en el Reporte: En el método generateDamageReport(), ahora la variable costoHoraManoObra ya no es fija. El sistema detecta qué país seleccionó el usuario en el formulario y extrae el valor correspondiente del mapa. Si el país no está en la lista, utiliza el valor base de $20.0 por seguridad.
+ * Lógica Dinámica en el Reporte: En el metodo generateDamageReport(), ahora la variable costoHoraManoObra ya no es fija. El sistema detecta qué país seleccionó el usuario en el formulario y extrae el valor correspondiente del mapa. Si el país no está en la lista, utiliza el valor base de $20.0 por seguridad.
 
  * Mejoras aplicadas al prompt:
  * 1. Asignación de Rol (Persona): Ahora el modelo actúa como un "Perito Automotriz Senior", lo que enfoca su lenguaje y precisión técnica.
@@ -35,6 +35,27 @@
  * 3. Instrucciones por Pasos: El proceso de análisis está desglosado en tareas numeradas (Inspección, Determinación, Estimación y Cálculo).
  * 4. Estructura de Salida Explícita: Proporcioné un esquema JSON detallado con ejemplos de tipos de datos, lo que reduce la variabilidad en la respuesta de la IA.
  * 5.Restricciones Críticas: Se añadieron advertencias explícitas sobre el idioma, el formato de salida y la integridad del JSON para evitar que la IA incluya texto innecesario.
+
+ * Cambios realizados:
+ * 1. Interfaz Dinámica:
+    * Si seleccionas "Otra" en la Marca, aparecerá automáticamente un campo de texto para que la escribas manualmente.
+    * Si seleccionas "Otro Modelo" en el Modelo, aparecerá un campo para especificarlo.◦
+    * Estos campos se ocultan automáticamente si eliges una opción de la lista, manteniendo la interfaz limpia.
+ * 2.Lógica de Reporte:◦
+    * El sistema ahora prioriza lo que escribas manualmente si las opciones "Otra" están seleccionadas. Si no, utiliza el valor del Spinner.
+ * 3 Ingeniería de Prompts (Refinamiento):◦
+    * He actualizado las instrucciones para la IA: Ahora utiliza el costo por hora del país como tarifa base, pero tiene la libertad de ajustarlo si el vehículo es de alta gama o la reparación es muy compleja, siempre que justifique este cambio en las notas del reporte.
+ * Ejemplo de cómo lo verá la IA:
+ * "Utiliza 30.0 USD/hora como tarifa base, pero si consideras que por el tipo de vehículo (ej. alta gama, tecnología ADAS) o complejidad técnica la tarifa debería ser distinta, ajústala y JUSTIFÍCALO en las notas."
+
+* Mejoras en el reporte PDF:
+ * 1. Fecha Automática: Al abrir el formulario, el campo "Fecha de Inspección" ahora se completa automáticamente con la fecha de hoy, ahorrando tiempo al perito.
+ * 2. Reporte PDF Premium:
+◦   * Encabezado Profesional: Se añadió una franja azul en la parte superior con el título del reporte y el logo de enpartes integrado.
+◦   * Estructura Técnica: Se utilizan fuentes en negrita para las etiquetas y colores para los títulos de sección (#1976D2), lo que facilita la lectura rápida.
+◦   * Evidencia Fotográfica: Las fotos analizadas ahora se organizan en una grilla de dos columnas con bordes elegantes, optimizando el espacio del documento.
+◦   * Pie de Página: Cada página incluye ahora el número de página y una marca de "Generado por enpartesapp AI".
+ * 3. Botón "Compartir": Se agregó un nuevo botón en la pantalla de resultados que permite enviar el PDF directamente por WhatsApp, Correo o cualquier otra app, sin necesidad de buscar el archivo en la memoria del teléfono.
  */
 
 package com.ehome.enpartesapp.ui.presupuesto
@@ -78,6 +99,7 @@ import com.ehome.enpartesapp.R
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -87,6 +109,7 @@ import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
+import java.util.ArrayList
 import java.util.Date
 import java.util.Locale
 import com.ehome.enpartesapp.BuildConfig
@@ -231,6 +254,11 @@ class PresupuestoFragment : Fragment() {
     private lateinit var etVINnumber: TextInputEditText
     private lateinit var etDateOfInspection: TextInputEditText
     private lateinit var etVehicleYear: TextInputEditText
+    private lateinit var etMarcaOtro: TextInputEditText
+    private lateinit var etModeloOtro: TextInputEditText
+
+    private lateinit var tilMarcaOtro: TextInputLayout
+    private lateinit var tilModeloOtro: TextInputLayout
 
     private lateinit var btnCancelar: Button
     private lateinit var btnAceptar: Button
@@ -561,6 +589,12 @@ class PresupuestoFragment : Fragment() {
         etDateOfInspection = view.findViewById(R.id.etDateOfInspection)
         etVINnumber = view.findViewById(R.id.etVINnumber)
         etVehicleYear = view.findViewById(R.id.etVehicleYear)
+        etMarcaOtro = view.findViewById(R.id.etMarcaOtro)
+        etModeloOtro = view.findViewById(R.id.etModeloOtro)
+        
+        tilMarcaOtro = view.findViewById(R.id.tilMarcaOtro)
+        tilModeloOtro = view.findViewById(R.id.tilModeloOtro)
+
         spinnerTipoVehiculo = view.findViewById(R.id.spinnerTipoVehiculo)
         spinnerMarcaVehiculo = view.findViewById(R.id.spinnerMarcaVehiculo)
         spinnerModeloVehiculo = view.findViewById(R.id.spinnerModeloVehiculo)
@@ -592,6 +626,10 @@ class PresupuestoFragment : Fragment() {
         configurarSpinnerTipoVehiculo()
         configurarSpinnerVehicleColor()
         configurarSpinnerCountry()
+
+        // Establecer fecha de hoy por defecto
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        etDateOfInspection.setText(sdf.format(Date()))
 
         fotoList.add(FotoItem())
         recyclerView = view.findViewById(R.id.recyclerView)
@@ -909,6 +947,15 @@ class PresupuestoFragment : Fragment() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val marcaSeleccionada = parent?.getItemAtPosition(position).toString()
                 configurarSpinnerModeloVehiculo(marcaSeleccionada)
+                
+                // Mostrar/Ocultar campo manual para Marca
+                if (marcaSeleccionada.equals("Otra", ignoreCase = true)) {
+                    tilMarcaOtro.visibility = VISIBLE
+                } else {
+                    tilMarcaOtro.visibility = GONE
+                    etMarcaOtro.text?.clear()
+                }
+                
                 Log.d("PresupuestoFragment", "Marca seleccionada: $marcaSeleccionada")
             }
 
@@ -924,6 +971,25 @@ class PresupuestoFragment : Fragment() {
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, modelos)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerModeloVehiculo.adapter = adapter
+
+        spinnerModeloVehiculo.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val modeloSeleccionado = parent?.getItemAtPosition(position).toString()
+                
+                // Mostrar/Ocultar campo manual para Modelo
+                if (modeloSeleccionado.equals("Otro Modelo", ignoreCase = true)) {
+                    tilModeloOtro.visibility = VISIBLE
+                } else {
+                    tilModeloOtro.visibility = GONE
+                    etModeloOtro.text?.clear()
+                }
+                
+                Log.d("PresupuestoFragment", "Modelo seleccionado: $modeloSeleccionado")
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+        
         Log.d("PresupuestoFragment", "Spinner Modelo Vehículo configurado para marca: $marca")
     }
 
@@ -992,9 +1058,24 @@ class PresupuestoFragment : Fragment() {
         btnAceptar.isEnabled = false
         btnCancelar.isEnabled = false
 
+        val marcaSeleccionada = spinnerMarcaVehiculo.selectedItem.toString()
+        val modeloSeleccionado = spinnerModeloVehiculo.selectedItem.toString()
+        
+        val finalMarca = if (marcaSeleccionada.equals("Otra", ignoreCase = true) && !etMarcaOtro.text.isNullOrBlank()) {
+            etMarcaOtro.text.toString()
+        } else {
+            marcaSeleccionada
+        }
+
+        val finalModelo = if (modeloSeleccionado.equals("Otro Modelo", ignoreCase = true) && !etModeloOtro.text.isNullOrBlank()) {
+            etModeloOtro.text.toString()
+        } else {
+            modeloSeleccionado
+        }
+
         val vehicleData = mapOf(
-            "marca" to spinnerMarcaVehiculo.selectedItem.toString(),
-            "modelo" to spinnerModeloVehiculo.selectedItem.toString(),
+            "marca" to finalMarca,
+            "modelo" to finalModelo,
             "anio" to etVehicleYear.text.toString(),
             "ubicacion" to spinnerCity.selectedItem.toString() + ", " + spinnerCountry.selectedItem.toString(),
             "color" to spinnerVehicleColor.selectedItem.toString()
@@ -1035,14 +1116,15 @@ class PresupuestoFragment : Fragment() {
             - Año: ${vehicleData["anio"]}
             - Color: ${vehicleData["color"]}
             - Ubicación: ${vehicleData["ubicacion"]}
-            - Tarifa Mano de Obra: $costoHoraManoObra USD/hora
+            - Tarifa Base Mano de Obra: $costoHoraManoObra USD/hora
             </datos_vehiculo>
 
             ### INSTRUCCIONES DE ANÁLISIS
             1. Inspecciona cada imagen buscando deformaciones, roturas, desalineaciones y daños ocultos sugeridos.
             2. Determina para cada pieza si requiere "Reemplazar" o "Reparar" basado en criterios técnicos de seguridad y estética.
             3. Estima las horas de mano de obra (MO) necesarias para cada intervención.
-            4. Calcula costos de repuestos o materiales ajustados al mercado de ${vehicleData["ubicacion"]}.
+            4. Utiliza $costoHoraManoObra USD/hora como tarifa base, pero si consideras que por el tipo de vehículo (ej. alta gama, tecnología ADAS) o complejidad técnica la tarifa debería ser distinta, ajústala y JUSTIFÍCALO en las notas.
+            5. Calcula costos de repuestos o materiales ajustados al mercado de ${vehicleData["ubicacion"]}.
 
             ### ESPECIFICACIÓN DE SALIDA (JSON)
             Genera un informe estructurado en formato JSON siguiendo estrictamente este esquema:
@@ -1054,7 +1136,7 @@ class PresupuestoFragment : Fragment() {
                 "Anio": ${vehicleData["anio"]},
                 "Color": "...",
                 "UbicacionValoracion": "...",
-                "CostoHoraManoObra": $costoHoraManoObra
+                "CostoHoraManoObra": 0.0
               },
               "DescripcionDanosExistentes": {
                 "Zona_Afectada": "Descripción técnica del daño"
@@ -1070,7 +1152,7 @@ class PresupuestoFragment : Fragment() {
                      "TotalHoras": 0.0
                   },
                   "CostoPieza": 0.0,
-                  "notas": "Detalles adicionales sobre la pieza o el proceso"
+                  "notas": "Detalles adicionales sobre la pieza, el proceso o justificación de cambio en tarifa de MO"
                 }
               ],
               "ConsideracionesAdicionales": [

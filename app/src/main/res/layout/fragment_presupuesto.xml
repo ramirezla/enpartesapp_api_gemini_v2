@@ -64,6 +64,20 @@
             style="@style/SpinnerTextStyle"
             android:layout_marginBottom="16dp" />
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilMarcaOtro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Especifique la marca"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etMarcaOtro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -79,6 +93,20 @@
             android:background="@android:drawable/btn_dropdown"
             style="@style/SpinnerTextStyle"
             android:layout_marginBottom="16dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilModeloOtro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Especifique el modelo"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etModeloOtro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:layout_width="match_parent"

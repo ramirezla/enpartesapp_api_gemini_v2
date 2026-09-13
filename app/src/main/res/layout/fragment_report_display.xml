@@ -411,33 +411,41 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_marginTop="16dp"
             android:gravity="center">
 
-            <Button
-                android:id="@+id/btnSaveLocal"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:text="Guardar Local" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+                <Button
+                    android:id="@+id/btnSaveLocal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="Guardar Local" />
+
+                <Button
+                    android:id="@+id/btnSaveDrive"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Guardar en Drive" />
+            </LinearLayout>
 
             <Button
-                android:id="@+id/btnSaveDrive"
-                android:layout_width="0dp"
+                android:id="@+id/btnShareReport"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:text="Guardar en Drive" />
-
-<!--            <Button
-                android:id="@+id/btnVolver"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:text="Volver" />-->
+                android:text="Compartir Reporte PDF"
+                android:backgroundTint="@color/blue"
+                android:textColor="@android:color/white"
+                app:icon="@drawable/image_photo_photography_video_icon" />
         </LinearLayout>
 
     </LinearLayout>
