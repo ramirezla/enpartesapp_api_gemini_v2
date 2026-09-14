@@ -1,84 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="16dp"
-    android:gravity="center_vertical">
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="1dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="?attr/colorOutlineVariant">
 
-    <!-- Columna 1: Iconos para tomar o subir foto -->
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:padding="8dp">
 
-        <!-- Botón para tomar foto -->
-        <ImageButton
-            android:id="@+id/btnTomarFoto"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/camera_2_icon"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/tomar_foto"
-            android:layout_marginEnd="8dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <!-- Botón para cargar foto -->
-        <ImageButton
-            android:id="@+id/btnSubirFoto"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/app_folder_upload_icon"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/subir_foto" />
+            <!-- Columna 1: Imagen de referencia -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                app:cardCornerRadius="6dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutline">
+
+                <ImageView
+                    android:id="@+id/imgFoto"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_menu_gallery"
+                    android:contentDescription="@string/miniatura_de_la_foto" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Columna 2: Controles -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Tipo de Foto">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/spinnerTipoFoto"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:textSize="12sp"
+                        android:padding="8dp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnTomarFoto"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cámara"
+                        android:textSize="11sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSubirFoto"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Galería"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Columna 3: Gestión -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginStart="8dp">
+
+                <ImageButton
+                    android:id="@+id/btnAgregar"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/add_photo_1_icon"
+                    android:scaleType="fitCenter"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:layout_marginBottom="12dp"
+                    android:contentDescription="@string/agregar_foto" />
+
+                <ImageButton
+                    android:id="@+id/btnBorrar"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/delete_garbage_trash_icon"
+                    android:scaleType="fitCenter"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/borrar_foto" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
-
-    <!-- Columna 2: Imagen de referencia -->
-    <ImageView
-        android:id="@+id/imgFoto"
-        android:layout_width="0dp"
-        android:layout_height="64dp"
-        android:layout_weight="1"
-        android:scaleType="centerCrop"
-        android:contentDescription="@string/miniatura_de_la_foto"
-        android:src="@drawable/images_icon" />
-
-    <!-- Columna 3: Spinner para seleccionar tipo de foto -->
-    <Spinner
-        android:id="@+id/spinnerTipoFoto"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="2"
-        android:gravity="center"
-        android:background="@android:drawable/btn_dropdown"
-        style="@style/SpinnerTextStyle" />
-
-    <!-- Columna 4: Botones de agregar y borrar -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
-
-        <!-- Botón de agregar foto -->
-        <ImageButton
-            android:id="@+id/btnAgregar"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/add_photo_1_icon"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/agregar_foto" />
-
-        <!-- Botón de borrar foto -->
-        <ImageButton
-            android:id="@+id/btnBorrar"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/delete_garbage_trash_icon"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/borrar_foto"
-            android:layout_marginTop="8dp" />
-    </LinearLayout>
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

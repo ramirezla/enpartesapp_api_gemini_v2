@@ -79,13 +79,12 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.NumberPicker
-import android.widget.ProgressBar
-import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -98,6 +97,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ehome.enpartesapp.R
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CoroutineScope
@@ -157,19 +158,13 @@ class FotoAdapter(
         val fotoItem = fotoList[position]
 
         val tiposFoto = context.resources.getStringArray(R.array.tipos_foto)
-        val adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, tiposFoto)
-        holder.spinnerTipoFoto.adapter = adapter
+        val photoTypeAdapter = ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, tiposFoto)
+        holder.spinnerTipoFoto.setAdapter(photoTypeAdapter)
 
-        val selectedIndex = tiposFoto.indexOf(fotoItem.tipoFoto)
-        if (selectedIndex >= 0) {
-            holder.spinnerTipoFoto.setSelection(selectedIndex)
-        }
+        holder.spinnerTipoFoto.setText(fotoItem.tipoFoto, false)
 
-        holder.spinnerTipoFoto.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
-                fotoItem.tipoFoto = tiposFoto[pos]
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        holder.spinnerTipoFoto.onItemClickListener = AdapterView.OnItemClickListener { parent, _, pos, _ ->
+            fotoItem.tipoFoto = parent.getItemAtPosition(pos).toString()
         }
 
         holder.btnTomarFoto.setOnClickListener {
@@ -209,10 +204,10 @@ class FotoAdapter(
     override fun getItemCount(): Int = fotoList.size
 
     class FotoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val btnTomarFoto: ImageButton = itemView.findViewById(R.id.btnTomarFoto)
-        val btnSubirFoto: ImageButton = itemView.findViewById(R.id.btnSubirFoto)
+        val btnTomarFoto: MaterialButton = itemView.findViewById(R.id.btnTomarFoto)
+        val btnSubirFoto: MaterialButton = itemView.findViewById(R.id.btnSubirFoto)
         val imgFoto: ImageView = itemView.findViewById(R.id.imgFoto)
-        val spinnerTipoFoto: Spinner = itemView.findViewById(R.id.spinnerTipoFoto)
+        val spinnerTipoFoto: AutoCompleteTextView = itemView.findViewById(R.id.spinnerTipoFoto)
         val btnBorrar: ImageButton = itemView.findViewById(R.id.btnBorrar)
         val btnAgregar: ImageButton = itemView.findViewById(R.id.btnAgregar)
     }
@@ -233,16 +228,15 @@ class PresupuestoFragment : Fragment() {
     private lateinit var adapter: FotoAdapter
     private var currentPhotoUri: Uri? = null
 
-    private lateinit var spinnerTipoFotoVin: Spinner
-    private lateinit var spinnerTipoVehiculo: Spinner
-    private lateinit var spinnerMarcaVehiculo: Spinner
-    private lateinit var spinnerModeloVehiculo: Spinner
-    private lateinit var spinnerVehicleColor: Spinner
-    private lateinit var spinnerCountry: Spinner
-    private lateinit var spinnerState: Spinner
-    private lateinit var spinnerCity: Spinner
+    private lateinit var spinnerTipoVehiculo: AutoCompleteTextView
+    private lateinit var spinnerMarcaVehiculo: AutoCompleteTextView
+    private lateinit var spinnerModeloVehiculo: AutoCompleteTextView
+    private lateinit var spinnerVehicleColor: AutoCompleteTextView
+    private lateinit var spinnerCountry: AutoCompleteTextView
+    private lateinit var spinnerState: AutoCompleteTextView
+    private lateinit var spinnerCity: AutoCompleteTextView
 
-    private lateinit var progressBar: ProgressBar // <-- AÑADIR ESTA LÍNEA
+    private lateinit var progressBar: LinearProgressIndicator
 
     private lateinit var takePhotoLauncher: ActivityResultLauncher<Uri>
     private lateinit var uploadPhotoLauncher: ActivityResultLauncher<String>
@@ -669,15 +663,13 @@ class PresupuestoFragment : Fragment() {
         etVINnumber.text?.clear()
         etVehicleYear.text?.clear()
 
-        spinnerTipoVehiculo.setSelection(0)
-        spinnerMarcaVehiculo.setSelection(0)
-        spinnerModeloVehiculo.setSelection(0)
-        spinnerVehicleColor.setSelection(0)
-        spinnerCountry.setSelection(0)
-        spinnerState.setSelection(0)
-        spinnerCity.setSelection(0)
-
-        spinnerTipoFotoVin.setSelection(0)
+        spinnerTipoVehiculo.setText("", false)
+        spinnerMarcaVehiculo.setText("", false)
+        spinnerModeloVehiculo.setText("", false)
+        spinnerVehicleColor.setText("", false)
+        spinnerCountry.setText("", false)
+        spinnerState.setText("", false)
+        spinnerCity.setText("", false)
 
         val oldSize = fotoList.size
         fotoList.clear()
@@ -732,8 +724,9 @@ class PresupuestoFragment : Fragment() {
         )
 
         for ((spinner, nombre) in spinnersObligatorios) {
-            if (spinner.selectedItemPosition == 0) {
-                Log.d("Validacion", "Spinner $nombre no seleccionado.")
+            val text = spinner.text.toString()
+            if (text.isBlank() || text.startsWith("Seleccione")) {
+                Log.d("Validacion", "Campo $nombre no seleccionado.")
                 Toast.makeText(requireContext(), "El campo $nombre es obligatorio", Toast.LENGTH_SHORT).show()
                 return false
             }
@@ -928,118 +921,93 @@ class PresupuestoFragment : Fragment() {
             "Seleccione un tipo de vehículo...",
             "Automóvil", "Camioneta", "Camión", "Motocicleta", "Bus", "Tractor", "Remolque", "Otros"
         )
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, tiposVehiculo)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerTipoVehiculo.adapter = adapter
+        val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, tiposVehiculo)
+        spinnerTipoVehiculo.setAdapter(arrayAdapter)
         Log.d("PresupuestoFragment", "Spinner Tipo Vehículo configurado.")
     }
 
     /**
-     * Configura el Spinner para las marcas de vehículos y establece un listener para actualizar el Spinner de modelos.
+     * Configura el selector para las marcas de vehículos y establece un listener para actualizar el selector de modelos.
      */
     private fun configurarSpinnerMarcasVehiculosEcuador() {
         val marcas = modelosPorMarca.keys.toTypedArray()
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, marcas)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerMarcaVehiculo.adapter = adapter
+        val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, marcas)
+        spinnerMarcaVehiculo.setAdapter(arrayAdapter)
 
-        spinnerMarcaVehiculo.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val marcaSeleccionada = parent?.getItemAtPosition(position).toString()
-                configurarSpinnerModeloVehiculo(marcaSeleccionada)
-                
-                // Mostrar/Ocultar campo manual para Marca
-                if (marcaSeleccionada.equals("Otra", ignoreCase = true)) {
-                    tilMarcaOtro.visibility = VISIBLE
-                } else {
-                    tilMarcaOtro.visibility = GONE
-                    etMarcaOtro.text?.clear()
-                }
-                
-                Log.d("PresupuestoFragment", "Marca seleccionada: $marcaSeleccionada")
+        spinnerMarcaVehiculo.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
+            val marcaSeleccionada = parent.getItemAtPosition(position).toString()
+            configurarSpinnerModeloVehiculo(marcaSeleccionada)
+            
+            // Mostrar/Ocultar campo manual para Marca
+            if (marcaSeleccionada.equals("Otra", ignoreCase = true)) {
+                tilMarcaOtro.visibility = VISIBLE
+            } else {
+                tilMarcaOtro.visibility = GONE
+                etMarcaOtro.text?.clear()
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // No hacer nada
-            }
+            
+            Log.d("PresupuestoFragment", "Marca seleccionada: $marcaSeleccionada")
         }
         Log.d("PresupuestoFragment", "Spinner Marcas Vehículos configurado.")
     }
 
     private fun configurarSpinnerModeloVehiculo(marca: String) {
         val modelos = modelosPorMarca[marca] ?: arrayOf("Seleccione un modelo...")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, modelos)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerModeloVehiculo.adapter = adapter
+        val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, modelos)
+        spinnerModeloVehiculo.setAdapter(arrayAdapter)
 
-        spinnerModeloVehiculo.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val modeloSeleccionado = parent?.getItemAtPosition(position).toString()
-                
-                // Mostrar/Ocultar campo manual para Modelo
-                if (modeloSeleccionado.equals("Otro Modelo", ignoreCase = true)) {
-                    tilModeloOtro.visibility = VISIBLE
-                } else {
-                    tilModeloOtro.visibility = GONE
-                    etModeloOtro.text?.clear()
-                }
-                
-                Log.d("PresupuestoFragment", "Modelo seleccionado: $modeloSeleccionado")
+        spinnerModeloVehiculo.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
+            val modeloSeleccionado = parent.getItemAtPosition(position).toString()
+            
+            // Mostrar/Ocultar campo manual para Modelo
+            if (modeloSeleccionado.equals("Otro Modelo", ignoreCase = true)) {
+                tilModeloOtro.visibility = VISIBLE
+            } else {
+                tilModeloOtro.visibility = GONE
+                etModeloOtro.text?.clear()
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            
+            Log.d("PresupuestoFragment", "Modelo seleccionado: $modeloSeleccionado")
         }
         
         Log.d("PresupuestoFragment", "Spinner Modelo Vehículo configurado para marca: $marca")
     }
 
     private fun configurarSpinnerVehicleColor() {
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, colors)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerVehicleColor.adapter = adapter
+        val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, colors)
+        spinnerVehicleColor.setAdapter(arrayAdapter)
         Log.d("PresupuestoFragment", "Spinner Vehicle Color configurado.")
     }
 
     private fun configurarSpinnerCountry() {
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, countries)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerCountry.adapter = adapter
+        val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, countries)
+        spinnerCountry.setAdapter(arrayAdapter)
 
-        spinnerCountry.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val countrySelected = parent?.getItemAtPosition(position).toString()
-                configurarSpinnerState(countrySelected)
-                Log.d("PresupuestoFragment", "País seleccionado: $countrySelected")
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        spinnerCountry.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
+            val countrySelected = parent.getItemAtPosition(position).toString()
+            configurarSpinnerState(countrySelected)
+            Log.d("PresupuestoFragment", "País seleccionado: $countrySelected")
         }
         Log.d("PresupuestoFragment", "Spinner Country configurado.")
     }
 
     private fun configurarSpinnerState(country: String) {
         val states = statesByCountry[country] ?: arrayOf("Seleccione un estado...")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, states)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerState.adapter = adapter
+        val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, states)
+        spinnerState.setAdapter(arrayAdapter)
 
-        spinnerState.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val stateSelected = parent?.getItemAtPosition(position).toString()
-                configurarSpinnerCity(stateSelected)
-                Log.d("PresupuestoFragment", "Estado seleccionado: $stateSelected")
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        spinnerState.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
+            val stateSelected = parent.getItemAtPosition(position).toString()
+            configurarSpinnerCity(stateSelected)
+            Log.d("PresupuestoFragment", "Estado seleccionado: $stateSelected")
         }
         Log.d("PresupuestoFragment", "Spinner State configurado para país: $country")
     }
 
     private fun configurarSpinnerCity(state: String) {
         val cities = citiesByState[state] ?: arrayOf("Seleccione una ciudad...")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, cities)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerCity.adapter = adapter
+        val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, cities)
+        spinnerCity.setAdapter(arrayAdapter)
         Log.d("PresupuestoFragment", "Spinner City configurado para estado: $state")
     }
 
@@ -1053,13 +1021,13 @@ class PresupuestoFragment : Fragment() {
     private fun generateDamageReport() {
         Log.d("GeminiReport", "generateDamageReport() called. Preparando prompt e imágenes.")
 
-        // MOSTRAR EL PROGRESS BAR Y DESHABILITAR EL BOTÓN ANTES DE LA LLAMADA A LA API
-        progressBar.visibility = VISIBLE
+        // MOSTRAR EL PROGRESS INDICATOR Y DESHABILITAR EL BOTÓN ANTES DE LA LLAMADA A LA API
+        progressBar.show()
         btnAceptar.isEnabled = false
         btnCancelar.isEnabled = false
 
-        val marcaSeleccionada = spinnerMarcaVehiculo.selectedItem.toString()
-        val modeloSeleccionado = spinnerModeloVehiculo.selectedItem.toString()
+        val marcaSeleccionada = spinnerMarcaVehiculo.text.toString()
+        val modeloSeleccionado = spinnerModeloVehiculo.text.toString()
         
         val finalMarca = if (marcaSeleccionada.equals("Otra", ignoreCase = true) && !etMarcaOtro.text.isNullOrBlank()) {
             etMarcaOtro.text.toString()
@@ -1077,8 +1045,8 @@ class PresupuestoFragment : Fragment() {
             "marca" to finalMarca,
             "modelo" to finalModelo,
             "anio" to etVehicleYear.text.toString(),
-            "ubicacion" to spinnerCity.selectedItem.toString() + ", " + spinnerCountry.selectedItem.toString(),
-            "color" to spinnerVehicleColor.selectedItem.toString()
+            "ubicacion" to spinnerCity.text.toString() + ", " + spinnerCountry.text.toString(),
+            "color" to spinnerVehicleColor.text.toString()
         )
 
         val imagesForGemini = mutableListOf<Bitmap>()
@@ -1102,7 +1070,7 @@ class PresupuestoFragment : Fragment() {
             return
         }
 
-        val selectedCountry = spinnerCountry.selectedItem.toString()
+        val selectedCountry = spinnerCountry.text.toString()
         val costoHoraManoObra = laborCostByCountry[selectedCountry] ?: 20.0
         
         val promptText = """
@@ -1183,8 +1151,8 @@ class PresupuestoFragment : Fragment() {
                 Log.d("GeminiReport", "Respuesta recibida de la API de Gemini.")
 
                 withContext(Dispatchers.Main) {
-                    // OCULTAR EL PROGRESS BAR Y HABILITAR EL BOTÓN DESPUÉS DE LA RESPUESTA
-                    progressBar.visibility = GONE
+                    // OCULTAR EL PROGRESS INDICATOR Y HABILITAR EL BOTÓN DESPUÉS DE LA RESPUESTA
+                    progressBar.hide()
                     btnAceptar.isEnabled = true
                     btnCancelar.isEnabled = true
 
@@ -1258,8 +1226,8 @@ class PresupuestoFragment : Fragment() {
             } catch (e: Exception) {
                 Log.e("GeminiReport", "Excepción durante la llamada a la API de Gemini: ${e.message}", e)
                 withContext(Dispatchers.Main) {
-                    // OCULTAR EL PROGRESS BAR Y HABILITAR EL BOTÓN EN CASO DE ERROR DE CONEXIÓN
-                    progressBar.visibility = GONE
+                    // OCULTAR EL PROGRESS INDICATOR Y HABILITAR EL BOTÓN EN CASO DE ERROR DE CONEXIÓN
+                    progressBar.hide()
                     btnAceptar.isEnabled = true
                     btnCancelar.isEnabled = true
 

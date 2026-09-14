@@ -44,12 +44,16 @@ class MainActivity : AppCompatActivity() {
         // Configurar el AppBarConfiguration
         appBarConfiguration = AppBarConfiguration(
             setOf(
+                R.id.nav_presupuestofragment,
                 R.id.nav_consultas_abiertas,
                 R.id.nav_gallery,
-                R.id.exitMenuItem // Remove R.id.nav_siniestro
+                R.id.exitMenuItem
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
+
+        // Establecer Reportar Siniestro como seleccionado por defecto
+        navigationView.setCheckedItem(R.id.nav_reportar_siniestro)
 
         // Get the header view
         val headerView = navigationView.getHeaderView(0)

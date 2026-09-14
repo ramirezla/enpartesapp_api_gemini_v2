@@ -5,6 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
     tools:context=".ui.presupuesto.PresupuestoFragment">
 
     <LinearLayout
@@ -13,254 +14,306 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:src="@drawable/iconoenpartes_app"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/descripcion_logo_enpartes" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/menu_siniestro"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorPrimary"
+            android:gravity="center"
+            android:layout_marginBottom="4dp" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/campos_obligatorios"
             android:textColor="@android:color/holo_red_dark"
-            android:textSize="12sp"
+            android:textSize="11sp"
+            android:gravity="center"
             android:layout_marginBottom="16dp" />
 
+        <!-- Sección: Información del Caso -->
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/case_number_hint_2"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="8dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etCaseNumber"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:padding="12dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/inspection_date_hint"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="8dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etDateOfInspection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusable="true"
+                android:focusable="false"
                 android:clickable="true"
-                android:inputType="date" />
+                android:inputType="none"
+                android:textSize="14sp"
+                android:padding="12dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
+        <!-- Sección: Vehículo -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/vehicle_brand_label"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
+            android:hint="@string/vehicle_brand_label"
+            android:layout_marginBottom="8dp">
 
-        <Spinner
-            android:id="@+id/spinnerMarcaVehiculo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/btn_dropdown"
-            style="@style/SpinnerTextStyle"
-            android:layout_marginBottom="16dp" />
+            <AutoCompleteTextView
+                android:id="@+id/spinnerMarcaVehiculo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:textSize="14sp"
+                android:padding="12dp"
+                android:labelFor="@+id/spinnerMarcaVehiculo" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilMarcaOtro"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Especifique la marca"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             android:visibility="gone">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etMarcaOtro"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/vehicle_model_label"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
+            android:hint="@string/vehicle_model_label"
+            android:layout_marginBottom="8dp">
 
-        <Spinner
-            android:id="@+id/spinnerModeloVehiculo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/btn_dropdown"
-            style="@style/SpinnerTextStyle"
-            android:layout_marginBottom="16dp" />
+            <AutoCompleteTextView
+                android:id="@+id/spinnerModeloVehiculo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:textSize="14sp"
+                android:padding="12dp"
+                android:labelFor="@+id/spinnerModeloVehiculo" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilModeloOtro"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Especifique el modelo"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             android:visibility="gone">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etModeloOtro"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/vehicle_type_label"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
+            android:hint="@string/vehicle_type_label"
+            android:layout_marginBottom="8dp">
 
-        <Spinner
-            android:id="@+id/spinnerTipoVehiculo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/btn_dropdown"
-            style="@style/SpinnerTextStyle"
-            android:layout_marginBottom="16dp" />
+            <AutoCompleteTextView
+                android:id="@+id/spinnerTipoVehiculo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:textSize="14sp"
+                android:padding="12dp"
+                android:labelFor="@+id/spinnerTipoVehiculo" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/vehicle_year_hint"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="8dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etVehicleYear"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusable="true"
+                android:focusable="false"
                 android:clickable="true"
-                android:inputType="number" />
+                android:textSize="14sp"
+                android:padding="12dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/vehicle_color_label"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
+            android:hint="@string/vehicle_color_label"
+            android:layout_marginBottom="8dp">
 
-        <Spinner
-            android:id="@+id/spinnerVehicleColor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/btn_dropdown"
-            style="@style/SpinnerTextStyle"
-            android:layout_marginBottom="16dp" />
+            <AutoCompleteTextView
+                android:id="@+id/spinnerVehicleColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:textSize="14sp"
+                android:padding="12dp"
+                android:labelFor="@+id/spinnerVehicleColor" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
+        <!-- Sección: Ubicación -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/country_label"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
+            android:hint="@string/country_label"
+            android:layout_marginBottom="8dp">
 
-        <Spinner
-            android:id="@+id/spinnerCountry"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/btn_dropdown"
-            style="@style/SpinnerTextStyle"
-            android:layout_marginBottom="16dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/state_label"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
-
-        <Spinner
-            android:id="@+id/spinnerState"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/btn_dropdown"
-            style="@style/SpinnerTextStyle"
-            android:layout_marginBottom="16dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/city_label"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
-
-        <Spinner
-            android:id="@+id/spinnerCity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/btn_dropdown"
-            style="@style/SpinnerTextStyle"
-            android:layout_marginBottom="16dp" />
+            <AutoCompleteTextView
+                android:id="@+id/spinnerCountry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:textSize="14sp"
+                android:padding="12dp"
+                android:labelFor="@+id/spinnerCountry" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/state_label"
+            android:layout_marginBottom="8dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/spinnerState"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:textSize="14sp"
+                android:padding="12dp"
+                android:labelFor="@+id/spinnerState" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/city_label"
+            android:layout_marginBottom="8dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/spinnerCity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:textSize="14sp"
+                android:padding="12dp"
+                android:labelFor="@+id/spinnerCity" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Sección: Datos Personales -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/full_name_hint"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="8dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etFullName"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:padding="12dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/email_hint"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="8dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textEmailAddress" />
+                android:inputType="textEmailAddress"
+                android:textSize="14sp"
+                android:padding="12dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/vin_number_hint"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="8dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etVINnumber"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:padding="12dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/vehicle_photos_label"
-            android:textSize="16sp"
+            android:textSize="17sp"
             android:textStyle="bold"
+            android:textColor="?attr/colorPrimary"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
             tools:listitem="@layout/item_foto" />
 
-        <ProgressBar
+        <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
+            android:indeterminate="true"
             android:visibility="gone" />
 
         <LinearLayout
@@ -268,27 +321,30 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="24dp"
-            android:gravity="center_horizontal"
-            android:padding="8dp">
+            android:gravity="center"
+            android:padding="4dp">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCancelar"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="54dp"
                 android:layout_weight="1"
                 android:text="@string/cancel_button"
-                android:backgroundTint="@color/naranja"
-                android:textColor="@color/white"
+                android:textColor="@color/naranja"
+                android:textSize="14sp"
+                app:strokeColor="@color/naranja"
                 android:layout_marginEnd="8dp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAceptar"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="54dp"
                 android:layout_weight="1"
                 android:text="@string/accept_button"
                 android:backgroundTint="@color/blue"
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                android:textSize="14sp" />
         </LinearLayout>
     </LinearLayout>
 
