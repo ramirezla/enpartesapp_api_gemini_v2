@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
@@ -389,7 +388,6 @@ class ReportDisplayFragment : Fragment() {
         val pdfDocument = PdfDocument()
         
         // Pinceles para diseño
-        val paint = Paint()
         val headerPaint = Paint().apply { color = Color.parseColor("#1976D2") } // Azul
         val titlePaint = Paint().apply { 
             color = Color.WHITE
@@ -665,11 +663,6 @@ class ReportDisplayFragment : Fragment() {
         return if (actualKey != null) this.optString(actualKey, defaultValue) else defaultValue
     }
 
-    private fun JSONObject.optDoubleIgnoreCase(key: String, defaultValue: Double = 0.0): Double {
-        val actualKey = findKeyIgnoreCase(key)
-        return if (actualKey != null) this.optDouble(actualKey, defaultValue) else defaultValue
-    }
-
     private fun JSONObject.optJSONObjectIgnoreCase(key: String): JSONObject? {
         val actualKey = findKeyIgnoreCase(key)
         return if (actualKey != null) this.optJSONObject(actualKey) else null
@@ -816,11 +809,13 @@ class ReportDisplayFragment : Fragment() {
                                 else if (key == "Fecha de Inspección") dataMap["inspectionDate"] = value
                             }
                             "vehicle" -> {
-                                if (key == "Marca") dataMap["brand"] = value
-                                else if (key == "Modelo") dataMap["model"] = value
-                                else if (key == "Número de VIN") dataMap["vin"] = value
-                                else if (key == "Año") dataMap["year"] = value
-                                else if (key == "Color") dataMap["color"] = value
+                        when (key) {
+                            "Marca" -> dataMap["brand"] = value
+                            "Modelo" -> dataMap["model"] = value
+                            "Número de VIN" -> dataMap["vin"] = value
+                            "Año" -> dataMap["year"] = value
+                            "Color" -> dataMap["color"] = value
+                        }
                             }
                             "location" -> if (key == "Ubicación de Valoración") dataMap["location"] = value
                             "inspector" -> {
