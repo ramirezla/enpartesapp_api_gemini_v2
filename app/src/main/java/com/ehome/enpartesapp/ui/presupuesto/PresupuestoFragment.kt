@@ -554,8 +554,8 @@ class PresupuestoFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Modelo recomendado y estable de Gemini
-        geminiModel = GenerativeModel(modelName = "gemini-1.5-flash", apiKey = BuildConfig.GEMINI_API_KEY)
+        // Modelo configurado por el usuario
+        geminiModel = GenerativeModel(modelName = "gemini-3.6-flash", apiKey = BuildConfig.GEMINI_API_KEY)
 
         requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
