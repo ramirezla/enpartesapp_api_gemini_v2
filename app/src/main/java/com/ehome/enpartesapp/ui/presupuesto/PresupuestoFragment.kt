@@ -56,6 +56,18 @@
 ◦   * Evidencia Fotográfica: Las fotos analizadas ahora se organizan en una grilla de dos columnas con bordes elegantes, optimizando el espacio del documento.
 ◦   * Pie de Página: Cada página incluye ahora el número de página y una marca de "Generado por enpartesapp AI".
  * 3. Botón "Compartir": Se agregó un nuevo botón en la pantalla de resultados que permite enviar el PDF directamente por WhatsApp, Correo o cualquier otra app, sin necesidad de buscar el archivo en la memoria del teléfono.
+
+ * Características Visuales del Diseño en PDF:
+ * Cabecera de Tabla: Fondo azul primario (#1976D2) con texto en negrita blanco.
+ * Filas de Datos: Bordes sutiles en gris claro y sombreado alternado (zebra striping) para mayor legibilidad.
+ * Alineación de Columnas:
+    * Texto a la izquierda en PIEZA.
+    * Texto centrado en Acción.
+    * Valores numéricos alineados a la derecha en Costo Pieza, Hojalatería, Pintura, Mecánica y Subtotal Ítem.
+ * Cálculos Automáticos:
+    * Los costos de mano de obra se calculan multiplicando las horas de cada especialidad por el costo por hora del país.
+    * El Subtotal Ítem suma Costo Pieza + Hojalatería + Pintura + Mecánica.
+    * El Total General calcula automáticamente el subtotal sin IVA, aplica el porcentaje de IVA y entrega el Total en USD.
  */
 
 package com.ehome.enpartesapp.ui.presupuesto
@@ -96,6 +108,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ehome.enpartesapp.R
 import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.GoogleGenerativeAIException
+import com.google.ai.client.generativeai.type.QuotaExceededException
 import com.google.ai.client.generativeai.type.content
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
@@ -540,8 +554,7 @@ class PresupuestoFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Cambiado a gemini-1.5-flash para corregir el error 404
-        // Otros modelos: gemini-2.5-flash, gemini-3.6-flash, gemini-3.7-flash
+        // Modelo recomendado y estable de Gemini
         geminiModel = GenerativeModel(modelName = "gemini-3.6-flash", apiKey = BuildConfig.GEMINI_API_KEY)
 
         requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->

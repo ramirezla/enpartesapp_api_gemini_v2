@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.Bundle
@@ -44,6 +45,7 @@ class ReportDisplayFragment : Fragment() {
     private var tvInspectorNameValue: TextView? = null
     private var tvInspectorEmailValue: TextView? = null
     private var tvCostPerHourValue: TextView? = null
+    private var ivaPercentage: Double = 0.15 // Porcentaje de IVA (15% por defecto)
 
     companion object {
         private const val REQUEST_CODE_CREATE_FILE = 1001
@@ -126,12 +128,11 @@ class ReportDisplayFragment : Fragment() {
 
     private fun shareReportPdf() {
         val apiResponse = arguments?.getString("api_response") ?: return
-        val formattedReport = formatFullReport(apiResponse)
         val photoUris = arguments?.getStringArrayList("photo_uris") ?: arrayListOf()
         
         try {
             val tempFile = File(requireContext().cacheDir, "Valoracion_Danos.pdf")
-            generatePdfReport(formattedReport, photoUris, tempFile)
+            generatePdfReport(apiResponse, photoUris, tempFile)
             
             val contentUri = FileProvider.getUriForFile(
                 requireContext(),
@@ -180,7 +181,7 @@ class ReportDisplayFragment : Fragment() {
             // Generar y guardar PDF
             val photoUris = arguments?.getStringArrayList("photo_uris") ?: arrayListOf()
             val pdfFile = File(reportsDir, "Reporte_${caseNumber}_${safeDate}.pdf")
-            generatePdfReport(formattedReport, photoUris, pdfFile)
+            generatePdfReport(apiResponse, photoUris, pdfFile)
 
             Toast.makeText(
                 requireContext(),
@@ -253,12 +254,11 @@ class ReportDisplayFragment : Fragment() {
             data?.data?.also { uri ->
                 try {
                     val apiResponse = arguments?.getString("api_response") ?: return
-                    val formattedReport = formatFullReport(apiResponse)
                     val photoUris = arguments?.getStringArrayList("photo_uris") ?: arrayListOf()
 
                     // Creamos un archivo temporal para generar el PDF
                     val tempFile = File(requireContext().cacheDir, "temp_report.pdf")
-                    generatePdfReport(formattedReport, photoUris, tempFile)
+                    generatePdfReport(apiResponse, photoUris, tempFile)
 
                     // Escribimos el contenido del archivo temporal al URI de Drive
                     requireContext().contentResolver.openOutputStream(uri)?.use { outputStream ->
@@ -384,178 +384,423 @@ class ReportDisplayFragment : Fragment() {
         return builder.toString()
     }
 
-    private fun generatePdfReport(reportText: String, photoUris: List<String>, outputFile: File) {
+    private fun generatePdfReport(jsonOrTextResponse: String, photoUris: List<String>, outputFile: File) {
+        val json = try {
+            JSONObject(jsonOrTextResponse)
+        } catch (e: Exception) {
+            null
+        }
+
+        if (json == null) {
+            generatePdfFromTextFallback(jsonOrTextResponse, photoUris, outputFile)
+            return
+        }
+
         val pdfDocument = PdfDocument()
-        
-        // Pinceles para diseño
-        val headerPaint = Paint().apply { color = Color.parseColor("#1976D2") } // Azul
-        val titlePaint = Paint().apply { 
+
+        // Pinceles / Estilos
+        val headerPaint = Paint().apply { color = Color.parseColor("#1976D2") }
+        val headerTitlePaint = Paint().apply {
             color = Color.WHITE
-            textSize = 20f
+            textSize = 18f
             isFakeBoldText = true
+            isAntiAlias = true
+        }
+        val headerSubPaint = Paint().apply {
+            color = Color.WHITE
+            textSize = 9.5f
             isAntiAlias = true
         }
         val sectionTitlePaint = Paint().apply {
             color = Color.parseColor("#1976D2")
-            textSize = 16f
+            textSize = 12f
             isFakeBoldText = true
             isAntiAlias = true
         }
         val labelPaint = Paint().apply {
-            color = Color.DKGRAY
-            textSize = 12f
+            color = Color.parseColor("#424242")
+            textSize = 9f
             isFakeBoldText = true
             isAntiAlias = true
         }
-        val contentPaint = Paint().apply {
+        val valuePaint = Paint().apply {
             color = Color.BLACK
-            textSize = 12f
+            textSize = 9f
             isAntiAlias = true
         }
-        val linePaint = Paint().apply {
-            color = Color.LTGRAY
+        val tableHeaderBgPaint = Paint().apply { color = Color.parseColor("#1976D2") }
+        val tableHeaderFontPaint = Paint().apply {
+            color = Color.WHITE
+            textSize = 8f
+            isFakeBoldText = true
+            isAntiAlias = true
+        }
+        val tableRowEvenPaint = Paint().apply { color = Color.WHITE }
+        val tableRowOddPaint = Paint().apply { color = Color.parseColor("#F8F9FA") }
+        val tableCellPaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 8f
+            isAntiAlias = true
+        }
+        val tableCellBoldPaint = Paint().apply {
+            color = Color.BLACK
+            textSize = 8f
+            isFakeBoldText = true
+            isAntiAlias = true
+        }
+        val gridLinePaint = Paint().apply {
+            color = Color.parseColor("#E0E0E0")
+            strokeWidth = 0.8f
+            style = Paint.Style.STROKE
+        }
+        val totalBoxBgPaint = Paint().apply { color = Color.parseColor("#E3F2FD") }
+        val totalBoxBorderPaint = Paint().apply {
+            color = Color.parseColor("#90CAF9")
             strokeWidth = 1f
+            style = Paint.Style.STROKE
         }
         val footerPaint = Paint().apply {
             color = Color.GRAY
-            textSize = 10f
+            textSize = 8.5f
             isAntiAlias = true
         }
 
         val pageWidth = 595
         val pageHeight = 842
         var pageNumber = 1
-        val margin = 50f
-        val contentWidth = pageWidth - (margin * 2)
+        val margin = 30f
+        val contentWidth = pageWidth - (margin * 2) // 535f
 
         var pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
         var page = pdfDocument.startPage(pageInfo)
         var canvas = page.canvas
 
-        var y = 0f
+        var y = 80f
 
-        // Función para nueva página
+        fun drawFooter() {
+            canvas.drawText("Página $pageNumber | Generado por enpartesapp AI", margin, pageHeight - 20f, footerPaint)
+        }
+
         fun startNewPage() {
+            drawFooter()
             pdfDocument.finishPage(page)
             pageNumber++
             pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
             page = pdfDocument.startPage(pageInfo)
             canvas = page.canvas
-            
-            // Pie de página en cada página
-            canvas.drawText("Página $pageNumber | Generado por enpartesapp AI", margin, pageHeight - 30f, footerPaint)
-            y = 50f
+            y = 40f
         }
 
-        // --- ENCABEZADO ---
-        canvas.drawRect(0f, 0f, pageWidth.toFloat(), 100f, headerPaint)
-        canvas.drawText("REPORTE DE VALORACIÓN", margin, 60f, titlePaint)
-        
-        // Dibujar Logo si existe
+        // --- ENCABEZADO PRINCIPAL ---
+        canvas.drawRect(0f, 0f, pageWidth.toFloat(), 65f, headerPaint)
+        canvas.drawText("REPORTE DE VALORACIÓN DE DAÑOS", margin, 35f, headerTitlePaint)
+        val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+        canvas.drawText("Fecha de emisión: $dateStr", margin, 52f, headerSubPaint)
+
+        // Logo
         try {
             val logo = BitmapFactory.decodeResource(resources, R.drawable.logo_en_partes)
             if (logo != null) {
                 val ratio = logo.width.toFloat() / logo.height.toFloat()
-                val targetHeight = 70f
+                val targetHeight = 45f
                 val targetWidth = targetHeight * ratio
                 val scaledLogo = Bitmap.createScaledBitmap(logo, targetWidth.toInt(), targetHeight.toInt(), true)
-                canvas.drawBitmap(scaledLogo, pageWidth - margin - targetWidth, 15f, null)
+                canvas.drawBitmap(scaledLogo, pageWidth - margin - targetWidth, 10f, null)
             }
-        } catch (e: Exception) { /* Ignorar si no hay logo */ }
+        } catch (e: Exception) { }
 
-        y = 130f
-        canvas.drawText("Página $pageNumber | Generado por enpartesapp AI", margin, pageHeight - 30f, footerPaint)
+        // --- INFORMACIÓN GENERAL Y VEHÍCULO ---
+        canvas.drawText("INFORMACIÓN GENERAL Y DEL VEHÍCULO", margin, y, sectionTitlePaint)
+        y += 6f
+        canvas.drawLine(margin, y, margin + contentWidth, y, gridLinePaint)
+        y += 14f
 
-        val lines = reportText.split("\n")
-        for (line in lines) {
-            if (line.isBlank()) {
-                y += 10f
-                continue
-            }
+        val caseNo = tvCaseNumberValue?.text?.toString() ?: "N/A"
+        val inspDate = tvInspectionDateValue?.text?.toString() ?: "N/A"
+        val inspector = tvInspectorNameValue?.text?.toString() ?: "N/A"
+        val brand = tvBrandValue?.text?.toString() ?: "N/A"
+        val model = tvModelValue?.text?.toString() ?: "N/A"
+        val year = tvYearValue?.text?.toString() ?: "N/A"
+        val vehicleColor = tvColorValue?.text?.toString() ?: "N/A"
+        val vin = tvVinValue?.text?.toString() ?: "N/A"
+        val location = tvLocationValue?.text?.toString() ?: "N/A"
+        val costPerHour = tvCostPerHourValue?.text?.toString() ?: "N/A"
 
-            if (y > pageHeight - 80f) startNewPage()
+        val col1Left = margin
+        val col2Left = margin + 180f
+        val col3Left = margin + 360f
 
-            when {
-                line.startsWith("===") -> { /* Saltamos el encabezado viejo */ }
-                line.startsWith("---") -> {
-                    y += 20f
-                    val cleanTitle = line.replace("-", "").trim()
-                    canvas.drawText(cleanTitle, margin, y, sectionTitlePaint)
-                    y += 10f
-                    canvas.drawLine(margin, y, pageWidth - margin, y, linePaint)
-                    y += 20f
+        // Fila 1 de info
+        canvas.drawText("Caso:", col1Left, y, labelPaint)
+        canvas.drawText(caseNo, col1Left + 35f, y, valuePaint)
+
+        canvas.drawText("Inspector:", col2Left, y, labelPaint)
+        canvas.drawText(inspector, col2Left + 55f, y, valuePaint)
+
+        canvas.drawText("Fecha Insp.:", col3Left, y, labelPaint)
+        canvas.drawText(inspDate, col3Left + 60f, y, valuePaint)
+        y += 14f
+
+        // Fila 2 de info
+        canvas.drawText("Vehículo:", col1Left, y, labelPaint)
+        canvas.drawText("$brand $model ($year)", col1Left + 50f, y, valuePaint)
+
+        canvas.drawText("Color:", col2Left, y, labelPaint)
+        canvas.drawText(vehicleColor, col2Left + 35f, y, valuePaint)
+
+        canvas.drawText("VIN:", col3Left, y, labelPaint)
+        canvas.drawText(vin, col3Left + 25f, y, valuePaint)
+        y += 14f
+
+        // Fila 3 de info
+        canvas.drawText("Ubicación:", col1Left, y, labelPaint)
+        canvas.drawText(location, col1Left + 55f, y, valuePaint)
+
+        canvas.drawText("Tarifa MO:", col2Left, y, labelPaint)
+        canvas.drawText(costPerHour, col2Left + 55f, y, valuePaint)
+        y += 22f
+
+        // --- DESCRIPCIÓN DE DAÑOS ---
+        val damageObj = json.optJSONObjectIgnoreCase("DescripcionDanosExistentes")
+        if (damageObj != null && damageObj.length() > 0) {
+            if (y > pageHeight - 120f) startNewPage()
+
+            canvas.drawText("DESCRIPCIÓN DE DAÑOS", margin, y, sectionTitlePaint)
+            y += 6f
+            canvas.drawLine(margin, y, margin + contentWidth, y, gridLinePaint)
+            y += 14f
+
+            damageObj.keys().forEach { key ->
+                val desc = damageObj.getString(key)
+                val lineText = "$key: $desc"
+                val wrapped = wrapText(lineText, valuePaint, contentWidth)
+                for (wLine in wrapped) {
+                    if (y > pageHeight - 60f) startNewPage()
+                    canvas.drawText(wLine, margin, y, valuePaint)
+                    y += 13f
                 }
-                line.contains(":") -> {
-                    val parts = line.split(":", limit = 2)
-                    val label = parts[0].trim() + ":"
-                    val content = parts[1].trim()
-                    
-                    canvas.drawText(label, margin, y, labelPaint)
-                    
-                    val labelWidth = labelPaint.measureText(label) + 10f
-                    
-                    // Manejar contenido largo
-                    if (contentPaint.measureText(content) > (contentWidth - labelWidth)) {
-                        val words = content.split(" ")
-                        var currentLine = ""
-                        for (word in words) {
-                            if (contentPaint.measureText("$currentLine $word") > (contentWidth - labelWidth)) {
-                                canvas.drawText(currentLine, margin + labelWidth, y, contentPaint)
-                                y += 18f
-                                if (y > pageHeight - 80f) {
-                                    startNewPage()
-                                    canvas.drawText(label + " (cont.)", margin, y, labelPaint)
-                                }
-                                currentLine = word
-                            } else {
-                                currentLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+            }
+            y += 10f
+        }
+
+        // --- TABLA DE PIEZAS Y COSTOS ---
+        if (y > pageHeight - 150f) startNewPage()
+
+        canvas.drawText("DESGLOSE DE PIEZAS Y COSTOS DE REPARACIÓN", margin, y, sectionTitlePaint)
+        y += 6f
+        canvas.drawLine(margin, y, margin + contentWidth, y, gridLinePaint)
+        y += 14f
+
+        fun drawTableHeader(currentY: Float): Float {
+            canvas.drawRect(margin, currentY, margin + contentWidth, currentY + 18f, tableHeaderBgPaint)
+            val hY = currentY + 12f
+
+            tableHeaderFontPaint.textAlign = Paint.Align.LEFT
+            canvas.drawText("PIEZA", 34f, hY, tableHeaderFontPaint)
+
+            tableHeaderFontPaint.textAlign = Paint.Align.CENTER
+            canvas.drawText("Acción", 180f, hY, tableHeaderFontPaint)
+
+            tableHeaderFontPaint.textAlign = Paint.Align.RIGHT
+            canvas.drawText("Costo Pieza", 270f, hY, tableHeaderFontPaint)
+            canvas.drawText("Hojalatería", 335f, hY, tableHeaderFontPaint)
+            canvas.drawText("Pintura", 400f, hY, tableHeaderFontPaint)
+            canvas.drawText("Mecánica", 465f, hY, tableHeaderFontPaint)
+            canvas.drawText("SUBTOTAL ÍTEM", 560f, hY, tableHeaderFontPaint)
+
+            return currentY + 18f
+        }
+
+        y = drawTableHeader(y)
+
+        val costoHoraVal = extractDouble(costPerHour).let { if (it == 0.0) 20.0 else it }
+        val piezasArr = json.optJSONArrayIgnoreCase("ListadoPiezasAfectadas")
+
+        var totalSubtotalSinIva = 0.0
+
+        if (piezasArr != null) {
+            for (i in 0 until piezasArr.length()) {
+                val pieza = piezasArr.getJSONObject(i)
+                val nombre = pieza.optStringIgnoreCase("pieza", "Pieza desconocida")
+                val accion = pieza.findFirstStringIgnoreCase("suguerencia", "sugerencia", "accion", "Accion", defaultValue = "N/A")
+                val costoPieza = pieza.findFirstDoubleIgnoreCase("CostoPieza", "CostoMateriales", "CostoReparacion", "monto", defaultValue = 0.0)
+
+                // Extraer mano de obra por categoría
+                var hojalateriaCosto = 0.0
+                var pinturaCosto = 0.0
+                var mecanicaCosto = 0.0
+
+                val manoObra = getManoObraObject(pieza)
+                if (manoObra != null) {
+                    val keys = manoObra.keys()
+                    while (keys.hasNext()) {
+                        val key = keys.next()
+                        if (key.equals("TotalHoras", ignoreCase = true)) continue
+                        val horas = manoObra.optDouble(key, 0.0)
+                        val costo = horas * costoHoraVal
+                        val kLower = key.lowercase()
+                        when {
+                            kLower.contains("hojalat") || kLower.contains("laton") || kLower.contains("chapa") || kLower.contains("carrocer") -> {
+                                hojalateriaCosto += costo
+                            }
+                            kLower.contains("pintur") -> {
+                                pinturaCosto += costo
+                            }
+                            else -> {
+                                mecanicaCosto += costo
                             }
                         }
-                        canvas.drawText(currentLine, margin + labelWidth, y, contentPaint)
-                    } else {
-                        canvas.drawText(content, margin + labelWidth, y, contentPaint)
-                    }
-                    y += 22f
-                }
-                else -> {
-                    // Manejar líneas largas para Consideraciones Adicionales y otros textos
-                    val wrappedLine = if (contentPaint.measureText(line) > contentWidth) {
-                        wrapText(line, contentPaint, contentWidth)
-                    } else {
-                        listOf(line)
-                    }
-                    
-                    for (l in wrappedLine) {
-                        canvas.drawText(l, margin, y, contentPaint)
-                        y += 18f
-                        if (y > pageHeight - 80f) startNewPage()
                     }
                 }
+
+                val subtotalItem = costoPieza + hojalateriaCosto + pinturaCosto + mecanicaCosto
+                totalSubtotalSinIva += subtotalItem
+
+                val nameLines = wrapText(nombre, tableCellPaint, 112f)
+                val rowHeight = Math.max(18f, nameLines.size * 11f + 6f)
+
+                if (y + rowHeight > pageHeight - 60f) {
+                    startNewPage()
+                    y = drawTableHeader(y)
+                }
+
+                // Zebra background
+                val bgPaint = if (i % 2 == 0) tableRowEvenPaint else tableRowOddPaint
+                canvas.drawRect(margin, y, margin + contentWidth, y + rowHeight, bgPaint)
+                canvas.drawLine(margin, y + rowHeight, margin + contentWidth, y + rowHeight, gridLinePaint)
+
+                // Nombre Pieza (Izquierda)
+                var nameY = y + 11f
+                tableCellPaint.textAlign = Paint.Align.LEFT
+                for (nLine in nameLines) {
+                    canvas.drawText(nLine, 34f, nameY, tableCellPaint)
+                    nameY += 11f
+                }
+
+                val cellMidY = y + (rowHeight / 2f) + 3f
+
+                // Acción (Centro)
+                tableCellPaint.textAlign = Paint.Align.CENTER
+                canvas.drawText(accion, 180f, cellMidY, tableCellPaint)
+
+                // Costo Pieza
+                tableCellPaint.textAlign = Paint.Align.RIGHT
+                canvas.drawText("$%.2f".format(costoPieza), 270f, cellMidY, tableCellPaint)
+
+                // Hojalatería
+                canvas.drawText("$%.2f".format(hojalateriaCosto), 335f, cellMidY, tableCellPaint)
+
+                // Pintura
+                canvas.drawText("$%.2f".format(pinturaCosto), 400f, cellMidY, tableCellPaint)
+
+                // Mecánica
+                canvas.drawText("$%.2f".format(mecanicaCosto), 465f, cellMidY, tableCellPaint)
+
+                // SUBTOTAL ÍTEM (Negrita)
+                tableCellBoldPaint.textAlign = Paint.Align.RIGHT
+                canvas.drawText("$%.2f".format(subtotalItem), 560f, cellMidY, tableCellBoldPaint)
+
+                y += rowHeight
             }
         }
 
-        // --- FOTOS ---
-        if (photoUris.isNotEmpty()) {
-            y += 30f
-            if (y > pageHeight - 200f) startNewPage()
-            
-            canvas.drawText("EVIDENCIA FOTOGRÁFICA", margin, y, sectionTitlePaint)
+        // --- CAJA DE TOTALES (SUBTOTAL, IVA, TOTAL GENERAL) ---
+        val boxWidth = 240f
+        val boxHeight = 65f
+        val boxLeft = margin + contentWidth - boxWidth
+
+        if (y + boxHeight + 15f > pageHeight - 60f) {
+            startNewPage()
+        } else {
             y += 10f
-            canvas.drawLine(margin, y, pageWidth - margin, y, linePaint)
-            y += 30f
+        }
+
+        val rectBox = RectF(boxLeft, y, boxLeft + boxWidth, y + boxHeight)
+        canvas.drawRoundRect(rectBox, 5f, 5f, totalBoxBgPaint)
+        canvas.drawRoundRect(rectBox, 5f, 5f, totalBoxBorderPaint)
+
+        val ivaMonto = totalSubtotalSinIva * ivaPercentage
+        val totalGeneral = totalSubtotalSinIva + ivaMonto
+
+        var tY = y + 18f
+        val labelX = boxLeft + 12f
+        val valX = boxLeft + boxWidth - 12f
+
+        // Subtotal
+        labelPaint.textAlign = Paint.Align.LEFT
+        canvas.drawText("SUBTOTAL (Sin IVA):", labelX, tY, labelPaint)
+        valuePaint.textAlign = Paint.Align.RIGHT
+        canvas.drawText("$%.2f USD".format(totalSubtotalSinIva), valX, tY, valuePaint)
+
+        // IVA (%)
+        tY += 16f
+        labelPaint.textAlign = Paint.Align.LEFT
+        canvas.drawText("IVA (%.0f%%):".format(ivaPercentage * 100), labelX, tY, labelPaint)
+        valuePaint.textAlign = Paint.Align.RIGHT
+        canvas.drawText("$%.2f USD".format(ivaMonto), valX, tY, valuePaint)
+
+        // Línea
+        tY += 6f
+        canvas.drawLine(labelX, tY, valX, tY, gridLinePaint)
+
+        // Total General
+        tY += 14f
+        sectionTitlePaint.textAlign = Paint.Align.LEFT
+        sectionTitlePaint.textSize = 10.5f
+        canvas.drawText("TOTAL GENERAL:", labelX, tY, sectionTitlePaint)
+
+        sectionTitlePaint.textAlign = Paint.Align.RIGHT
+        canvas.drawText("$%.2f USD".format(totalGeneral), valX, tY, sectionTitlePaint)
+
+        y += boxHeight + 20f
+
+        // --- CONSIDERACIONES ADICIONALES ---
+        val consideracionesArr = json.optJSONArrayIgnoreCase("ConsideracionesAdicionales")
+        if (consideracionesArr != null && consideracionesArr.length() > 0) {
+            if (y > pageHeight - 100f) startNewPage()
+
+            sectionTitlePaint.textAlign = Paint.Align.LEFT
+            sectionTitlePaint.textSize = 12f
+            canvas.drawText("CONSIDERACIONES ADICIONALES", margin, y, sectionTitlePaint)
+            y += 6f
+            canvas.drawLine(margin, y, margin + contentWidth, y, gridLinePaint)
+            y += 14f
+
+            for (c in 0 until consideracionesArr.length()) {
+                val itemText = "- ${consideracionesArr.getString(c)}"
+                val wrapped = wrapText(itemText, valuePaint, contentWidth)
+                for (wLine in wrapped) {
+                    if (y > pageHeight - 60f) startNewPage()
+                    canvas.drawText(wLine, margin, y, valuePaint)
+                    y += 13f
+                }
+            }
+            y += 15f
+        }
+
+        // --- EVIDENCIA FOTOGRÁFICA ---
+        if (photoUris.isNotEmpty()) {
+            if (y > pageHeight - 180f) startNewPage()
+
+            sectionTitlePaint.textAlign = Paint.Align.LEFT
+            sectionTitlePaint.textSize = 12f
+            canvas.drawText("EVIDENCIA FOTOGRÁFICA", margin, y, sectionTitlePaint)
+            y += 6f
+            canvas.drawLine(margin, y, margin + contentWidth, y, gridLinePaint)
+            y += 20f
 
             val photoSize = (contentWidth - 20f) / 2f
             var col = 0
-            
+
             for (uriString in photoUris) {
                 try {
                     val uri = Uri.parse(uriString)
                     requireContext().contentResolver.openInputStream(uri)?.use { stream ->
                         val options = BitmapFactory.Options().apply { inSampleSize = 4 }
                         val bitmap = BitmapFactory.decodeStream(stream, null, options)
-                        
+
                         if (bitmap != null) {
-                            if (y + photoSize > pageHeight - 80f) startNewPage()
+                            if (y + photoSize > pageHeight - 60f) startNewPage()
 
                             val rect = Rect(
                                 (margin + col * (photoSize + 20f)).toInt(),
@@ -563,16 +808,13 @@ class ReportDisplayFragment : Fragment() {
                                 (margin + col * (photoSize + 20f) + photoSize).toInt(),
                                 (y + photoSize).toInt()
                             )
-                            
-                            // Dibujar borde sutil
+
                             val borderPaint = Paint().apply {
                                 color = Color.LTGRAY
                                 style = Paint.Style.STROKE
                                 strokeWidth = 1f
                             }
                             canvas.drawRect(rect, borderPaint)
-                            
-                            // Dibujar imagen centrada en el rect
                             canvas.drawBitmap(bitmap, null, rect, null)
                             bitmap.recycle()
 
@@ -590,12 +832,36 @@ class ReportDisplayFragment : Fragment() {
             }
         }
 
+        drawFooter()
         pdfDocument.finishPage(page)
-        
+
         try {
             pdfDocument.writeTo(FileOutputStream(outputFile))
         } catch (e: Exception) {
-            Log.e("PdfReport", "Error: ${e.message}")
+            Log.e("PdfReport", "Error al escribir PDF: ${e.message}")
+        } finally {
+            pdfDocument.close()
+        }
+    }
+
+    private fun generatePdfFromTextFallback(reportText: String, photoUris: List<String>, outputFile: File) {
+        val pdfDocument = PdfDocument()
+        val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
+        val page = pdfDocument.startPage(pageInfo)
+        val canvas = page.canvas
+        val paint = Paint().apply { textSize = 10f; color = Color.BLACK }
+        var y = 40f
+        reportText.split("\n").forEach { line ->
+            if (y < 800f) {
+                canvas.drawText(line, 30f, y, paint)
+                y += 14f
+            }
+        }
+        pdfDocument.finishPage(page)
+        try {
+            pdfDocument.writeTo(FileOutputStream(outputFile))
+        } catch (e: Exception) {
+            Log.e("PdfReport", "Error en fallback PDF: ${e.message}")
         } finally {
             pdfDocument.close()
         }
