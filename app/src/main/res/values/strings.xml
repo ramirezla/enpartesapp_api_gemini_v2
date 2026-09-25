@@ -219,6 +219,15 @@
         ]]>
     </string>
 
+    <string name="title_peritaje_header">PERITAJE Y VALORACIÓN DIGITAL IA</string>
+    <string name="subtitle_peritaje_header">Gestión Inteligente de Inspecciones y Daños</string>
+    <string name="campos_obligatorios_asterisk">Campos obligatorios (*)</string>
+    <string name="card_title_informacion_caso">📋  INFORMACIÓN DEL CASO Y PERITO</string>
+    <string name="card_title_ficha_vehiculo">🚗  FICHA TÉCNICA DEL VEHÍCULO</string>
+    <string name="card_title_evidencia_fotos">📸  EVIDENCIA FOTOGRÁFICA DE DAÑOS</string>
+    <string name="card_subtitle_evidencia_fotos">Presiona en cada recuadro para capturar o seleccionar la fotografía correspondiente:</string>
+    <string name="btn_generar_peritaje_ia">⚡ Generar Peritaje IA</string>
+
 </resources>
 
     
