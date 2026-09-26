@@ -570,6 +570,7 @@ class ReportDisplayFragment : Fragment() {
             canvas.drawLine(margin, y, margin + contentWidth, y, gridLinePaint)
             y += 14f
 
+            valuePaint.textAlign = Paint.Align.LEFT
             damageObj.keys().forEach { key ->
                 val desc = damageObj.getString(key)
                 val lineText = "$key: $desc"
@@ -766,6 +767,7 @@ class ReportDisplayFragment : Fragment() {
             canvas.drawLine(margin, y, margin + contentWidth, y, gridLinePaint)
             y += 16f
 
+            valuePaint.textAlign = Paint.Align.LEFT
             for (c in 0 until consideracionesArr.length()) {
                 val rawText = consideracionesArr.getString(c).trim()
                 val itemText = if (rawText.startsWith("-") || rawText.startsWith("•")) rawText else "• $rawText"
