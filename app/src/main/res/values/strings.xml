@@ -227,6 +227,7 @@
     <string name="card_title_evidencia_fotos">📸  EVIDENCIA FOTOGRÁFICA DE DAÑOS</string>
     <string name="card_subtitle_evidencia_fotos">Presiona en cada recuadro para capturar o seleccionar la fotografía correspondiente:</string>
     <string name="btn_generar_peritaje_ia">⚡ Generar Peritaje IA</string>
+    <string name="title_inicio_sesion">INICIO DE SESIÓN</string>
 
 </resources>
 
