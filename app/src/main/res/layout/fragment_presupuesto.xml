@@ -34,7 +34,7 @@
                 <ImageView
                     android:layout_width="56dp"
                     android:layout_height="56dp"
-                    android:src="@drawable/iconoenpartes_app"
+                    android:src="@drawable/logo_interno_auto_peritaje_ia"
                     android:layout_marginBottom="10dp"
                     android:contentDescription="@string/descripcion_logo_enpartes" />
 

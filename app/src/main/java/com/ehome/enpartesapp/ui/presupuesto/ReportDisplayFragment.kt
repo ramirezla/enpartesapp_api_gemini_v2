@@ -497,9 +497,9 @@ class ReportDisplayFragment : Fragment() {
         val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
         canvas.drawText("Fecha de emisión: $dateStr", margin, 52f, headerSubPaint)
 
-        // Logo
+        // Logo del PDF
         try {
-            val logo = BitmapFactory.decodeResource(resources, R.drawable.logo_en_partes)
+            val logo = BitmapFactory.decodeResource(resources, R.drawable.logo_auto_perito_nobg)
             if (logo != null) {
                 val ratio = logo.width.toFloat() / logo.height.toFloat()
                 val targetHeight = 45f
