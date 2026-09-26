@@ -172,7 +172,7 @@ class FotoAdapter(
         val fotoItem = fotoList[position]
 
         val tiposFoto = context.resources.getStringArray(R.array.tipos_foto)
-        val photoTypeAdapter = ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, tiposFoto)
+        val photoTypeAdapter = ArrayAdapter(context, R.layout.item_dropdown_compact, tiposFoto)
         holder.spinnerTipoFoto.setAdapter(photoTypeAdapter)
 
         holder.spinnerTipoFoto.setText(fotoItem.tipoFoto, false)

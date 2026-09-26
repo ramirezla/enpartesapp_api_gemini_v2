@@ -764,16 +764,20 @@ class ReportDisplayFragment : Fragment() {
             canvas.drawText("CONSIDERACIONES ADICIONALES", margin, y, sectionTitlePaint)
             y += 6f
             canvas.drawLine(margin, y, margin + contentWidth, y, gridLinePaint)
-            y += 14f
+            y += 16f
 
             for (c in 0 until consideracionesArr.length()) {
-                val itemText = "- ${consideracionesArr.getString(c)}"
-                val wrapped = wrapText(itemText, valuePaint, contentWidth)
-                for (wLine in wrapped) {
-                    if (y > pageHeight - 60f) startNewPage()
-                    canvas.drawText(wLine, margin, y, valuePaint)
-                    y += 13f
+                val rawText = consideracionesArr.getString(c).trim()
+                val itemText = if (rawText.startsWith("-") || rawText.startsWith("•")) rawText else "• $rawText"
+                val wrapped = wrapText(itemText, valuePaint, contentWidth - 10f)
+
+                for ((lineIdx, wLine) in wrapped.withIndex()) {
+                    if (y > pageHeight - 50f) startNewPage()
+                    val drawX = if (lineIdx == 0) margin else margin + 10f
+                    canvas.drawText(wLine, drawX, y, valuePaint)
+                    y += 14f
                 }
+                y += 4f
             }
             y += 15f
         }
@@ -868,18 +872,21 @@ class ReportDisplayFragment : Fragment() {
     }
 
     private fun wrapText(text: String, paint: Paint, maxWidth: Float): List<String> {
-        val words = text.split(" ")
+        val rawLines = text.split("\n")
         val lines = mutableListOf<String>()
-        var currentLine = ""
-        for (word in words) {
-            if (paint.measureText("$currentLine $word") > maxWidth) {
-                if (currentLine.isNotEmpty()) lines.add(currentLine)
-                currentLine = word
-            } else {
-                currentLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+        for (rawLine in rawLines) {
+            val words = rawLine.split(" ")
+            var currentLine = ""
+            for (word in words) {
+                if (paint.measureText("$currentLine $word") > maxWidth) {
+                    if (currentLine.isNotEmpty()) lines.add(currentLine)
+                    currentLine = word
+                } else {
+                    currentLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+                }
             }
+            if (currentLine.isNotEmpty()) lines.add(currentLine)
         }
-        if (currentLine.isNotEmpty()) lines.add(currentLine)
         return lines
     }
 

@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="tipos_foto">
-        <item>Capó / Capot</item>
         <item>Frontal</item>
-        <item>Frontal Derecho</item>
-        <item>Frontal Izquierdo</item>
-        <item>Guardafango Izquierdo</item>
-        <item>Guardafango Derecho</item>
+        <item>Frontal Derecho (3/4)</item>
+        <item>Frontal Izquierdo (3/4)</item>
         <item>Lateral Derecho</item>
         <item>Lateral Izquierdo</item>
-        <item>Maletero</item>
-        <item>Parabrisas Delantero</item>
-        <item>Parachoques Delantero</item>
-        <item>Parachoques Trasero</item>
-        <item>Parrilla Delantera</item>
         <item>Posterior / Trasero</item>
-        <item>Posterior Derecho</item>
-        <item>Posterior Izquierdo</item>
-        <item>Techo</item>
+        <item>Posterior Derecho (3/4)</item>
+        <item>Posterior Izquierdo (3/4)</item>
+        <item>Techo / Superior</item>
     </string-array>
 </resources>
