@@ -6,22 +6,9 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:padding="@dimen/activity_horizontal_margin"
     tools:context="LoginActivity">
 
-    <!-- Overlay oscuro para contraste -->
-    <View
-        android:id="@+id/background_overlay"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="#26000000"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Imagen de fondo -->
+    <!-- Imagen de Fondo Completa (Edge-to-Edge) -->
     <ImageView
         android:id="@+id/background_image"
         android:layout_width="0dp"
@@ -34,31 +21,63 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Logo Superior: LogoAutoPerito sin fondo -->
+    <!-- Overlay oscuro para alto contraste -->
+    <View
+        android:id="@+id/background_overlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#2E000000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Logo Superior Más Grande -->
     <ImageView
         android:id="@+id/logo_enpartes"
         android:layout_width="0dp"
-        android:layout_height="120dp"
-        android:layout_marginTop="28dp"
+        android:layout_height="145dp"
+        android:layout_marginTop="36dp"
         android:contentDescription="@string/descripcion_logo_enpartes"
         android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.85"
+        app:layout_constraintWidth_percent="0.88"
         app:srcCompat="@drawable/logo_auto_perito_nobg" />
 
-    <!-- Contenedor Centrado de Inicios de Sesión (sin cuadro exterior) -->
+    <!-- Título AUTO PERITAJE debajo del Logo -->
+    <TextView
+        android:id="@+id/tvTitleAutoPeritaje"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/title_auto_peritaje"
+        android:textColor="@color/white"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.08"
+        android:gravity="center"
+        android:shadowColor="#D0000000"
+        android:shadowDx="1"
+        android:shadowDy="2"
+        android:shadowRadius="4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/logo_enpartes" />
+
+    <!-- Contenedor Centrado Verticalmente en la Pantalla -->
     <LinearLayout
         android:id="@+id/linearLayoutLogin"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:orientation="vertical"
         android:gravity="center"
+        app:layout_constraintBottom_toTopOf="@+id/btnRegister"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/logo_enpartes"
+        app:layout_constraintTop_toBottomOf="@+id/tvTitleAutoPeritaje"
+        app:layout_constraintVertical_bias="0.45"
         app:layout_constraintWidth_percent="0.85">
 
         <TextView
@@ -66,14 +85,14 @@
             android:layout_height="wrap_content"
             android:text="@string/title_inicio_sesion"
             android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textSize="17sp"
             android:textStyle="bold"
             android:gravity="center"
             android:shadowColor="#CC000000"
             android:shadowDx="1"
             android:shadowDy="1"
             android:shadowRadius="3"
-            android:layout_marginBottom="18dp" />
+            android:layout_marginBottom="16dp" />
 
         <!-- Input Cuenta / Email -->
         <com.google.android.material.textfield.TextInputLayout
@@ -86,10 +105,10 @@
             app:hintTextColor="@color/blue"
             app:boxStrokeColor="@color/blue"
             app:boxBackgroundColor="#F2F7FC"
-            app:boxCornerRadiusTopStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusBottomEnd="12dp">
+            app:boxCornerRadiusTopStart="14dp"
+            app:boxCornerRadiusTopEnd="14dp"
+            app:boxCornerRadiusBottomStart="14dp"
+            app:boxCornerRadiusBottomEnd="14dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/username"
@@ -98,7 +117,7 @@
                 android:autofillHints="@string/prompt_email"
                 android:inputType="textEmailAddress"
                 android:maxLength="40"
-                android:minHeight="50dp"
+                android:minHeight="52dp"
                 android:selectAllOnFocus="true"
                 android:textColor="@color/blue"
                 android:textSize="14sp"
@@ -115,10 +134,10 @@
             app:hintTextColor="@color/blue"
             app:boxStrokeColor="@color/blue"
             app:boxBackgroundColor="#F2F7FC"
-            app:boxCornerRadiusTopStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusTopStart="14dp"
+            app:boxCornerRadiusTopEnd="14dp"
+            app:boxCornerRadiusBottomStart="14dp"
+            app:boxCornerRadiusBottomEnd="14dp"
             app:passwordToggleEnabled="true"
             app:passwordToggleTint="@color/blue">
 
@@ -130,38 +149,35 @@
                 android:imeActionLabel="@string/action_sign_in_short"
                 android:imeOptions="actionDone"
                 android:inputType="textPassword"
-                android:minHeight="50dp"
+                android:minHeight="52dp"
                 android:textColor="@color/blue"
                 android:textSize="14sp"
                 android:textStyle="bold" />
         </com.google.android.material.textfield.TextInputLayout>
 
-    </LinearLayout>
+        <!-- Botón Iniciar Sesión con Extremos Redondos (Cápsula / Pill-shaped) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/login"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="22dp"
+            android:text="@string/action_sign_in"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/blue"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:cornerRadius="27dp"
+            app:elevation="4dp" />
 
-    <!-- Botón Iniciar Sesión en Azul -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/login"
-        android:layout_width="0dp"
-        android:layout_height="54dp"
-        android:layout_marginTop="20dp"
-        android:text="@string/action_sign_in"
-        android:textAllCaps="false"
-        android:backgroundTint="@color/blue"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:cornerRadius="12dp"
-        app:elevation="4dp"
-        app:layout_constraintEnd_toEndOf="@+id/linearLayoutLogin"
-        app:layout_constraintStart_toStartOf="@+id/linearLayoutLogin"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayoutLogin" />
+    </LinearLayout>
 
     <!-- Registro -->
     <TextView
         android:id="@+id/btnRegister"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginBottom="36dp"
         android:gravity="center"
         android:text="@string/no_tiene_cuenta"
         android:textColor="@color/white"
@@ -171,9 +187,9 @@
         android:shadowDx="1"
         android:shadowDy="1"
         android:shadowRadius="2"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ProgressBar
         android:id="@+id/loginProgressBar"
