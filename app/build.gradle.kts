@@ -20,8 +20,8 @@ android {
         applicationId = "com.ehome.enpartesapp"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.98.1-beta"
+        versionCode = 200
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
