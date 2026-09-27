@@ -417,7 +417,7 @@ class ConsultaFragment : Fragment() {
                         withContext(Dispatchers.Main) {
                             val uri = FileProvider.getUriForFile(
                                 requireContext(),
-                                "com.ehome.enpartesapp.fileprovider", // Ahora coincide con el manifest
+                                "${requireContext().packageName}.fileprovider", // Coincide con el manifest dinámicamente
                                 file
                             )
                             val intent = Intent(Intent.ACTION_VIEW).apply {

@@ -17,7 +17,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.ehome.enpartesapp"
+        applicationId = "com.ehome.autoperitajeia"
         minSdk = 24
         targetSdk = 35
         versionCode = 200
