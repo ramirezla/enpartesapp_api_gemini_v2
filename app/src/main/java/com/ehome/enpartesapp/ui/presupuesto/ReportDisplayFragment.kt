@@ -399,16 +399,16 @@ class ReportDisplayFragment : Fragment() {
         val pdfDocument = PdfDocument()
 
         // Pinceles / Estilos
-        val headerPaint = Paint().apply { color = Color.parseColor("#F0F4F8") }
+        val headerPaint = Paint().apply { color = Color.parseColor("#0B2545") }
         val headerAccentPaint = Paint().apply { color = Color.parseColor("#1976D2") }
         val headerTitlePaint = Paint().apply {
-            color = Color.parseColor("#0D47A1")
+            color = Color.WHITE
             textSize = 17f
             isFakeBoldText = true
             isAntiAlias = true
         }
         val headerSubPaint = Paint().apply {
-            color = Color.parseColor("#455A64")
+            color = Color.parseColor("#E0F2FE")
             textSize = 9.5f
             isAntiAlias = true
         }
