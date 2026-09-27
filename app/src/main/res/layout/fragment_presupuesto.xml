@@ -20,9 +20,10 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:strokeWidth="0dp"
-            app:cardBackgroundColor="@color/blue">
+            app:cardElevation="3dp"
+            app:strokeWidth="1.5dp"
+            app:strokeColor="@color/blue"
+            app:cardBackgroundColor="#F8FAFC">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -32,10 +33,11 @@
                 android:padding="20dp">
 
                 <ImageView
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
-                    android:src="@drawable/logo_interno_auto_peritaje_ia"
-                    android:layout_marginBottom="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="110dp"
+                    android:src="@drawable/logo_auto_perito_nobg"
+                    android:scaleType="fitCenter"
+                    android:layout_marginBottom="12dp"
                     android:contentDescription="@string/descripcion_logo_enpartes" />
 
                 <TextView
@@ -44,7 +46,7 @@
                     android:text="@string/title_peritaje_header"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/white"
+                    android:textColor="@color/blue"
                     android:gravity="center"
                     android:layout_marginBottom="4dp" />
 
@@ -52,7 +54,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/subtitle_peritaje_header"
-                    android:textColor="#E3F2FD"
+                    android:textColor="#475569"
                     android:textSize="12sp"
                     android:gravity="center"
                     android:layout_marginBottom="8dp" />
@@ -61,7 +63,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/campos_obligatorios_asterisk"
-                    android:textColor="#FFCDD2"
+                    android:textColor="#D32F2F"
                     android:textSize="11sp"
                     android:textStyle="bold"
                     android:gravity="center" />

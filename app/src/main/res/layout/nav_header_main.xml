@@ -3,23 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_header_height"
-    android:background="@color/colorPrimaryButton"
+    android:background="#F8FAFC"
     android:gravity="bottom"
     android:orientation="vertical"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    android:id="@+id/navigation_header_lateral_bar"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+    android:id="@+id/navigation_header_lateral_bar">
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:scaleType="fitStart"
         android:contentDescription="@string/nav_header_desc"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
-        app:srcCompat="@drawable/logo_interno_auto_peritaje_ia" />
+        app:srcCompat="@drawable/logo_auto_perito_nobg" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -28,12 +27,13 @@
         android:paddingTop="@dimen/nav_header_vertical_spacing">
 
         <TextView
-        android:id="@+id/titulousuario"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/nav_header_title"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textColor="@color/colorBlanco" />
+            android:id="@+id/titulousuario"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nav_header_title"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="#0F172A"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/username"
@@ -41,7 +41,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="@color/colorBlanco" />
+            android:textColor="#0F172A"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <TextView
@@ -49,6 +50,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/nav_header_subtitle"
-        android:textColor="@color/black"
+        android:textColor="#475569"
         android:visibility="gone"/>
 </LinearLayout>

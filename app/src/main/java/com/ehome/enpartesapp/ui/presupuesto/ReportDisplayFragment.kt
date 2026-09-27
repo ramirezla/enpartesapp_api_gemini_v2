@@ -399,15 +399,16 @@ class ReportDisplayFragment : Fragment() {
         val pdfDocument = PdfDocument()
 
         // Pinceles / Estilos
-        val headerPaint = Paint().apply { color = Color.parseColor("#1976D2") }
+        val headerPaint = Paint().apply { color = Color.parseColor("#F0F4F8") }
+        val headerAccentPaint = Paint().apply { color = Color.parseColor("#1976D2") }
         val headerTitlePaint = Paint().apply {
-            color = Color.WHITE
-            textSize = 18f
+            color = Color.parseColor("#0D47A1")
+            textSize = 17f
             isFakeBoldText = true
             isAntiAlias = true
         }
         val headerSubPaint = Paint().apply {
-            color = Color.WHITE
+            color = Color.parseColor("#455A64")
             textSize = 9.5f
             isAntiAlias = true
         }
@@ -493,6 +494,7 @@ class ReportDisplayFragment : Fragment() {
 
         // --- ENCABEZADO PRINCIPAL ---
         canvas.drawRect(0f, 0f, pageWidth.toFloat(), 65f, headerPaint)
+        canvas.drawLine(0f, 65f, pageWidth.toFloat(), 67f, headerAccentPaint)
         canvas.drawText("REPORTE DE VALORACIÓN DE DAÑOS", margin, 35f, headerTitlePaint)
         val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
         canvas.drawText("Fecha de emisión: $dateStr", margin, 52f, headerSubPaint)
@@ -502,10 +504,10 @@ class ReportDisplayFragment : Fragment() {
             val logo = BitmapFactory.decodeResource(resources, R.drawable.logo_auto_perito_nobg)
             if (logo != null) {
                 val ratio = logo.width.toFloat() / logo.height.toFloat()
-                val targetHeight = 45f
+                val targetHeight = 50f
                 val targetWidth = targetHeight * ratio
                 val scaledLogo = Bitmap.createScaledBitmap(logo, targetWidth.toInt(), targetHeight.toInt(), true)
-                canvas.drawBitmap(scaledLogo, pageWidth - margin - targetWidth, 10f, null)
+                canvas.drawBitmap(scaledLogo, pageWidth - margin - targetWidth, 8f, null)
             }
         } catch (e: Exception) { }
 
