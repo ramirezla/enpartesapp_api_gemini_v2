@@ -1,4 +1,4 @@
-package com.ehome.enpartesapp
+package com.ehome.autoperitajeia
 
 import android.content.Intent
 import android.os.Bundle
@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.fragment.findNavController
-import com.ehome.enpartesapp.databinding.FragmentRegistrarBinding
+import com.ehome.autoperitajeia.databinding.FragmentRegistrarBinding
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.

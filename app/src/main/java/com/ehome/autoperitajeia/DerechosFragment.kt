@@ -1,4 +1,4 @@
-package com.ehome.enpartesapp
+package com.ehome.autoperitajeia
 
 import android.graphics.Typeface
 import android.os.Bundle
@@ -17,7 +17,7 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
-import com.ehome.enpartesapp.databinding.FragmentDerechosBinding
+import com.ehome.autoperitajeia.databinding.FragmentDerechosBinding
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.

@@ -1,4 +1,4 @@
-package com.ehome.enpartesapp.ui.home
+package com.ehome.autoperitajeia.ui.home
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -10,8 +10,8 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.ehome.enpartesapp.R
-import com.ehome.enpartesapp.databinding.FragmentConsultasabiertasBinding
+import com.ehome.autoperitajeia.R
+import com.ehome.autoperitajeia.databinding.FragmentConsultasabiertasBinding
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CoroutineScope

@@ -1,10 +1,10 @@
-package com.ehome.enpartesapp
+package com.ehome.autoperitajeia
 
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.ehome.enpartesapp.databinding.ActivityLoginBinding
+import com.ehome.autoperitajeia.databinding.ActivityLoginBinding
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -43,7 +43,7 @@ class LoginActivity : AppCompatActivity() {
 
         // Set click listener for the login button
         binding.login.setOnClickListener {
-            binding.loginProgressBar.visibility = View.VISIBLE
+            setLoadingState(true)
             val accessCode = binding.username.text.toString()
             val cKey = binding.password.text.toString()
             makeApiRequest(accessCode, cKey)
@@ -148,7 +148,7 @@ class LoginActivity : AppCompatActivity() {
 
         call.enqueue(object : Callback<AuthResponse> {
             override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>) {
-                binding.loginProgressBar.visibility = View.GONE
+                setLoadingState(false)
 
                 // Temporal sin validar el login
                 val intent = Intent(this@LoginActivity, MainActivity::class.java)
@@ -206,7 +206,7 @@ class LoginActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<AuthResponse>, t: Throwable) {
-                binding.loginProgressBar.visibility = View.GONE
+                setLoadingState(false)
                 // Handle the network failure
                 Log.e(getString(R.string.api_failure), "Error: ${t.message}")
                 // Show error dialog
@@ -222,6 +222,15 @@ class LoginActivity : AppCompatActivity() {
 //                // Temporal sin internet
             }
         })
+    }
+
+    private fun setLoadingState(isLoading: Boolean) {
+        binding.layoutLoading.visibility = if (isLoading) View.VISIBLE else View.GONE
+        binding.login.isEnabled = !isLoading
+        binding.username.isEnabled = !isLoading
+        binding.password.isEnabled = !isLoading
+        binding.btnRegister.isEnabled = !isLoading
+        binding.login.alpha = if (isLoading) 0.6f else 1.0f
     }
 
     private fun showErrorDialog(code: String, message: String) {val dialogFragment = ErrorDialogFragment.newInstance(code, message)

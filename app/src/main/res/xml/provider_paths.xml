@@ -12,5 +12,5 @@
     <!-- Ruta para archivos en el directorio de caché interno -->
     <cache-path name="internal_cache" path="." />
 </paths>
-<!-- directorio externo privado de la aplicación (/storage/emulated/0/Android/data/com.ehome.enpartesapp/files/).-->
+<!-- directorio externo privado de la aplicación (/storage/emulated/0/Android/data/com.ehome.autoperitajeia/files/).-->
 

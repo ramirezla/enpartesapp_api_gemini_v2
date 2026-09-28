@@ -1,4 +1,4 @@
-package com.ehome.enpartesapp.ui.presupuesto
+package com.ehome.autoperitajeia.ui.presupuesto
 
 import android.app.Activity
 import android.content.Intent
@@ -23,7 +23,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import com.ehome.enpartesapp.R
+import com.ehome.autoperitajeia.R
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File

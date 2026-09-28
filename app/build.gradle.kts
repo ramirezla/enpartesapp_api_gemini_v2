@@ -13,7 +13,7 @@ if (localPropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.ehome.enpartesapp"
+    namespace = "com.ehome.autoperitajeia"
     compileSdk = 35
 
     defaultConfig {

@@ -1,4 +1,4 @@
-package com.ehome.enpartesapp
+package com.ehome.autoperitajeia
 
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.ehome.enpartesapp.ui.reclamos
+package com.ehome.autoperitajeia.ui.reclamos
 
 import android.net.Uri
 import android.os.Bundle
@@ -13,8 +13,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.ehome.enpartesapp.R
-import com.ehome.enpartesapp.databinding.FragmentReclamosBinding
+import com.ehome.autoperitajeia.R
+import com.ehome.autoperitajeia.databinding.FragmentReclamosBinding
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken

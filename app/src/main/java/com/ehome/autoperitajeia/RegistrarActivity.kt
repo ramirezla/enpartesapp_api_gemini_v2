@@ -1,4 +1,4 @@
-package com.ehome.enpartesapp
+package com.ehome.autoperitajeia
 
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
@@ -7,7 +7,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import com.ehome.enpartesapp.databinding.ActivityRegistrarBinding
+import com.ehome.autoperitajeia.databinding.ActivityRegistrarBinding
 
 class RegistrarActivity : AppCompatActivity() {
 

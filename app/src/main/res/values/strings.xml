@@ -229,6 +229,8 @@
     <string name="btn_generar_peritaje_ia">⚡ Generar Peritaje IA</string>
     <string name="title_inicio_sesion">INICIO DE SESIÓN</string>
     <string name="title_auto_peritaje">AUTO PERITAJE</string>
+    <string name="auto_peritaje">Auto Peritaje</string>
+    <string name="iniciando_sesion_por_favor_espere">Iniciando sesión, por favor espere&#8230;</string>
 
 </resources>
 

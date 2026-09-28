@@ -1,11 +1,11 @@
-package com.ehome.enpartesapp.ui.reclamos
+package com.ehome.autoperitajeia.ui.reclamos
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.ehome.enpartesapp.R
+import com.ehome.autoperitajeia.R
 
 class PartAdapter(private val parts: List<ReclamosFragment.Part>) :
     RecyclerView.Adapter<PartAdapter.PartViewHolder>() {

@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/nav_consultas_abiertas"
-        android:name="com.ehome.enpartesapp.ui.home.ConsultasAbiertasFragment"
+        android:name="com.ehome.autoperitajeia.ui.home.ConsultasAbiertasFragment"
         android:label="@string/menu_consultas_abiertas"
         tools:layout="@layout/fragment_consultasabiertas" >
 
@@ -26,7 +26,7 @@
 
     <fragment
         android:id="@+id/nav_reclamos"
-        android:name="com.ehome.enpartesapp.ui.reclamos.ReclamosFragment"
+        android:name="com.ehome.autoperitajeia.ui.reclamos.ReclamosFragment"
         android:label="@string/menu_reclamos"
         tools:layout="@layout/fragment_reclamos" >
 
@@ -37,7 +37,7 @@
 
     <fragment
         android:id="@+id/nav_presupuestofragment"
-        android:name="com.ehome.enpartesapp.ui.presupuesto.PresupuestoFragment"
+        android:name="com.ehome.autoperitajeia.ui.presupuesto.PresupuestoFragment"
         android:label="@string/menu_siniestro"
         tools:layout="@layout/fragment_presupuesto" >
 
@@ -51,7 +51,7 @@
 
     <fragment
         android:id="@+id/reportDisplayFragment"
-        android:name="com.ehome.enpartesapp.ui.presupuesto.ReportDisplayFragment"
+        android:name="com.ehome.autoperitajeia.ui.presupuesto.ReportDisplayFragment"
         android:label="Reporte del siniestro"
         tools:layout="@layout/fragment_report_display" >
         <argument
@@ -67,7 +67,7 @@
 
     <fragment
         android:id="@+id/nav_consultafragment"
-        android:name="com.ehome.enpartesapp.ui.presupuesto.ConsultaFragment"
+        android:name="com.ehome.autoperitajeia.ui.presupuesto.ConsultaFragment"
         android:label="@string/menu_consulta_siniestro"
         tools:layout="@layout/fragment_consulta_siniestro" >
 

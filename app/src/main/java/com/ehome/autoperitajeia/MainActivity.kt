@@ -1,4 +1,4 @@
-package com.ehome.enpartesapp
+package com.ehome.autoperitajeia
 
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -16,7 +16,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-import com.ehome.enpartesapp.databinding.ActivityMainBinding
+import com.ehome.autoperitajeia.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 

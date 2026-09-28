@@ -70,7 +70,7 @@
     * El Total General calcula automáticamente el subtotal sin IVA, aplica el porcentaje de IVA y entrega el Total en USD.
  */
 
-package com.ehome.enpartesapp.ui.presupuesto
+package com.ehome.autoperitajeia.ui.presupuesto
 
 import android.Manifest
 import android.app.AlertDialog
@@ -106,10 +106,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.ehome.enpartesapp.R
+import com.ehome.autoperitajeia.R
 import com.google.ai.client.generativeai.GenerativeModel
-import com.google.ai.client.generativeai.type.GoogleGenerativeAIException
-import com.google.ai.client.generativeai.type.QuotaExceededException
 import com.google.ai.client.generativeai.type.content
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
@@ -127,7 +125,7 @@ import java.text.SimpleDateFormat
 import java.util.ArrayList
 import java.util.Date
 import java.util.Locale
-import com.ehome.enpartesapp.BuildConfig
+import com.ehome.autoperitajeia.BuildConfig
 
 /**
  * Clase de datos que representa un ítem de foto en el informe de presupuesto.

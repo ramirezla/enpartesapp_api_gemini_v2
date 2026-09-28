@@ -1,4 +1,4 @@
-package com.ehome.enpartesapp.ui.presupuesto
+package com.ehome.autoperitajeia.ui.presupuesto
 
 import android.Manifest
 import android.app.AlertDialog
@@ -28,7 +28,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
-import com.ehome.enpartesapp.R
+import com.ehome.autoperitajeia.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -417,7 +417,7 @@ class ConsultaFragment : Fragment() {
                         withContext(Dispatchers.Main) {
                             val uri = FileProvider.getUriForFile(
                                 requireContext(),
-                                "${requireContext().packageName}.fileprovider", // Coincide con el manifest dinámicamente
+                                "com.ehome.autoperitajeia.fileprovider", // Ahora coincide con el manifest
                                 file
                             )
                             val intent = Intent(Intent.ACTION_VIEW).apply {

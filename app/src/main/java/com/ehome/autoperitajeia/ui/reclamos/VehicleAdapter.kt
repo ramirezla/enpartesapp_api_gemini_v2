@@ -1,4 +1,4 @@
-package com.ehome.enpartesapp.ui.home
+package com.ehome.autoperitajeia.ui.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,7 +8,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.ehome.enpartesapp.R
+import com.ehome.autoperitajeia.R
 import org.json.JSONObject
 
 class VehicleAdapter(

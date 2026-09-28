@@ -1,4 +1,4 @@
-package com.ehome.enpartesapp.ui.slideshow
+package com.ehome.autoperitajeia.ui.slideshow
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.ehome.enpartesapp.databinding.FragmentSlideshowBinding
+import com.ehome.autoperitajeia.databinding.FragmentSlideshowBinding
 
 class SlideshowFragment : Fragment() {
 

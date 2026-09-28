@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "enpartesapp"
+rootProject.name = "AutoPeritajeIA"
 include(":app")
