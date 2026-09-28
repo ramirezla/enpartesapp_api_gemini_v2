@@ -86,6 +86,7 @@ import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.view.WindowManager
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
@@ -1022,6 +1023,19 @@ class PresupuestoFragment : Fragment() {
         Log.d("PresupuestoFragment", "Spinner City configurado para estado: $state")
     }
 
+    private fun setTouchInteractionsEnabled(enabled: Boolean) {
+        activity?.let {
+            if (!enabled) {
+                it.window.setFlags(
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                )
+            } else {
+                it.window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+            }
+        }
+    }
+
     /**
      * Genera un informe de daños utilizando el modelo de IA Google Gemini.
      *
@@ -1032,7 +1046,8 @@ class PresupuestoFragment : Fragment() {
     private fun generateDamageReport() {
         Log.d("GeminiReport", "generateDamageReport() called. Preparando prompt e imágenes.")
 
-        // MOSTRAR EL PROGRESS INDICATOR Y DESHABILITAR EL BOTÓN ANTES DE LA LLAMADA A LA API
+        // BLOQUEAR INTERACCIÓN Y MOSTRAR EL PROGRESS INDICATOR ANTES DE LA LLAMADA A LA API
+        setTouchInteractionsEnabled(false)
         progressBar.show()
         btnAceptar.isEnabled = false
         btnCancelar.isEnabled = false
@@ -1071,7 +1086,8 @@ class PresupuestoFragment : Fragment() {
         }
 
         if (imagesForGemini.isEmpty()) {
-            // OCULTAR EL PROGRESS BAR Y HABILITAR EL BOTÓN SI NO HAY IMÁGENES
+            // RESTAURAR INTERACCIÓN Y OCULTAR EL PROGRESS BAR SI NO HAY IMÁGENES
+            setTouchInteractionsEnabled(true)
             progressBar.visibility = GONE
             btnAceptar.isEnabled = true
             btnCancelar.isEnabled = true
@@ -1162,7 +1178,8 @@ class PresupuestoFragment : Fragment() {
                 Log.d("GeminiReport", "Respuesta recibida de la API de Gemini.")
 
                 withContext(Dispatchers.Main) {
-                    // OCULTAR EL PROGRESS INDICATOR Y HABILITAR EL BOTÓN DESPUÉS DE LA RESPUESTA
+                    // RESTAURAR INTERACCIÓN, OCULTAR EL PROGRESS INDICATOR Y HABILITAR EL BOTÓN DESPUÉS DE LA RESPUESTA
+                    setTouchInteractionsEnabled(true)
                     progressBar.hide()
                     btnAceptar.isEnabled = true
                     btnCancelar.isEnabled = true
@@ -1237,7 +1254,8 @@ class PresupuestoFragment : Fragment() {
             } catch (e: Exception) {
                 Log.e("GeminiReport", "Excepción durante la llamada a la API de Gemini: ${e.message}", e)
                 withContext(Dispatchers.Main) {
-                    // OCULTAR EL PROGRESS INDICATOR Y HABILITAR EL BOTÓN EN CASO DE ERROR DE CONEXIÓN
+                    // RESTAURAR INTERACCIÓN, OCULTAR EL PROGRESS INDICATOR Y HABILITAR EL BOTÓN EN CASO DE ERROR
+                    setTouchInteractionsEnabled(true)
                     progressBar.hide()
                     btnAceptar.isEnabled = true
                     btnCancelar.isEnabled = true
