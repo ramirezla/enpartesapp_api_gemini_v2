@@ -10,6 +10,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 
 import okhttp3.OkHttpClient
@@ -225,6 +226,14 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setLoadingState(isLoading: Boolean) {
+        if (isLoading) {
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            )
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        }
         binding.layoutLoading.visibility = if (isLoading) View.VISIBLE else View.GONE
         binding.login.isEnabled = !isLoading
         binding.username.isEnabled = !isLoading
