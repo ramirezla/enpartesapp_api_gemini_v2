@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -26,6 +25,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.graphics.toColorInt
+import androidx.core.net.toUri
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import com.ehome.autoperitajeia.R
@@ -218,7 +219,7 @@ class ConsultaFragment : Fragment() {
         val generalInfo = TextView(requireContext()).apply {
             text = getString(R.string.general_info_format, caseNumber, vinNumber, pLaborRate, laborRate) // Format the text using string resources
             setTypeface(null, Typeface.BOLD)
-            setBackgroundColor(Color.parseColor("#AAACAB")) // Gris medio #AAACAB
+            setBackgroundColor("#AAACAB".toColorInt()) // Gris medio #AAACAB
             setTextColor(Color.BLACK) // Set the text color to black
             val params = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT
@@ -239,7 +240,7 @@ class ConsultaFragment : Fragment() {
         // Create a container for the totals
         val totalsContainer = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.parseColor("#AAACAB")) // Gris medio #AAACAB
+            setBackgroundColor("#AAACAB".toColorInt()) // Gris medio #AAACAB
             val params = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -274,7 +275,7 @@ class ConsultaFragment : Fragment() {
             val detailContainer = LinearLayout(requireContext()).apply {
                 orientation = LinearLayout.VERTICAL // Vertical orientation for the detail items
                 //setBackgroundColor(Color.LTGRAY) // Set a light gray background color #d0d2d1
-                setBackgroundColor(Color.parseColor("#d0d2d1")) // Gris bajo #d0d2d1
+                setBackgroundColor("#d0d2d1".toColorInt()) // Gris bajo #d0d2d1
                 val params = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
@@ -426,11 +427,12 @@ class ConsultaFragment : Fragment() {
                             }
                             try {
                                 startActivity(intent)
-                            } catch (e: ActivityNotFoundException) {Toast.makeText(
-                                requireContext(),
-                                getString(R.string.no_hay_aplicación_para_abrir_pdf),
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            } catch (_: ActivityNotFoundException) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    getString(R.string.no_hay_aplicación_para_abrir_pdf),
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     } catch (e: IOException) {
@@ -503,13 +505,13 @@ class ConsultaFragment : Fragment() {
         }
 
         val intent = Intent(Intent.ACTION_VIEW).apply {
-            data = Uri.parse(pdfUrl)
+            data = pdfUrl.toUri()
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
 
         try {
             startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
+        } catch (_: ActivityNotFoundException) {
             showErrorDialog(getString(R.string.no_hay_aplicacion_para_abrir_pdf))
         }
     }
@@ -537,6 +539,8 @@ class ConsultaFragment : Fragment() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
+    @Suppress("DEPRECATION")
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == requestCodePermissions) {
