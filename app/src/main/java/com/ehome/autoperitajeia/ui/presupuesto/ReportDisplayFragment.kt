@@ -2,7 +2,6 @@ package com.ehome.autoperitajeia.ui.presupuesto
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Paint
@@ -10,6 +9,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.DocumentsContract
 import android.util.Log
@@ -22,6 +22,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import androidx.core.graphics.scale
+import androidx.core.graphics.toColorInt
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import com.ehome.autoperitajeia.R
 import org.json.JSONArray
@@ -223,19 +226,12 @@ class ReportDisplayFragment : Fragment() {
                     "acc=1;doc=$folderId"
                 )
 
-                putExtra(DocumentsContract.EXTRA_INITIAL_URI, driveUri)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    putExtra(DocumentsContract.EXTRA_INITIAL_URI, driveUri)
+                }
             }
 
-//          Cambio para usar drive.google.com/drive/folders/1P6M15944n7ALXk4HAs1lgb3tZSxSNXBh?usp=drive_link
-//            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-//                addCategory(Intent.CATEGORY_OPENABLE)
-//                type = "text/plain"
-//                putExtra(Intent.EXTRA_TITLE, fileName)
-//                // Intentar abrir directamente la carpeta ValoracionDeDannos
-//                putExtra(DocumentsContract.EXTRA_INITIAL_URI,
-//                    "content://com.google.android.apps.docs.storage/document/acc=1;root=ValoracionDeDannos")
-//            }
-
+            @Suppress("DEPRECATION")
             startActivityForResult(intent, REQUEST_CODE_CREATE_FILE)
         } catch (e: Exception) {
             Toast.makeText(
@@ -247,6 +243,8 @@ class ReportDisplayFragment : Fragment() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
+    @Suppress("DEPRECATION")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -387,7 +385,7 @@ class ReportDisplayFragment : Fragment() {
     private fun generatePdfReport(jsonOrTextResponse: String, photoUris: List<String>, outputFile: File) {
         val json = try {
             JSONObject(jsonOrTextResponse)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
 
@@ -399,8 +397,8 @@ class ReportDisplayFragment : Fragment() {
         val pdfDocument = PdfDocument()
 
         // Pinceles / Estilos
-        val headerPaint = Paint().apply { color = Color.parseColor("#0B2545") }
-        val headerAccentPaint = Paint().apply { color = Color.parseColor("#1976D2") }
+        val headerPaint = Paint().apply { color = "#0B2545".toColorInt() }
+        val headerAccentPaint = Paint().apply { color = "#1976D2".toColorInt() }
         val headerTitlePaint = Paint().apply {
             color = Color.WHITE
             textSize = 17f
@@ -408,18 +406,18 @@ class ReportDisplayFragment : Fragment() {
             isAntiAlias = true
         }
         val headerSubPaint = Paint().apply {
-            color = Color.parseColor("#E0F2FE")
+            color = "#E0F2FE".toColorInt()
             textSize = 9.5f
             isAntiAlias = true
         }
         val sectionTitlePaint = Paint().apply {
-            color = Color.parseColor("#1976D2")
+            color = "#1976D2".toColorInt()
             textSize = 12f
             isFakeBoldText = true
             isAntiAlias = true
         }
         val labelPaint = Paint().apply {
-            color = Color.parseColor("#424242")
+            color = "#424242".toColorInt()
             textSize = 9f
             isFakeBoldText = true
             isAntiAlias = true
@@ -429,7 +427,7 @@ class ReportDisplayFragment : Fragment() {
             textSize = 9f
             isAntiAlias = true
         }
-        val tableHeaderBgPaint = Paint().apply { color = Color.parseColor("#1976D2") }
+        val tableHeaderBgPaint = Paint().apply { color = "#1976D2".toColorInt() }
         val tableHeaderFontPaint = Paint().apply {
             color = Color.WHITE
             textSize = 8f
@@ -437,7 +435,7 @@ class ReportDisplayFragment : Fragment() {
             isAntiAlias = true
         }
         val tableRowEvenPaint = Paint().apply { color = Color.WHITE }
-        val tableRowOddPaint = Paint().apply { color = Color.parseColor("#F8F9FA") }
+        val tableRowOddPaint = Paint().apply { color = "#F8F9FA".toColorInt() }
         val tableCellPaint = Paint().apply {
             color = Color.BLACK
             textSize = 8f
@@ -450,13 +448,13 @@ class ReportDisplayFragment : Fragment() {
             isAntiAlias = true
         }
         val gridLinePaint = Paint().apply {
-            color = Color.parseColor("#E0E0E0")
+            color = "#E0E0E0".toColorInt()
             strokeWidth = 0.8f
             style = Paint.Style.STROKE
         }
-        val totalBoxBgPaint = Paint().apply { color = Color.parseColor("#E3F2FD") }
+        val totalBoxBgPaint = Paint().apply { color = "#E3F2FD".toColorInt() }
         val totalBoxBorderPaint = Paint().apply {
-            color = Color.parseColor("#90CAF9")
+            color = "#90CAF9".toColorInt()
             strokeWidth = 1f
             style = Paint.Style.STROKE
         }
@@ -506,10 +504,10 @@ class ReportDisplayFragment : Fragment() {
                 val ratio = logo.width.toFloat() / logo.height.toFloat()
                 val targetHeight = 50f
                 val targetWidth = targetHeight * ratio
-                val scaledLogo = Bitmap.createScaledBitmap(logo, targetWidth.toInt(), targetHeight.toInt(), true)
+                val scaledLogo = logo.scale(targetWidth.toInt(), targetHeight.toInt(), filter = true)
                 canvas.drawBitmap(scaledLogo, pageWidth - margin - targetWidth, 8f, null)
             }
-        } catch (e: Exception) { }
+        } catch (_: Exception) { }
 
         // --- INFORMACIÓN GENERAL Y VEHÍCULO ---
         canvas.drawText("INFORMACIÓN GENERAL Y DEL VEHÍCULO", margin, y, sectionTitlePaint)
@@ -528,13 +526,12 @@ class ReportDisplayFragment : Fragment() {
         val location = tvLocationValue?.text?.toString() ?: "N/A"
         val costPerHour = tvCostPerHourValue?.text?.toString() ?: "N/A"
 
-        val col1Left = margin
         val col2Left = margin + 180f
         val col3Left = margin + 360f
 
         // Fila 1 de info
-        canvas.drawText("Caso:", col1Left, y, labelPaint)
-        canvas.drawText(caseNo, col1Left + 35f, y, valuePaint)
+        canvas.drawText("Caso:", margin, y, labelPaint)
+        canvas.drawText(caseNo, margin + 35f, y, valuePaint)
 
         canvas.drawText("Inspector:", col2Left, y, labelPaint)
         canvas.drawText(inspector, col2Left + 55f, y, valuePaint)
@@ -544,8 +541,8 @@ class ReportDisplayFragment : Fragment() {
         y += 14f
 
         // Fila 2 de info
-        canvas.drawText("Vehículo:", col1Left, y, labelPaint)
-        canvas.drawText("$brand $model ($year)", col1Left + 50f, y, valuePaint)
+        canvas.drawText("Vehículo:", margin, y, labelPaint)
+        canvas.drawText("$brand $model ($year)", margin + 50f, y, valuePaint)
 
         canvas.drawText("Color:", col2Left, y, labelPaint)
         canvas.drawText(vehicleColor, col2Left + 35f, y, valuePaint)
@@ -555,8 +552,8 @@ class ReportDisplayFragment : Fragment() {
         y += 14f
 
         // Fila 3 de info
-        canvas.drawText("Ubicación:", col1Left, y, labelPaint)
-        canvas.drawText(location, col1Left + 55f, y, valuePaint)
+        canvas.drawText("Ubicación:", margin, y, labelPaint)
+        canvas.drawText(location, margin + 55f, y, valuePaint)
 
         canvas.drawText("Tarifa MO:", col2Left, y, labelPaint)
         canvas.drawText(costPerHour, col2Left + 55f, y, valuePaint)
@@ -660,7 +657,7 @@ class ReportDisplayFragment : Fragment() {
                 totalSubtotalSinIva += subtotalItem
 
                 val nameLines = wrapText(nombre, tableCellPaint, 112f)
-                val rowHeight = Math.max(18f, nameLines.size * 11f + 6f)
+                val rowHeight = maxOf(18f, nameLines.size * 11f + 6f)
 
                 if (y + rowHeight > pageHeight - 60f) {
                     startNewPage()
@@ -802,7 +799,7 @@ class ReportDisplayFragment : Fragment() {
 
             for (uriString in photoUris) {
                 try {
-                    val uri = Uri.parse(uriString)
+                    val uri = uriString.toUri()
                     requireContext().contentResolver.openInputStream(uri)?.use { stream ->
                         val options = BitmapFactory.Options().apply { inSampleSize = 4 }
                         val bitmap = BitmapFactory.decodeStream(stream, null, options)
@@ -852,6 +849,7 @@ class ReportDisplayFragment : Fragment() {
         }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun generatePdfFromTextFallback(reportText: String, photoUris: List<String>, outputFile: File) {
         val pdfDocument = PdfDocument()
         val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
@@ -950,6 +948,7 @@ class ReportDisplayFragment : Fragment() {
         return if (actualKey != null) this.optJSONArray(actualKey) else null
     }
 
+    @Suppress("UNUSED_PARAMETER", "SameParameterValue")
     private fun JSONObject.findFirstStringIgnoreCase(vararg keys: String, defaultValue: String = ""): String {
         for (key in keys) {
             val actualKey = findKeyIgnoreCase(key)
@@ -961,6 +960,7 @@ class ReportDisplayFragment : Fragment() {
         return defaultValue
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun JSONObject.findFirstDoubleIgnoreCase(vararg keys: String, defaultValue: Double = 0.0): Double {
         for (key in keys) {
             val actualKey = findKeyIgnoreCase(key)
@@ -974,11 +974,12 @@ class ReportDisplayFragment : Fragment() {
     private fun extractDouble(text: String): Double {
         return try {
             text.replace("$", "").replace(",", "").trim().toDouble()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             0.0
         }
     }
 
+    @Suppress("SetTextI18n")
     private fun parseApiResponse(apiResponse: String) {
         val json = JSONObject(apiResponse)
 
@@ -1032,7 +1033,7 @@ class ReportDisplayFragment : Fragment() {
                     
                     val labelCosto = if (accion.equals("Reparar", ignoreCase = true)) "Materiales/Reparación" else "Repuesto"
                     append("  Costo de $labelCosto: $%.2f\n".format(costoPieza))
-                    append("  SUBTOTAL: $%.2f\n".format(subtotalManoObraItem + costoPieza))
+                    append("  SUBTOTAL: $%.2f\n".format(Locale.US, subtotalManoObraItem + costoPieza))
                     totalPiezas += costoPieza
                 }
                 piezaTextView.layoutParams = ViewGroup.LayoutParams(
@@ -1044,9 +1045,9 @@ class ReportDisplayFragment : Fragment() {
             }
         }
 
-        view?.findViewById<TextView>(R.id.tvTotalLaborCost)?.text = "$%.2f".format(totalManoObra)
-        view?.findViewById<TextView>(R.id.tvTotalPartsCost)?.text = "$%.2f".format(totalPiezas)
-        view?.findViewById<TextView>(R.id.tvGrandTotalCost)?.text = "$%.2f".format(totalManoObra + totalPiezas)
+        view?.findViewById<TextView>(R.id.tvTotalLaborCost)?.text = "$%.2f".format(Locale.US, totalManoObra)
+        view?.findViewById<TextView>(R.id.tvTotalPartsCost)?.text = "$%.2f".format(Locale.US, totalPiezas)
+        view?.findViewById<TextView>(R.id.tvGrandTotalCost)?.text = "$%.2f".format(Locale.US, totalManoObra + totalPiezas)
         partsCard?.visibility = View.VISIBLE
 
         // 3. Consideraciones adicionales
