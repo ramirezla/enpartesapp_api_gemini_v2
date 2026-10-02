@@ -2,13 +2,16 @@ package com.ehome.autoperitajeia
 
 import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-
-import android.util.Log
+import androidx.core.content.ContextCompat
 
 class PermissionsActivity : AppCompatActivity() {
 
@@ -41,11 +44,9 @@ class PermissionsActivity : AppCompatActivity() {
             val allPermissionsGranted = permissionsMap.all { (_, isGranted) -> isGranted }
             if (allPermissionsGranted) {
                 Log.d("PermissionsActivity", "All permissions granted.")
-                // All permissions granted, proceed to the login activity
-                navigateToLoginActivity()
+                verificarGpsYNavegar()
             } else {
                 Log.d("PermissionsActivity", "Some permissions denied.")
-                // Some permissions denied, show a message or handle it accordingly
                 showPermissionDeniedDialog()
             }
         }
@@ -53,29 +54,66 @@ class PermissionsActivity : AppCompatActivity() {
         // Check if permissions are already granted
         if (checkPermissions()) {
             Log.d("PermissionsActivity", "Permissions already granted on onCreate.")
-            // Permissions are already granted, proceed to the login activity
-            navigateToLoginActivity()
+            verificarGpsYNavegar()
         } else {
             Log.d("PermissionsActivity", "Permissions not granted on onCreate, requesting.")
-            // Permissions are not granted, launch the permission request
             requestMultiplePermissionsLauncher.launch(permissions)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (checkPermissions()) {
+            verificarGpsYNavegar()
         }
     }
 
     private fun checkPermissions(): Boolean {
         Log.d("PermissionsActivity", "Checking permissions...")
-        // for (permission in permissions) {
-        //     if (ContextCompat.checkSelfPermission(
-        //             this,
-        //             permission
-        //         ) != PackageManager.PERMISSION_GRANTED
-        //     ) {
-        //         Log.d("PermissionsActivity", "Permission $permission not granted.")
-        //         return false // At least one permission is not granted
-        //     }
-        // }
+        for (permission in permissions) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    permission,
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                Log.d("PermissionsActivity", "Permission $permission not granted.")
+                return false
+            }
+        }
         Log.d("PermissionsActivity", "All permissions granted.")
-        return true // All permissions are granted
+        return true
+    }
+
+    private fun verificarGpsYNavegar() {
+        val locationManager = getSystemService(LocationManager::class.java) ?: return
+        val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+
+        if (!isGpsEnabled) {
+            Log.w("PermissionsActivity", "El GPS está desactivado. Mostrando diálogo obligatorio.")
+            mostrarDialogoGpsObligatorio()
+        } else {
+            Log.d("PermissionsActivity", "GPS activo. Navegando a LoginActivity.")
+            navigateToLoginActivity()
+        }
+    }
+
+    private fun mostrarDialogoGpsObligatorio() {
+        AlertDialog.Builder(this)
+            .setTitle("GPS Desactivado")
+            .setMessage("Para usar AutoPeritajeIA y realizar la valoración del peritaje, es obligatorio que active la ubicación por GPS. ¿Desea activarlo ahora?")
+            .setPositiveButton("Activar GPS") { _, _ ->
+                try {
+                    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    Log.e("PermissionsActivity", "Error al abrir ajustes de ubicación: ${e.message}", e)
+                }
+            }
+            .setNegativeButton("Salir de la aplicación") { _, _ ->
+                finishAffinity()
+            }
+            .setCancelable(false)
+            .show()
     }
 
     private fun navigateToLoginActivity() {
