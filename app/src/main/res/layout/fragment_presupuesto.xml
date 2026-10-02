@@ -14,10 +14,10 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Banner Header Hero con Logo Prominente y Fondo Tecnológico -->
+        <!-- Banner Header Hero con Logo Prominente y Contenido Completo Visible -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="145dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="14dp"
             app:cardElevation="3dp"
@@ -25,7 +25,7 @@
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content">
 
                 <!-- Imagen de Fondo Tecnológica Recortada a la Card -->
                 <ImageView
@@ -41,30 +41,30 @@
                     android:layout_height="match_parent"
                     android:background="#B30B2545" />
 
-                <!-- Contenido del Banner con Logo Más Grande -->
+                <!-- Contenido del Banner (Logo + Títulos Completos) -->
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp">
+                    android:paddingStart="14dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="12dp">
 
                     <ImageView
                         android:layout_width="match_parent"
-                        android:layout_height="62dp"
+                        android:layout_height="105dp"
                         android:src="@drawable/logo_autoperitaje_efecto_3d"
                         android:scaleType="fitCenter"
-                        android:layout_marginBottom="4dp"
+                        android:layout_marginBottom="6dp"
                         android:contentDescription="@string/descripcion_logo_enpartes" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/title_peritaje_header"
-                        android:textSize="15sp"
+                        android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/white"
                         android:gravity="center"
@@ -72,7 +72,7 @@
                         android:shadowDx="1"
                         android:shadowDy="2"
                         android:shadowRadius="4"
-                        android:layout_marginBottom="1dp" />
+                        android:layout_marginBottom="3dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -85,7 +85,7 @@
                         android:shadowDx="1"
                         android:shadowDy="1"
                         android:shadowRadius="3"
-                        android:layout_marginBottom="2dp" />
+                        android:layout_marginBottom="4dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
