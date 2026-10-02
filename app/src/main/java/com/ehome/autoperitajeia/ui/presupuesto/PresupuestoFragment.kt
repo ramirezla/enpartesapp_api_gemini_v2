@@ -275,6 +275,7 @@ class PresupuestoFragment : Fragment() {
     private lateinit var takePhotoLauncher: ActivityResultLauncher<Uri>
     private lateinit var uploadPhotoLauncher: ActivityResultLauncher<String>
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+    private lateinit var requestLocationPermissionLauncher: ActivityResultLauncher<Array<String>>
 
     private lateinit var etCaseNumber: TextInputEditText
     private lateinit var etFullName: TextInputEditText
@@ -587,6 +588,18 @@ class PresupuestoFragment : Fragment() {
                 tomarFoto(adapter.currentPosition)
             } else {
                 Toast.makeText(requireContext(), "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        requestLocationPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissionsMap ->
+            val fineGranted = permissionsMap[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+            val coarseGranted = permissionsMap[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+            if (fineGranted || coarseGranted) {
+                Log.d("PresupuestoFragment", "Permisos de ubicación concedidos por el usuario.")
+                detectarUbicacionDispositivo()
+            } else {
+                Log.w("PresupuestoFragment", "Permiso de ubicación denegado por el usuario.")
+                Toast.makeText(requireContext(), "Se requiere permiso de ubicación para autodetectar país, estado y ciudad.", Toast.LENGTH_LONG).show()
             }
         }
 
@@ -1058,23 +1071,32 @@ class PresupuestoFragment : Fragment() {
     }
 
     /**
-     * Verifica si el GPS está activo. Si está desactivado, muestra obligatoriamente el diálogo para activarlo.
+     * Verifica permisos y estado del GPS. Si los permisos no están concedidos, los solicita al usuario.
+     * Si el GPS está desactivado, muestra obligatoriamente el diálogo para activarlo.
      * Si está activo, obtiene la ubicación GPS (caché o tiempo real) y utiliza [Geocoder] para
      * rellenar automáticamente los campos de País, Estado y Ciudad.
      */
     private fun detectarUbicacionDispositivo() {
         configurarModoUbicacion(isEditable = BuildConfig.DEBUG)
 
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.w("PresupuestoFragment", "Permiso de ubicación no concedido para autodetectar país/estado/ciudad.")
+        val hasFinePermission = ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val hasCoarsePermission = ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (!hasFinePermission && !hasCoarsePermission) {
+            Log.d("PresupuestoFragment", "Permisos de ubicación no concedidos. Solicitando permisos en pantalla...")
+            requestLocationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                )
+            )
             return
         }
 
@@ -1092,13 +1114,15 @@ class PresupuestoFragment : Fragment() {
                 ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 
             if (lastLocation != null) {
+                Log.d("PresupuestoFragment", "Coordenadas obtenidas de caché: lat=${lastLocation.latitude}, lon=${lastLocation.longitude}")
                 procesarCoordenadasUbicacion(lastLocation)
             } else {
-                Log.d("PresupuestoFragment", "Última ubicación GPS es nula. Solicitando localización GPS en tiempo real...")
+                Log.d("PresupuestoFragment", "Última ubicación GPS en caché es nula. Solicitando coordenadas GPS en tiempo real...")
                 val locationListener = object : LocationListener {
                     override fun onLocationChanged(location: Location) {
                         try {
                             locationManager.removeUpdates(this)
+                            Log.d("PresupuestoFragment", "Coordenadas GPS recibidas en tiempo real: lat=${location.latitude}, lon=${location.longitude}")
                             procesarCoordenadasUbicacion(location)
                         } catch (e: Exception) {
                             Log.e("PresupuestoFragment", "Error procesando actualización de ubicación GPS: ${e.message}", e)
@@ -1113,7 +1137,7 @@ class PresupuestoFragment : Fragment() {
 
                 locationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER,
-                    1000L,
+                    500L,
                     0f,
                     locationListener,
                     Looper.getMainLooper()
