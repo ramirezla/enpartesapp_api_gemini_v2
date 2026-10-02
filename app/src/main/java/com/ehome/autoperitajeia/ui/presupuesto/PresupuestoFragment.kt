@@ -68,6 +68,16 @@
     * Los costos de mano de obra se calculan multiplicando las horas de cada especialidad por el costo por hora del país.
     * El Subtotal Ítem suma Costo Pieza + Hojalatería + Pintura + Mecánica.
     * El Total General calcula automáticamente el subtotal sin IVA, aplica el porcentaje de IVA y entrega el Total en USD.
+
+* Funcionalidad Implementada:
+ * 1. Detección Automática mediante GPS / Red:
+    * La aplicación consulta la última ubicación conocida del dispositivo (LocationManager.GPS_PROVIDER / NETWORK_PROVIDER) y utiliza la API nativa de Android Geocoder para obtener automáticamente el País, Estado/Provincia y Ciudad.
+    * Los desplegables spinnerCountry, spinnerState y spinnerCity se rellenan y seleccionan automáticamente con la ubicación física real del teléfono.
+ * 2. Comportamiento según el entorno de ejecución:
+    * En Desarrollo (BuildConfig.DEBUG = true - Actual):
+        * Los campos se autodetectan mediante GPS, pero permanecen habilitados (isEnabled = true), permitiéndote seleccionar manualmente cualquier otro país, estado o ciudad para realizar pruebas de desarrollo de distintas tarifas y regiones.
+◦   * En Producción (BuildConfig.DEBUG = false - Versión final de lanzamiento):
+        * Los campos se autodetectan por GPS y se bloquean automáticamente (isEnabled = false), impidiendo que el usuario pueda alterar o falsificar la ubicación de valoración del peritaje.
  */
 
 package com.ehome.autoperitajeia.ui.presupuesto
@@ -76,16 +86,21 @@ import android.Manifest
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.icu.util.Calendar
 import android.location.Address
 import android.location.Geocoder
+import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -1034,9 +1049,9 @@ class PresupuestoFragment : Fragment() {
     }
 
     /**
-     * Obtiene la ubicación GPS/Red del celular y utiliza [Geocoder] para determinar País, Estado y Ciudad.
-     * En modo Desarrollo (BuildConfig.DEBUG = true), permite modificar los campos de ubicación para pruebas.
-     * En modo Producción (BuildConfig.DEBUG = false), deshabilita los campos impidiendo su modificación.
+     * Verifica si el GPS está activo. Si está desactivado, muestra un diálogo de advertencia al usuario.
+     * Si está activo, obtiene la ubicación (caché o solicitud directa) y utiliza [Geocoder] para
+     * rellenar automáticamente los campos de País, Estado y Ciudad.
      */
     private fun detectarUbicacionDispositivo() {
         configurarModoUbicacion(isEditable = BuildConfig.DEBUG)
@@ -1056,35 +1071,105 @@ class PresupuestoFragment : Fragment() {
 
         try {
             val locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+            val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+
+            if (!isGpsEnabled && !isNetworkEnabled) {
+                Log.w("PresupuestoFragment", "El GPS/Ubicación del dispositivo está desactivado.")
+                mostrarDialogoActivarGps()
+                return
+            }
+
             val lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
                 ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 
             if (lastLocation != null) {
-                val geocoder = Geocoder(requireContext(), Locale.getDefault())
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    geocoder.getFromLocation(lastLocation.latitude, lastLocation.longitude, 1) { addresses ->
-                        if (addresses.isNotEmpty()) {
-                            activity?.runOnUiThread {
-                                aplicarUbicacionesDetectadas(addresses[0])
-                            }
+                procesarCoordenadasUbicacion(lastLocation)
+            } else {
+                Log.d("PresupuestoFragment", "Última ubicación es nula. Solicitando actualización de ubicación en tiempo real...")
+                val locationListener = object : LocationListener {
+                    override fun onLocationChanged(location: Location) {
+                        try {
+                            locationManager.removeUpdates(this)
+                            procesarCoordenadasUbicacion(location)
+                        } catch (e: Exception) {
+                            Log.e("PresupuestoFragment", "Error procesando actualización de ubicación: ${e.message}", e)
                         }
                     }
-                } else {
-                    @Suppress("DEPRECATION")
-                    val addresses = geocoder.getFromLocation(lastLocation.latitude, lastLocation.longitude, 1)
-                    if (!addresses.isNullOrEmpty()) {
-                        aplicarUbicacionesDetectadas(addresses[0])
-                    }
+
+                    override fun onProviderEnabled(provider: String) {}
+                    override fun onProviderDisabled(provider: String) {}
+                    @Deprecated("Deprecated in Java")
+                    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
                 }
-            } else {
-                Log.w("PresupuestoFragment", "No se obtuvo última ubicación conocida del dispositivo.")
+
+                if (isGpsEnabled) {
+                    locationManager.requestLocationUpdates(
+                        LocationManager.GPS_PROVIDER,
+                        1000L,
+                        10f,
+                        locationListener,
+                        Looper.getMainLooper()
+                    )
+                } else {
+                    locationManager.requestLocationUpdates(
+                        LocationManager.NETWORK_PROVIDER,
+                        1000L,
+                        10f,
+                        locationListener,
+                        Looper.getMainLooper()
+                    )
+                }
             }
         } catch (e: Exception) {
             Log.e("PresupuestoFragment", "Error al autodetectar ubicación con Geocoder: ${e.message}", e)
         }
     }
 
+    private fun procesarCoordenadasUbicacion(location: Location) {
+        try {
+            val geocoder = Geocoder(requireContext(), Locale.getDefault())
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                geocoder.getFromLocation(location.latitude, location.longitude, 1) { addresses ->
+                    if (addresses.isNotEmpty()) {
+                        activity?.runOnUiThread {
+                            aplicarUbicacionesDetectadas(addresses[0])
+                        }
+                    }
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                if (!addresses.isNullOrEmpty()) {
+                    aplicarUbicacionesDetectadas(addresses[0])
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("PresupuestoFragment", "Error procesando coordenadas con Geocoder: ${e.message}", e)
+        }
+    }
+
+    private fun mostrarDialogoActivarGps() {
+        if (!isAdded) return
+        AlertDialog.Builder(requireContext())
+            .setTitle("Ubicación desactivada")
+            .setMessage("Para el correcto funcionamiento de la aplicación y la valoración del peritaje, es necesario activar los Servicios de Ubicación (GPS). ¿Desea activarlo ahora?")
+            .setPositiveButton("Activar GPS") { _, _ ->
+                try {
+                    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    Log.e("PresupuestoFragment", "Error al abrir ajustes de ubicación: ${e.message}", e)
+                }
+            }
+            .setNegativeButton("Cancelar") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
     private fun aplicarUbicacionesDetectadas(address: Address) {
+        if (!isAdded) return
         val detectedCountry = address.countryName ?: ""
         val detectedState = address.adminArea ?: ""
         val detectedCity = address.locality ?: address.subAdminArea ?: ""
