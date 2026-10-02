@@ -14,10 +14,10 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Banner Header Hero Compacto Ajustado Exacto a la Card (120dp) -->
+        <!-- Banner Header Hero con Logo Prominente y Fondo Tecnológico -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="145dp"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="14dp"
             app:cardElevation="3dp"
@@ -41,37 +41,38 @@
                     android:layout_height="match_parent"
                     android:background="#B30B2545" />
 
-                <!-- Contenido del Banner Ajustado -->
+                <!-- Contenido del Banner con Logo Más Grande -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="6dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp">
 
                     <ImageView
                         android:layout_width="match_parent"
-                        android:layout_height="42dp"
+                        android:layout_height="62dp"
                         android:src="@drawable/logo_autoperitaje_efecto_3d"
                         android:scaleType="fitCenter"
-                        android:layout_marginBottom="2dp"
+                        android:layout_marginBottom="4dp"
                         android:contentDescription="@string/descripcion_logo_enpartes" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/title_peritaje_header"
-                        android:textSize="14sp"
+                        android:textSize="15sp"
                         android:textStyle="bold"
                         android:textColor="@color/white"
                         android:gravity="center"
                         android:shadowColor="#CC000000"
                         android:shadowDx="1"
                         android:shadowDy="2"
-                        android:shadowRadius="4" />
+                        android:shadowRadius="4"
+                        android:layout_marginBottom="1dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -83,7 +84,8 @@
                         android:shadowColor="#CC000000"
                         android:shadowDx="1"
                         android:shadowDy="1"
-                        android:shadowRadius="3" />
+                        android:shadowRadius="3"
+                        android:layout_marginBottom="2dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
