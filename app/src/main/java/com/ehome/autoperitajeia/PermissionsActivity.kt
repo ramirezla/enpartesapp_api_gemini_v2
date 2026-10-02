@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -16,20 +17,22 @@ import androidx.core.content.ContextCompat
 class PermissionsActivity : AppCompatActivity() {
 
     private lateinit var requestMultiplePermissionsLauncher: ActivityResultLauncher<Array<String>>
+    private var isGpsDialogShowing = false
+    private var isNavigating = false
 
     private val permissions = mutableListOf(
         Manifest.permission.CAMERA,
-        Manifest.permission.INTERNET,
-        Manifest.permission.ACCESS_NETWORK_STATE,
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION,
     ).apply {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             add(Manifest.permission.READ_MEDIA_IMAGES)
-            add(Manifest.permission.READ_MEDIA_AUDIO)
-        } else {
+        } else if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             add(Manifest.permission.READ_EXTERNAL_STORAGE)
             add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        } else {
+            // Android 11 y 12 (API 30 y 31 - TECNO PDVA Neo)
+            add(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
     }.toTypedArray()
 
@@ -98,10 +101,15 @@ class PermissionsActivity : AppCompatActivity() {
     }
 
     private fun mostrarDialogoGpsObligatorio() {
+        if (isGpsDialogShowing || isNavigating) return
+        isGpsDialogShowing = true
+
         AlertDialog.Builder(this)
             .setTitle("GPS Desactivado")
             .setMessage("Para usar AutoPeritajeIA y realizar la valoración del peritaje, es obligatorio que active la ubicación por GPS. ¿Desea activarlo ahora?")
-            .setPositiveButton("Activar GPS") { _, _ ->
+            .setPositiveButton("Activar GPS") { dialog, _ ->
+                isGpsDialogShowing = false
+                dialog.dismiss()
                 try {
                     val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                     startActivity(intent)
@@ -109,7 +117,9 @@ class PermissionsActivity : AppCompatActivity() {
                     Log.e("PermissionsActivity", "Error al abrir ajustes de ubicación: ${e.message}", e)
                 }
             }
-            .setNegativeButton("Salir de la aplicación") { _, _ ->
+            .setNegativeButton("Salir de la aplicación") { dialog, _ ->
+                isGpsDialogShowing = false
+                dialog.dismiss()
                 finishAffinity()
             }
             .setCancelable(false)
@@ -117,6 +127,8 @@ class PermissionsActivity : AppCompatActivity() {
     }
 
     private fun navigateToLoginActivity() {
+        if (isNavigating) return
+        isNavigating = true
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
