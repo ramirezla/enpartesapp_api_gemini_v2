@@ -47,8 +47,9 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_presupuestofragment,
                 R.id.nav_consultas_abiertas,
                 R.id.nav_gallery,
-                R.id.exitMenuItem
-            ), drawerLayout
+                R.id.exitMenuItem,
+            ),
+            drawerLayout,
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
 

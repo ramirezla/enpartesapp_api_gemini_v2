@@ -13,7 +13,7 @@ import java.util.Locale
 
 class ClaimAdapter(
     private val claims: List<ReclamosFragment.Claim>,
-    private val onSelectClickListener: (ReclamosFragment.Claim) ->Unit
+    private val onSelectClickListener: (ReclamosFragment.Claim) -> Unit,
 ) : RecyclerView.Adapter<ClaimAdapter.ClaimViewHolder>() {
 
     class ClaimViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -44,18 +44,14 @@ class ClaimAdapter(
 
     // Function to format date to DD/MM/YYYY
     private fun formatDate(inputDate: String): String {
-        // Define input and output formats
         val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS", Locale.getDefault())
         val outputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
-        try {
-            // Parse the input date string val
+        return try {
             val date = inputFormat.parse(inputDate)
-
-            // Format the date to the desired output format
-            return date?.let { outputFormat.format(it) } ?: "Fecha Inválida"
-        } catch (e: ParseException) {
-            return "Fecha Inválida"
+            date?.let { outputFormat.format(it) } ?: "Fecha Inválida"
+        } catch (_: ParseException) {
+            "Fecha Inválida"
         }
     }
 }

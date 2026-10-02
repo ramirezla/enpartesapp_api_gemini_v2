@@ -1,8 +1,8 @@
 package com.ehome.autoperitajeia.ui.reclamos
 
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import androidx.core.net.toUri
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -45,7 +45,7 @@ class ReclamosFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentReclamosBinding.inflate(inflater, container, false)
         return binding.root
@@ -63,7 +63,7 @@ class ReclamosFragment : Fragment() {
         }
     """.trimIndent()
 
-        val uri = Uri.parse(BASE_URL).buildUpon()
+        val uri = BASE_URL.toUri().buildUpon()
             .appendPath(PATH)
             .appendQueryParameter("q", jsonQuery)
             .build()
@@ -83,7 +83,7 @@ class ReclamosFragment : Fragment() {
         }
     """.trimIndent()
 
-        val uri = Uri.parse(BASE_URL).buildUpon()
+        val uri = BASE_URL.toUri().buildUpon()
             .appendPath(PATH)
             .appendQueryParameter("q", jsonQuery)
             .build()
@@ -142,7 +142,7 @@ class ReclamosFragment : Fragment() {
                             val claimsList: List<Claim> = try {
                                 Gson().fromJson(
                                     response,
-                                    object : TypeToken<List<Claim>>() {}.type
+                                    object : TypeToken<List<Claim>>() {}.type,
                                 )
                             } catch (e: JsonSyntaxException) {
                                 showToast(getString(R.string.error_al_procesar_la_respuesta_del_servidor))
@@ -161,7 +161,7 @@ class ReclamosFragment : Fragment() {
                                                 val partsList: List<Part> =
                                                     Gson().fromJson(
                                                         partsResponse,
-                                                        object : TypeToken<List<Part>>() {}.type
+                                                        object : TypeToken<List<Part>>() {}.type,
                                                     )
                                                 showPartsPopup(partsList)
                                             }

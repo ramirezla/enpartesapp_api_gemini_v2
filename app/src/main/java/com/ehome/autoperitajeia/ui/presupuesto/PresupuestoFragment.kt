@@ -352,6 +352,7 @@ class PresupuestoFragment : Fragment() {
         "Seleccione un estado..." to arrayOf("Seleccione una ciudad..."),
         // Argentina
         "Buenos Aires" to arrayOf("Seleccione una ciudad...", "La Plata", "Mar del Plata", "Bahía Blanca", "Tandil"),
+        "Argentina_Córdoba" to arrayOf("Seleccione una ciudad...", "Córdoba", "Villa Carlos Paz", "Río Cuarto"),
         "Córdoba" to arrayOf("Seleccione una ciudad...", "Córdoba", "Villa Carlos Paz", "Río Cuarto"),
         "Mendoza" to arrayOf("Seleccione una ciudad...", "Mendoza", "San Rafael"),
         "Santa Fe" to arrayOf("Seleccione una ciudad...", "Santa Fe", "Rosario"),
@@ -378,6 +379,7 @@ class PresupuestoFragment : Fragment() {
         "Biobío" to arrayOf("Seleccione una ciudad...", "Concepción", "Coronel", "Hualpén", "Los Ángeles", "Talcahuano"),
         "Coquimbo" to arrayOf("Seleccione una ciudad...", "Coquimbo", "La Serena", "Ovalle"),
         "Los Lagos" to arrayOf("Seleccione una ciudad...", "Castro", "Osorno", "Puerto Montt", "Puerto Varas"),
+        "Chile_Los Ríos" to arrayOf("Seleccione una ciudad...", "La Unión", "Valdivia"),
         "Los Ríos" to arrayOf("Seleccione una ciudad...", "La Unión", "Valdivia"),
         "Magallanes" to arrayOf("Seleccione una ciudad...", "Puerto Natales", "Punta Arenas"),
         "Maule" to arrayOf("Seleccione una ciudad...", "Constitución", "Curicó", "Linares", "Talca"),
@@ -388,10 +390,12 @@ class PresupuestoFragment : Fragment() {
         "Ñuble" to arrayOf("Seleccione una ciudad...", "Chillán", "San Carlos"),
 
         // Colombia
+        "Colombia_Amazonas" to arrayOf("Seleccione una ciudad...", "Leticia"),
         "Amazonas" to arrayOf("Seleccione una ciudad...", "Leticia"),
         "Antioquia" to arrayOf("Seleccione una ciudad...", "Medellín", "Bello", "Itagüí", "Envigado", "Apartadó", "Rionegro"),
         "Arauca" to arrayOf("Seleccione una ciudad...", "Arauca"),
         "Atlántico" to arrayOf("Seleccione una ciudad...", "Barranquilla", "Soledad", "Malambo"),
+        "Colombia_Bolívar" to arrayOf("Seleccione una ciudad...", "Cartagena", "Magangué"),
         "Bolívar" to arrayOf("Seleccione una ciudad...", "Cartagena", "Magangué"),
         "Boyacá" to arrayOf("Seleccione una ciudad...", "Tunja", "Duitama", "Sogamoso"),
         "Caldas" to arrayOf("Seleccione una ciudad...", "Manizales"),
@@ -400,7 +404,7 @@ class PresupuestoFragment : Fragment() {
         "Cauca" to arrayOf("Seleccione una ciudad...", "Popayán"),
         "Cesar" to arrayOf("Seleccione una ciudad...", "Valledupar"),
         "Chocó" to arrayOf("Seleccione una ciudad...", "Quibdó"),
-        "Córdoba" to arrayOf("Seleccione una ciudad...", "Montería"),
+        "Colombia_Córdoba" to arrayOf("Seleccione una ciudad...", "Montería"),
         "Cundinamarca" to arrayOf("Seleccione una ciudad...", "Bogotá", "Soacha", "Facatativá", "Girardot", "Zipaquirá"),
         "Guainía" to arrayOf("Seleccione una ciudad...", "Inírida"),
         "Guaviare" to arrayOf("Seleccione una ciudad...", "San José del Guaviare"),
@@ -415,6 +419,7 @@ class PresupuestoFragment : Fragment() {
         "Risaralda" to arrayOf("Seleccione una ciudad...", "Pereira", "Dosquebradas"),
         "San Andrés y Providencia" to arrayOf("Seleccione una ciudad...", "San Andrés"),
         "Santander" to arrayOf("Seleccione una ciudad...", "Bucaramanga", "Floridablanca", "Barrancabermeja"),
+        "Colombia_Sucre" to arrayOf("Seleccione una ciudad...", "Sincelejo"),
         "Sucre" to arrayOf("Seleccione una ciudad...", "Sincelejo"),
         "Tolima" to arrayOf("Seleccione una ciudad...", "Ibagué"),
         "Valle del Cauca" to arrayOf("Seleccione una ciudad...", "Cali", "Buenaventura", "Palmira", "Tuluá", "Cartago", "Buga"),
@@ -428,7 +433,7 @@ class PresupuestoFragment : Fragment() {
 
         // Ecuador
         "Azuay" to arrayOf("Seleccione una ciudad...", "Cuenca", "Girón", "Gualaceo", "Paute", "Sígsig"),
-        "Bolívar" to arrayOf("Seleccione una ciudad...", "Caluma", "Chimbo", "Guaranda", "San Miguel"),
+        "Ecuador_Bolívar" to arrayOf("Seleccione una ciudad...", "Caluma", "Chimbo", "Guaranda", "San Miguel"),
         "Cañar" to arrayOf("Seleccione una ciudad...", "Azogues", "Biblián", "Cañar", "La Troncal"),
         "Carchi" to arrayOf("Seleccione una ciudad...", "El Ángel", "Mira", "San Gabriel", "Tulcán"),
         "Chimborazo" to arrayOf("Seleccione una ciudad...", "Alausí", "Chambo", "Colta", "Guano", "Riobamba"),
@@ -439,7 +444,7 @@ class PresupuestoFragment : Fragment() {
         "Guayas" to arrayOf("Seleccione una ciudad...", "Daule", "Durán", "El Triunfo", "Guayaquil", "Milagro", "Naranjal", "Playas", "Samborondón", "Yaguachi"),
         "Imbabura" to arrayOf("Seleccione una ciudad...", "Atuntaqui", "Cotacachi", "Ibarra", "Otavalo", "Pimampiro"),
         "Loja" to arrayOf("Seleccione una ciudad...", "Alamor", "Cariamanga", "Catamayo", "Loja", "Macará"),
-        "Los Ríos" to arrayOf("Seleccione una ciudad...", "Baba", "Babahoyo", "Puebloviejo", "Quevedo", "Ventanas", "Vinces"),
+        "Ecuador_Los Ríos" to arrayOf("Seleccione una ciudad...", "Baba", "Babahoyo", "Puebloviejo", "Quevedo", "Ventanas", "Vinces"),
         "Manabí" to arrayOf("Seleccione una ciudad...", "Bahía de Caráquez", "Chone", "El Carmen", "Jipijapa", "Manta", "Pedernales", "Portoviejo"),
         "Morona Santiago" to arrayOf("Seleccione una ciudad...", "Gualaquiza", "Macas", "Palora", "Sucúa"),
         "Napo" to arrayOf("Seleccione una ciudad...", "Archidona", "Baeza", "El Chaco", "Tena"),
@@ -507,12 +512,12 @@ class PresupuestoFragment : Fragment() {
         "Lima" to arrayOf("Seleccione una ciudad...", "Lima Metropolitana"),
 
         // Venezuela
-        "Amazonas" to arrayOf("Seleccione una ciudad...", "Puerto Ayacucho"),
+        "Venezuela_Amazonas" to arrayOf("Seleccione una ciudad...", "Puerto Ayacucho"),
         "Anzoátegui" to arrayOf("Seleccione una ciudad...", "Barcelona", "Puerto La Cruz", "Lecheria", "Guanta", "El Tigre", "Anaco"),
         "Apure" to arrayOf("Seleccione una ciudad...", "San Fernando de Apure"),
         "Aragua" to arrayOf("Seleccione una ciudad...", "Maracay", "Turmero", "La Victoria"),
         "Barinas" to arrayOf("Seleccione una ciudad...", "Barinas"),
-        "Bolívar" to arrayOf("Seleccione una ciudad...", "Ciudad Bolívar", "Ciudad Guayana", "Upata"),
+        "Venezuela_Bolívar" to arrayOf("Seleccione una ciudad...", "Ciudad Bolívar", "Ciudad Guayana", "Upata"),
         "Carabobo" to arrayOf("Seleccione una ciudad...", "Valencia", "Puerto Cabello", "Guacara"),
         "Cojedes" to arrayOf("Seleccione una ciudad...", "San Carlos"),
         "Delta Amacuro" to arrayOf("Seleccione una ciudad...", "Tucupita"),
@@ -525,7 +530,7 @@ class PresupuestoFragment : Fragment() {
         "Monagas" to arrayOf("Seleccione una ciudad...", "Maturín"),
         "Nueva Esparta" to arrayOf("Seleccione una ciudad...", "La Asunción", "Porlamar"),
         "Portuguesa" to arrayOf("Seleccione una ciudad...", "Guanare", "Acarigua"),
-        "Sucre" to arrayOf("Seleccione una ciudad...", "Cumaná", "Carúpano"),
+        "Venezuela_Sucre" to arrayOf("Seleccione una ciudad...", "Cumaná", "Carúpano"),
         "Táchira" to arrayOf("Seleccione una ciudad...", "San Cristóbal"),
         "Trujillo" to arrayOf("Seleccione una ciudad...", "Trujillo", "Valera"),
         "Vargas (La Guaira)" to arrayOf("Seleccione una ciudad...", "La Guaira", "Catia La Mar"),
@@ -768,13 +773,13 @@ class PresupuestoFragment : Fragment() {
             Toast.makeText(requireContext(), "Por favor, agregue al menos una foto del vehículo", Toast.LENGTH_SHORT).show()
             return false
         }
-        for (fotoItem in fotoList) {
-            if (fotoItem.imagenUri == null) {
+        for ((imagenUri, tipoFoto) in fotoList) {
+            if (imagenUri == null) {
                 Log.d("Validacion", "Falta imagen URI en un ítem de foto.")
                 Toast.makeText(requireContext(), "Por favor, agregue al menos una foto del vehículo", Toast.LENGTH_SHORT).show()
                 return false
             }
-            if (fotoItem.tipoFoto == "Seleccione un tipo...") {
+            if (tipoFoto == "Seleccione un tipo...") {
                 Log.d("Validacion", "Tipo de foto de vehículo no seleccionado en un ítem.")
                 Toast.makeText(requireContext(), "Por favor, seleccione un tipo para todas las fotos del vehículo", Toast.LENGTH_SHORT).show()
                 return false
@@ -1010,17 +1015,17 @@ class PresupuestoFragment : Fragment() {
 
         spinnerState.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
             val stateSelected = parent.getItemAtPosition(position).toString()
-            configurarSpinnerCity(stateSelected)
+            configurarSpinnerCity(country, stateSelected)
             Log.d("PresupuestoFragment", "Estado seleccionado: $stateSelected")
         }
         Log.d("PresupuestoFragment", "Spinner State configurado para país: $country")
     }
 
-    private fun configurarSpinnerCity(state: String) {
-        val cities = citiesByState[state] ?: arrayOf("Seleccione una ciudad...")
+    private fun configurarSpinnerCity(country: String, state: String) {
+        val cities = citiesByState["${country}_$state"] ?: citiesByState[state] ?: arrayOf("Seleccione una ciudad...")
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, cities)
         spinnerCity.setAdapter(arrayAdapter)
-        Log.d("PresupuestoFragment", "Spinner City configurado para estado: $state")
+        Log.d("PresupuestoFragment", "Spinner City configurado para estado: $state en $country")
     }
 
     private fun setTouchInteractionsEnabled(enabled: Boolean) {

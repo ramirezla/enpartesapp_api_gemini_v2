@@ -2,13 +2,11 @@ package com.ehome.autoperitajeia
 
 import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 
 import android.util.Log
 
@@ -21,7 +19,7 @@ class PermissionsActivity : AppCompatActivity() {
         Manifest.permission.INTERNET,
         Manifest.permission.ACCESS_NETWORK_STATE,
         Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION
+        Manifest.permission.ACCESS_COARSE_LOCATION,
     ).apply {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             add(Manifest.permission.READ_MEDIA_IMAGES)
@@ -37,10 +35,10 @@ class PermissionsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_permissions)
 
         requestMultiplePermissionsLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
+            ActivityResultContracts.RequestMultiplePermissions(),
         ) { permissionsMap ->
             Log.d("PermissionsActivity", "Permissions callback received: $permissionsMap")
-            val allPermissionsGranted = permissionsMap.all { it.value }
+            val allPermissionsGranted = permissionsMap.all { (_, isGranted) -> isGranted }
             if (allPermissionsGranted) {
                 Log.d("PermissionsActivity", "All permissions granted.")
                 // All permissions granted, proceed to the login activity

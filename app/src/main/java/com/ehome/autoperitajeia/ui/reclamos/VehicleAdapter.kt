@@ -1,4 +1,4 @@
-package com.ehome.autoperitajeia.ui.home
+package com.ehome.autoperitajeia.ui.reclamos
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,11 +9,12 @@ import android.widget.TextView
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.ehome.autoperitajeia.R
+import com.ehome.autoperitajeia.ui.home.VehicleData
 import org.json.JSONObject
 
 class VehicleAdapter(
     private val vehicles: List<VehicleData>,
-    private val caracteristicasNombres: List<String>
+    private val caracteristicasNombres: List<String>,
 ) :
     RecyclerView.Adapter<VehicleAdapter.VehicleViewHolder>() {
 
@@ -36,11 +37,9 @@ class VehicleAdapter(
     }
 
     override fun onBindViewHolder(holder: VehicleViewHolder, position: Int) {
-        val currentVehicle = vehicles[position]
-        val vehicleInfo = currentVehicle.datos
-        val vehicleCarac = currentVehicle.carac
+        val (vehicleInfo, vehicleCarac) = vehicles[position]
 
-        if (vehicleInfo != null && vehicleCarac != null) {
+        if ((vehicleInfo != null) && (vehicleCarac != null)) {
             holder.brandTextView.text = vehicleInfo.brandName
             holder.modelTextView.text = vehicleInfo.modelName
             holder.yearTextView.text = vehicleInfo.year
@@ -50,14 +49,14 @@ class VehicleAdapter(
 
             // Build the characteristics string
             val characteristicsLine = StringBuilder()
-            for (carac in vehicleCarac) {
-                holder.vehicleIdTextView.text = carac.vehicleId
+            for ((vehicleId1, carac1) in vehicleCarac) {
+                holder.vehicleIdTextView.text = vehicleId1
                 // Parse the inner JSON string safely
-                carac.carac?.let { caracString ->
+                carac1?.let { caracString ->
                     val caracJson = JSONObject(caracString)
 
                     // Create the characteristics line.
-                    caracteristicasNombres.forEachIndexed { index, characteristic ->
+                    caracteristicasNombres.forEach { characteristic ->
                         if (caracJson.has(characteristic)) {
                             val value = caracJson.getString(characteristic)
                             characteristicsLine.append("$characteristic: $value, ")

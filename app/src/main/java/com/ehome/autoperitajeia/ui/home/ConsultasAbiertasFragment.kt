@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ehome.autoperitajeia.R
 import com.ehome.autoperitajeia.databinding.FragmentConsultasabiertasBinding
+import com.ehome.autoperitajeia.ui.reclamos.VehicleAdapter
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.CoroutineScope
@@ -35,7 +36,7 @@ private const val C_KEY = "12345"
 
 data class VehicleData(
     val datos: VehicleInfo?,
-    val carac: List<VehicleCarac>?
+    val carac: List<VehicleCarac>?,
 )
 
 data class VehicleInfo(
@@ -47,12 +48,12 @@ data class VehicleInfo(
     val licensePlate: String?,
     val vin: String?,
     val serialNumber: String?,
-    val year: String?
+    val year: String?,
 )
 
 data class VehicleCarac(
     val vehicleId: String?,
-    val carac: String?
+    val carac: String?,
 )
 
 // API interface
@@ -60,7 +61,7 @@ interface ApiService {
     //@GET("/integracion")
     @GET("/$PATH")
     suspend fun findVehicle(
-        @Query("q") query: String
+        @Query("q") query: String,
     ): Response<Map<String, VehicleData>> // Changed return type to Map<String, VehicleData>
 }
 
@@ -112,7 +113,7 @@ class ConsultasAbiertasFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentConsultasabiertasBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -212,12 +213,8 @@ class ConsultasAbiertasFragment : Fragment() {
         val caracteristicasNombres = listOf("Clase", "Cilindro", "Categoría", "Litros", "Carrocería", "Caja/Transmisión", "Transmisión/Tracción", "Tipo de Carrocería")
 
         val vehicleList = mutableListOf<VehicleData>()
-        // Iterate through the Map using entries
         if (vehicleResponse.isNotEmpty()) {
-            for (entry in vehicleResponse.entries) {
-                val vehicleData = entry.value
-                vehicleList.add(vehicleData)
-            }
+            vehicleList.addAll(vehicleResponse.values)
             vehicleAdapter = VehicleAdapter(vehicleList, caracteristicasNombres)
             recyclerView.adapter = vehicleAdapter
         } else {
