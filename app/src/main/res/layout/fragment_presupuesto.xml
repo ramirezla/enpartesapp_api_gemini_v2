@@ -14,59 +14,90 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Banner Header Hero -->
+        <!-- Banner Header Hero con Imagen de Fondo Tecnológica -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="3dp"
-            app:strokeWidth="0dp"
-            app:cardBackgroundColor="#0B2545">
+            app:strokeWidth="0dp">
 
-            <LinearLayout
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="20dp">
+                android:layout_height="wrap_content">
 
+                <!-- Imagen de Fondo Tecnológica -->
                 <ImageView
                     android:layout_width="match_parent"
-                    android:layout_height="110dp"
-                    android:src="@drawable/logo_autoperitaje_efecto_3d"
-                    android:scaleType="fitCenter"
-                    android:layout_marginBottom="12dp"
-                    android:contentDescription="@string/descripcion_logo_enpartes" />
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/fondo_app_reporte_dannos"
+                    android:contentDescription="@null" />
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- Capa Overlay Azul Marino para Alto Contraste (#B30B2545) -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#B30B2545" />
+
+                <!-- Contenido del Banner (Logo + Títulos) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/title_peritaje_header"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/white"
+                    android:orientation="vertical"
                     android:gravity="center"
-                    android:layout_marginBottom="4dp" />
+                    android:padding="20dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/subtitle_peritaje_header"
-                    android:textColor="#BAE6FD"
-                    android:textSize="12sp"
-                    android:gravity="center"
-                    android:layout_marginBottom="8dp" />
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="110dp"
+                        android:src="@drawable/logo_autoperitaje_efecto_3d"
+                        android:scaleType="fitCenter"
+                        android:layout_marginBottom="12dp"
+                        android:contentDescription="@string/descripcion_logo_enpartes" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/campos_obligatorios_asterisk"
-                    android:textColor="#FF8A80"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:gravity="center" />
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/title_peritaje_header"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:gravity="center"
+                        android:shadowColor="#CC000000"
+                        android:shadowDx="1"
+                        android:shadowDy="2"
+                        android:shadowRadius="4"
+                        android:layout_marginBottom="4dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/subtitle_peritaje_header"
+                        android:textColor="#BAE6FD"
+                        android:textSize="12sp"
+                        android:gravity="center"
+                        android:shadowColor="#CC000000"
+                        android:shadowDx="1"
+                        android:shadowDy="1"
+                        android:shadowRadius="3"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/campos_obligatorios_asterisk"
+                        android:textColor="#FF8A80"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:shadowColor="#CC000000"
+                        android:shadowDx="1"
+                        android:shadowDy="1"
+                        android:shadowRadius="2" />
+                </LinearLayout>
+            </FrameLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Tarjeta 1: Información del Caso y Perito -->
