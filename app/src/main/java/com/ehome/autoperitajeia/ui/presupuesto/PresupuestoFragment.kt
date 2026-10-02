@@ -69,17 +69,20 @@
     * El Subtotal Ítem suma Costo Pieza + Hojalatería + Pintura + Mecánica.
     * El Total General calcula automáticamente el subtotal sin IVA, aplica el porcentaje de IVA y entrega el Total en USD.
 
-* Mejoras e Integraciones Realizadas:
- * 1. Verificación de estado del GPS / Servicios de Ubicación:
-    * Si los servicios de ubicación (GPS / Red) se encuentran desactivados en el dispositivo, la aplicación muestra un cuadro de diálogo emergente al usuario:
-    "Para el correcto funcionamiento de la aplicación y la valoración del peritaje, es necesario activar los Servicios de Ubicación (GPS). ¿Desea activarlo ahora?"
-    * Al pulsar en "Activar GPS", la aplicación abre directamente la pantalla de Ajustes de Ubicación del Sistema Android para que el usuario encienda el GPS.
- * 2. Obtención de Coordenadas en Tiempo Real (Fix cuando la caché GPS era nula):
-    * Anteriormente, si el teléfono no tenía una ubicación reciente guardada en la caché del sistema (lastLocation == null), los campos no se rellenaban.
-    * Ahora, si la caché es nula, la aplicación registra un escuchador de ubicación en tiempo real (requestLocationUpdates) para obtener las coordenadas actuales de las antenas o GPS e inmediatamente invocar al Geocoder para rellenar los campos de País, Estado y Ciudad.
- * 3. Autodetección e Interfaz:
-    * En Desarrollo (BuildConfig.DEBUG = true): Autodetección activa con GPS + campos editables para pruebas.
-     * En Producción (BuildConfig.DEBUG = false): Autodetección activa con GPS + campos bloqueados (isEnabled = false).
+* Solución aplicada en  PermissionsActivity.kt:
+ * 1.Adaptación Inteligente de Permisos según la Versión de Android:
+    * Android 11 y 12 (API 30 y 31 - Tu celular): Se solicitan únicamente los permisos válidos en tiempo de ejecución (CAMERA, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION y READ_EXTERNAL_STORAGE).
+    * Android 13+ (API 33+): Se solicita READ_MEDIA_IMAGES.
+    * Android 10 o inferior (API 29-): Se solicitan los permisos heredados de almacenamiento.
+ * 2.Control de Navegación y Evitación de Diálogos Múltiples:
+    * Se agregaron banderas de control (isGpsDialogShowing e isNavigating) para evitar que se amontonen diálogos o se reintente la navegación de manera repetida.
+ * 3.Flujo de Ejecución Correcto:
+    * Al autorizar los permisos: La aplicación evalúa el sensor GPS.
+    * Si el GPS está encendido: Pasa directamente a LoginActivity.
+    * Si el GPS está apagado: Muestra el diálogo modal bloqueante:
+        * GPS Desactivado "Para usar AutoPeritajeIA y realizar la valoración del peritaje, es obligatorio que active la ubicación por GPS. ¿Desea activarlo ahora?"
+            * "Activar GPS": Abre los Ajustes de Ubicación y, al encenderlo y regresar, navega de inmediato a LoginActivity.
+            * "Salir de la aplicación": Cierra la aplicación (finishAffinity()).
  */
 
 package com.ehome.autoperitajeia.ui.presupuesto

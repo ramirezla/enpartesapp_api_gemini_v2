@@ -44,7 +44,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_percent="0.88"
-        app:srcCompat="@drawable/logo_auto_perito_nobg" />
+        app:srcCompat="@drawable/logo_autoperitaje_efecto_3d" />
 
     <!-- Título AUTO PERITAJE debajo del Logo -->
     <TextView

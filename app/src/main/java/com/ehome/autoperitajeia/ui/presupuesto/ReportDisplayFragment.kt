@@ -499,7 +499,7 @@ class ReportDisplayFragment : Fragment() {
 
         // Logo del PDF
         try {
-            val logo = BitmapFactory.decodeResource(resources, R.drawable.logo_auto_perito_nobg)
+            val logo = BitmapFactory.decodeResource(resources, R.drawable.logo_autoperitaje_efecto_3d)
             if (logo != null) {
                 val ratio = logo.width.toFloat() / logo.height.toFloat()
                 val targetHeight = 50f

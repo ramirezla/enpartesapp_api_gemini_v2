@@ -34,7 +34,7 @@
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="110dp"
-                    android:src="@drawable/logo_auto_perito_nobg"
+                    android:src="@drawable/logo_autoperitaje_efecto_3d"
                     android:scaleType="fitCenter"
                     android:layout_marginBottom="12dp"
                     android:contentDescription="@string/descripcion_logo_enpartes" />
