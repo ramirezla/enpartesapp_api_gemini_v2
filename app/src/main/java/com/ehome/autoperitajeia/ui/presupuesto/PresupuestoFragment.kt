@@ -80,7 +80,11 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.icu.util.Calendar
+import android.location.Address
+import android.location.Geocoder
+import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -637,6 +641,7 @@ class PresupuestoFragment : Fragment() {
         configurarSpinnerTipoVehiculo()
         configurarSpinnerVehicleColor()
         configurarSpinnerCountry()
+        detectarUbicacionDispositivo()
 
         // Establecer fecha de hoy por defecto
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -1026,6 +1031,96 @@ class PresupuestoFragment : Fragment() {
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, cities)
         spinnerCity.setAdapter(arrayAdapter)
         Log.d("PresupuestoFragment", "Spinner City configurado para estado: $state en $country")
+    }
+
+    /**
+     * Obtiene la ubicación GPS/Red del celular y utiliza [Geocoder] para determinar País, Estado y Ciudad.
+     * En modo Desarrollo (BuildConfig.DEBUG = true), permite modificar los campos de ubicación para pruebas.
+     * En modo Producción (BuildConfig.DEBUG = false), deshabilita los campos impidiendo su modificación.
+     */
+    private fun detectarUbicacionDispositivo() {
+        configurarModoUbicacion(isEditable = BuildConfig.DEBUG)
+
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.w("PresupuestoFragment", "Permiso de ubicación no concedido para autodetectar país/estado/ciudad.")
+            return
+        }
+
+        try {
+            val locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+
+            if (lastLocation != null) {
+                val geocoder = Geocoder(requireContext(), Locale.getDefault())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    geocoder.getFromLocation(lastLocation.latitude, lastLocation.longitude, 1) { addresses ->
+                        if (addresses.isNotEmpty()) {
+                            activity?.runOnUiThread {
+                                aplicarUbicacionesDetectadas(addresses[0])
+                            }
+                        }
+                    }
+                } else {
+                    @Suppress("DEPRECATION")
+                    val addresses = geocoder.getFromLocation(lastLocation.latitude, lastLocation.longitude, 1)
+                    if (!addresses.isNullOrEmpty()) {
+                        aplicarUbicacionesDetectadas(addresses[0])
+                    }
+                }
+            } else {
+                Log.w("PresupuestoFragment", "No se obtuvo última ubicación conocida del dispositivo.")
+            }
+        } catch (e: Exception) {
+            Log.e("PresupuestoFragment", "Error al autodetectar ubicación con Geocoder: ${e.message}", e)
+        }
+    }
+
+    private fun aplicarUbicacionesDetectadas(address: Address) {
+        val detectedCountry = address.countryName ?: ""
+        val detectedState = address.adminArea ?: ""
+        val detectedCity = address.locality ?: address.subAdminArea ?: ""
+
+        Log.d("PresupuestoFragment", "Ubicación autodetectada -> País: $detectedCountry, Estado: $detectedState, Ciudad: $detectedCity")
+
+        if (detectedCountry.isNotBlank()) {
+            val matchedCountry = countries.firstOrNull { it.equals(detectedCountry, ignoreCase = true) } ?: detectedCountry
+            spinnerCountry.setText(matchedCountry, false)
+            configurarSpinnerState(matchedCountry)
+        }
+
+        if (detectedState.isNotBlank()) {
+            val states = statesByCountry[spinnerCountry.text.toString()] ?: arrayOf()
+            val matchedState = states.firstOrNull { it.contains(detectedState, ignoreCase = true) || detectedState.contains(it, ignoreCase = true) } ?: detectedState
+            spinnerState.setText(matchedState, false)
+            configurarSpinnerCity(spinnerCountry.text.toString(), matchedState)
+        }
+
+        if (detectedCity.isNotBlank()) {
+            val cities = citiesByState["${spinnerCountry.text}_${spinnerState.text}"] ?: citiesByState[spinnerState.text.toString()] ?: arrayOf()
+            val matchedCity = cities.firstOrNull { it.contains(detectedCity, ignoreCase = true) || detectedCity.contains(it, ignoreCase = true) } ?: detectedCity
+            spinnerCity.setText(matchedCity, false)
+        }
+    }
+
+    @Suppress("SameParameterValue")
+    private fun configurarModoUbicacion(isEditable: Boolean) {
+        spinnerCountry.isEnabled = isEditable
+        spinnerState.isEnabled = isEditable
+        spinnerCity.isEnabled = isEditable
+
+        val alpha = if (isEditable) 1.0f else 0.7f
+        spinnerCountry.alpha = alpha
+        spinnerState.alpha = alpha
+        spinnerCity.alpha = alpha
     }
 
     private fun setTouchInteractionsEnabled(enabled: Boolean) {
