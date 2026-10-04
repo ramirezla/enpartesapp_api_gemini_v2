@@ -76,4 +76,10 @@
             app:destination="@id/nav_consultas_abiertas" />
     </fragment>
 
+    <fragment
+        android:id="@+id/nav_gallery"
+        android:name="com.ehome.autoperitajeia.ui.profile.ProfileFragment"
+        android:label="@string/perfil_de_usuario"
+        tools:layout="@layout/fragment_profile" />
+
 </navigation>

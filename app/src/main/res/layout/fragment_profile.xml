@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    tools:context=".ui.profile.ProfileFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Card de Cabecera del Perfil -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="3dp"
+            app:strokeWidth="0dp">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <!-- Imagen de Fondo Tecnológica -->
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/fondo_app_reporte_dannos"
+                    android:contentDescription="@null" />
+
+                <!-- Overlay Azul Marino para Contraste -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#B30B2545" />
+
+                <!-- Contenido Principal del Perfil -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="20dp">
+
+                    <ImageView
+                        android:id="@+id/imgProfileAvatar"
+                        android:layout_width="96dp"
+                        android:layout_height="96dp"
+                        android:src="@drawable/avatar_profile_icon_128"
+                        android:scaleType="fitCenter"
+                        android:layout_marginBottom="12dp"
+                        android:contentDescription="@string/perfil_de_usuario" />
+
+                    <TextView
+                        android:id="@+id/tvProfileName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Usuario Conectado"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:gravity="center"
+                        android:shadowColor="#CC000000"
+                        android:shadowDx="1"
+                        android:shadowDy="2"
+                        android:shadowRadius="4"
+                        android:layout_marginBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvProfileRole"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Perito Automotriz IA • Inspecciones"
+                        android:textColor="#BAE6FD"
+                        android:textSize="13sp"
+                        android:gravity="center"
+                        android:shadowColor="#CC000000"
+                        android:shadowDx="1"
+                        android:shadowDy="1"
+                        android:shadowRadius="3" />
+                </LinearLayout>
+            </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Card de Información Detallada -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:strokeColor="#E2E8F0"
+            app:strokeWidth="1dp"
+            app:cardBackgroundColor="@color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="👤 DETALLES DE LA CUENTA"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/blue"
+                    android:layout_marginBottom="12dp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#E2E8F0"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Cuenta / Usuario -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
+
+                    <TextView
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:text="Cuenta:"
+                        android:textStyle="bold"
+                        android:textColor="#475569"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvDetailAccount"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="-"
+                        android:textColor="#0F172A"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Estado -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
+
+                    <TextView
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:text="Estado:"
+                        android:textStyle="bold"
+                        android:textColor="#475569"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvDetailStatus"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🟢 Activo / Autenticado"
+                        android:textColor="#166534"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Aplicación -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
+
+                    <TextView
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:text="Aplicación:"
+                        android:textStyle="bold"
+                        android:textColor="#475569"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvDetailApp"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/app_name"
+                        android:textColor="#0F172A"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- Versión -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:text="Versión:"
+                        android:textStyle="bold"
+                        android:textColor="#475569"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvDetailVersion"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="2.0.0"
+                        android:textColor="#0F172A"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Botón de Cerrar Sesión -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="@string/cerrar_sesion"
+            android:textAllCaps="false"
+            android:backgroundTint="#DC2626"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:cornerRadius="27dp"
+            app:icon="@drawable/ic_exit_to_app_black_24dp"
+            app:iconGravity="textStart"
+            app:iconTint="@color/white"
+            app:elevation="3dp" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

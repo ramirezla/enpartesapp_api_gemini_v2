@@ -23,13 +23,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private lateinit var navigationView: NavigationView
-    //private var isSiniestroExpanded = false // Estado del menú Siniestro
+    var currentUserAccount: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Se recibe el valor del id del usuario y el password permitido.
-        val nombreUsuario = intent.extras?.getString("username") ?: "" // Provide a default value if null
+        val nombreUsuario = intent.extras?.getString("username") ?: ""
+        currentUserAccount = nombreUsuario
 //        val passwordUsuario = intent.extras?.getString("userpassword")
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -84,6 +85,11 @@ class MainActivity : AppCompatActivity() {
         // Manejar la selección de ítems del menú
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
+                R.id.nav_gallery -> {
+                    navController.navigate(R.id.nav_gallery)
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                    return@setNavigationItemSelectedListener true
+                }
                 R.id.nav_consultas_abiertas -> {
                     // Navegar al fragmento de consultas abiertas
                     navController.navigate(R.id.nav_consultas_abiertas)// verificar
