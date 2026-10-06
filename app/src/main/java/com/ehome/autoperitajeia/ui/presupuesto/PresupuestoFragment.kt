@@ -95,6 +95,18 @@
  * 3. Integración con el Menú Lateral:
     * Se registró el destino en  mobile_navigation.xml y se activó el manejador en  MainActivity.kt.
     * Al pulsar la opción "Perfil de usuario" en el menú deslizante, la aplicación navega directamente al nuevo perfil.
+
+ * Escalabilidad de la Prioridad por Porcentaje:
+ * Puedes medir el comportamiento según el nivel de porcentaje que definas:
+ * % Prioridad | Comportamiento del Modelo Gemini IA | Caso de Uso Típico
+ * 80% - 95% | Máxima Reparación: Se enfoca en reparar casi cualquier panel o pieza con hojalatería. Solo reemplaza si la pieza está destruida. | Aseguradoras que buscan optimizar costos de repuestos importados.
+ * 50% - 60% | Equilibrado: Evalúa por igual si el costo de reparación supera el costo de un repuesto nuevo. | Peritaje estándar multimarca.
+ * 10% - 20% | Preferencia por Sustitución: Ante cualquier deformación considerable, sugiere reemplazar por pieza original nueva. | Talleres de concesionarios oficiales / Marcas de alta gama (ADAS).
+
+ * Configuración en Gradle ( app/build.gradle.kts):
+ * Se definió el campo PORCENTAJE_REPARACION en las variantes de compilación de Gradle:
+ * Modo Desarrollo (debug): 80% de prioridad para REPARAR vs REEMPLAZAR.
+ * Modo Producción (release): 70% de prioridad para REPARAR vs REEMPLAZAR.
  */
 
 package com.ehome.autoperitajeia.ui.presupuesto
@@ -621,18 +633,30 @@ class PresupuestoFragment : Fragment() {
         takePhotoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (success) {
                 currentPhotoUri?.let { uri ->
-                    fotoList[adapter.currentPosition].imagenUri = uri
-                    fotoList[adapter.currentPosition].isFotoTomada = true
-                    adapter.notifyItemChanged(adapter.currentPosition)
+                    val pos = adapter.currentPosition
+                    if (pos in 0 until fotoList.size) {
+                        fotoList[pos].imagenUri = uri
+                        fotoList[pos].isFotoTomada = true
+                        adapter.notifyItemChanged(pos)
+                        Log.d("PresupuestoFragment", "Foto capturada exitosamente para posición $pos: $uri")
+                    } else {
+                        Log.e("PresupuestoFragment", "Posición de foto inválida: $pos")
+                    }
                 }
             }
         }
 
         uploadPhotoLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             uri?.let {
-                fotoList[adapter.currentPosition].imagenUri = it
-                fotoList[adapter.currentPosition].isFotoTomada = false
-                adapter.notifyItemChanged(adapter.currentPosition)
+                val pos = adapter.currentPosition
+                if (pos in 0 until fotoList.size) {
+                    fotoList[pos].imagenUri = it
+                    fotoList[pos].isFotoTomada = false
+                    adapter.notifyItemChanged(pos)
+                    Log.d("PresupuestoFragment", "Foto subida desde galería para posición $pos: $it")
+                } else {
+                    Log.e("PresupuestoFragment", "Posición de foto inválida: $pos")
+                }
             }
         }
     }
@@ -938,6 +962,7 @@ class PresupuestoFragment : Fragment() {
      */
     private fun tomarFoto(position: Int) {
         Log.d("PresupuestoFragment", "Attempting to take photo for position $position.")
+        adapter.currentPosition = position
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             val photoFile: File? = try {
                 crearArchivoTemporal(fotoList[position].tipoFoto)
@@ -969,6 +994,7 @@ class PresupuestoFragment : Fragment() {
      */
     private fun subirFoto(position: Int) {
         Log.d("PresupuestoFragment", "Attempting to upload photo for position $position.")
+        adapter.currentPosition = position
         uploadPhotoLauncher.launch("image/*")
     }
 

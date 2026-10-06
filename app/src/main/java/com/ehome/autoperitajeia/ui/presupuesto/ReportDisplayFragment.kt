@@ -839,9 +839,9 @@ class ReportDisplayFragment : Fragment() {
             y += 15f
         }
 
-        // --- POLÍTICA DE REPARABILIDAD IA (REFERENCIA TÉCNICA) ---
+        // --- POLÍTICA DE REPARABILIDAD IA (REFERENCIA TÉCNICA) - HOJA INDEPENDIENTE ---
         val porcentajeUsado = BuildConfig.PORCENTAJE_REPARACION
-        if (y > pageHeight - 190f) startNewPage()
+        startNewPage()
 
         sectionTitlePaint.textAlign = Paint.Align.LEFT
         sectionTitlePaint.textSize = 11.5f
