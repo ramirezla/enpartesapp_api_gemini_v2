@@ -26,6 +26,7 @@ import androidx.core.graphics.scale
 import androidx.core.graphics.toColorInt
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import com.ehome.autoperitajeia.BuildConfig
 import com.ehome.autoperitajeia.R
 import org.json.JSONArray
 import org.json.JSONObject
@@ -835,6 +836,89 @@ class ReportDisplayFragment : Fragment() {
                     Log.e("PdfReport", "Error con foto: ${e.message}")
                 }
             }
+            y += 15f
+        }
+
+        // --- POLÍTICA DE REPARABILIDAD IA (REFERENCIA TÉCNICA) ---
+        val porcentajeUsado = BuildConfig.PORCENTAJE_REPARACION
+        if (y > pageHeight - 190f) startNewPage()
+
+        sectionTitlePaint.textAlign = Paint.Align.LEFT
+        sectionTitlePaint.textSize = 11.5f
+        canvas.drawText("POLÍTICA DE REPARABILIDAD IA (REFERENCIA TÉCNICA)", margin, y, sectionTitlePaint)
+        y += 6f
+        canvas.drawLine(margin, y, margin + contentWidth, y, gridLinePaint)
+        y += 14f
+
+        labelPaint.textAlign = Paint.Align.LEFT
+        labelPaint.textSize = 9f
+        canvas.drawText("Porcentaje de prioridad aplicado en esta valoración: $porcentajeUsado%", margin, y, labelPaint)
+        y += 14f
+
+        val colWidthsRef = floatArrayOf(80f, 245f, 190f)
+        val refHeaders = arrayOf("% Prioridad", "Comportamiento del Modelo Gemini IA", "Caso de Uso Típico")
+
+        val refHeaderHeight = 18f
+        canvas.drawRect(margin, y, margin + contentWidth, y + refHeaderHeight, tableHeaderBgPaint)
+        var refX = margin
+        for ((idx, hText) in refHeaders.withIndex()) {
+            val alignX = if (idx == 0) refX + colWidthsRef[idx] / 2f else refX + 6f
+            tableHeaderFontPaint.textAlign = if (idx == 0) Paint.Align.CENTER else Paint.Align.LEFT
+            canvas.drawText(hText, alignX, y + 12f, tableHeaderFontPaint)
+            refX += colWidthsRef[idx]
+        }
+        y += refHeaderHeight
+
+        val refData = arrayOf(
+            Triple("80% - 95%", "Máxima Reparación: Enfocado en reparar paneles con hojalatería. Solo reemplaza si está destruido.", "Aseguradoras (optimización de costos)."),
+            Triple("50% - 60%", "Equilibrado: Evalúa si el costo de reparación supera el costo de un repuesto nuevo.", "Peritaje estándar multimarca."),
+            Triple("10% - 20%", "Preferencia por Sustitución: Ante deformación considerable, sugiere reemplazar por pieza original.", "Talleres oficiales / Concesionarios.")
+        )
+
+        for ((rIdx, row) in refData.withIndex()) {
+            val pText = row.first
+            val compText = row.second
+            val caseText = row.third
+
+            val compLines = wrapText(compText, tableCellPaint, colWidthsRef[1] - 8f)
+            val caseLines = wrapText(caseText, tableCellPaint, colWidthsRef[2] - 8f)
+            val maxLines = maxOf(compLines.size, caseLines.size)
+            val rowH = maxOf(20f, maxLines * 10f + 6f)
+
+            if (y + rowH > pageHeight - 50f) {
+                startNewPage()
+            }
+
+            val bgP = if (rIdx % 2 == 0) tableRowEvenPaint else tableRowOddPaint
+            canvas.drawRect(margin, y, margin + contentWidth, y + rowH, bgP)
+            canvas.drawLine(margin, y + rowH, margin + contentWidth, y + rowH, gridLinePaint)
+
+            @Suppress("SimplifyBooleanWithConstants")
+            val isCurrentMatch = when (rIdx) {
+                0 -> porcentajeUsado >= 70
+                1 -> porcentajeUsado in 40..69
+                else -> porcentajeUsado < 40
+            }
+
+            val pPaint = if (isCurrentMatch) tableCellBoldPaint else tableCellPaint
+            pPaint.textAlign = Paint.Align.CENTER
+            val pTextDisplay = if (isCurrentMatch) "$pText [ACTIVO]" else pText
+            canvas.drawText(pTextDisplay, margin + colWidthsRef[0] / 2f, y + 12f, pPaint)
+
+            tableCellPaint.textAlign = Paint.Align.LEFT
+            var lineY = y + 10f
+            for (l in compLines) {
+                canvas.drawText(l, margin + colWidthsRef[0] + 6f, lineY, tableCellPaint)
+                lineY += 10f
+            }
+
+            lineY = y + 10f
+            for (l in caseLines) {
+                canvas.drawText(l, margin + colWidthsRef[0] + colWidthsRef[1] + 6f, lineY, tableCellPaint)
+                lineY += 10f
+            }
+
+            y += rowH
         }
 
         drawFooter()
