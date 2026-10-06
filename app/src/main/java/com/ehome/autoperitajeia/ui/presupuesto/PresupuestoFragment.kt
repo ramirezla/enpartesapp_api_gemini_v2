@@ -83,6 +83,18 @@
         * GPS Desactivado "Para usar AutoPeritajeIA y realizar la valoración del peritaje, es obligatorio que active la ubicación por GPS. ¿Desea activarlo ahora?"
             * "Activar GPS": Abre los Ajustes de Ubicación y, al encenderlo y regresar, navega de inmediato a LoginActivity.
             * "Salir de la aplicación": Cierra la aplicación (finishAffinity()).
+
+* Componentes Creados e Integrados:
+ * 1. Nuevo Fragmento de Perfil ( ProfileFragment.kt):
+    * Obtiene dinámicamente la cuenta del usuario conectado enviada desde LoginActivity.
+    * Consulta el número de versión activa de la aplicación desde PackageManager.
+ * 2. Diseño de Interfaz Material 3 ( fragment_profile.xml):
+    * Tarjeta Héroe: Avatar del usuario, nombre de la cuenta y rol (Perito Automotriz IA).
+    * Tarjeta de Detalles: Nombre de cuenta, estado de sesión (🟢 Activo / Autenticado), nombre del proyecto y versión de la app.
+    * Botón de Cerrar Sesión: Permite salir de la aplicación de forma segura pidiendo confirmación.
+ * 3. Integración con el Menú Lateral:
+    * Se registró el destino en  mobile_navigation.xml y se activó el manejador en  MainActivity.kt.
+    * Al pulsar la opción "Perfil de usuario" en el menú deslizante, la aplicación navega directamente al nuevo perfil.
  */
 
 package com.ehome.autoperitajeia.ui.presupuesto
@@ -1309,6 +1321,7 @@ class PresupuestoFragment : Fragment() {
 
         val selectedCountry = spinnerCountry.text.toString()
         val costoHoraManoObra = laborCostByCountry[selectedCountry] ?: 20.0
+        val prioridadReparacionPorcentaje = BuildConfig.PORCENTAJE_REPARACION.coerceIn(0, 100)
         
         val promptText = """
             ### ROL
@@ -1322,11 +1335,19 @@ class PresupuestoFragment : Fragment() {
             - Color: ${vehicleData["color"]}
             - Ubicación: ${vehicleData["ubicacion"]}
             - Tarifa Base Mano de Obra: $costoHoraManoObra USD/hora
+            - Política de Reparación: $prioridadReparacionPorcentaje% preferencia por REPARAR sobre REEMPLAZAR
             </datos_vehiculo>
+
+            ### POLÍTICA Y CRITERIOS DE DECISIÓN (POLÍTICA DE REPARABILIDAD: $prioridadReparacionPorcentaje%)
+            1. Tienes configurada una POLÍTICA DE PREFERENCIA DEL $prioridadReparacionPorcentaje% A FAVOR DE "REPARAR" SOBRE "REEMPLAZAR".
+            2. Regla de decisión para cada pieza afectada:
+               - Si la deformación o daño puede ser corregido mediante hojalatería, desabollado o pintura sin comprometer la seguridad estructural del vehículo, DEBES sugerir "Reparar".
+               - Incrementa estimaciones razonables de horas de mano de obra (hojalatería) para justificar la reparación en lugar del cambio de la pieza.
+               - Únicamente sugiere "Reemplazar" cuando la pieza esté destruida, partida, de deformación irreparable o represente un riesgo estructural o de seguridad vial directo.
 
             ### INSTRUCCIONES DE ANÁLISIS
             1. Inspecciona cada imagen buscando deformaciones, roturas, desalineaciones y daños ocultos sugeridos.
-            2. Determina para cada pieza si requiere "Reemplazar" o "Reparar" basado en criterios técnicos de seguridad y estética.
+            2. Determina para cada pieza si requiere "Reemplazar" o "Reparar" aplicando estrictamente la política del $prioridadReparacionPorcentaje% de preferencia de reparación.
             3. Estima las horas de mano de obra (MO) necesarias para cada intervención.
             4. Utiliza $costoHoraManoObra USD/hora como tarifa base, pero si consideras que por el tipo de vehículo (ej. alta gama, tecnología ADAS) o complejidad técnica la tarifa debería ser distinta, ajústala y JUSTIFÍCALO en las notas.
             5. Calcula costos de repuestos o materiales ajustados al mercado de ${vehicleData["ubicacion"]}.

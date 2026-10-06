@@ -27,11 +27,19 @@ android {
         
         // Lee la API Key desde local.properties y la asigna a BuildConfig
         buildConfigField("String", "GEMINI_API_KEY", localProperties.getProperty("GEMINI_API_KEY") ?: "")
+        // Porcentaje por defecto de preferencia para REPARAR vs REEMPLAZAR (80% en desarrollo)
+        buildConfigField("int", "PORCENTAJE_REPARACION", "80")
     }
 
     buildTypes {
+        debug {
+            // 80% de preferencia por reparación en compilaciones de desarrollo
+            buildConfigField("int", "PORCENTAJE_REPARACION", "80")
+        }
         release {
             isMinifyEnabled = false
+            // 70% de preferencia por reparación en compilaciones de producción
+            buildConfigField("int", "PORCENTAJE_REPARACION", "70")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
