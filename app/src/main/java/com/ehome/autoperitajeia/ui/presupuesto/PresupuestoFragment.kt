@@ -114,6 +114,7 @@ package com.ehome.autoperitajeia.ui.presupuesto
 import android.Manifest
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -125,10 +126,12 @@ import android.location.Geocoder
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
+import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
@@ -151,6 +154,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -169,7 +173,6 @@ import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.ArrayList
 import java.util.Date
@@ -288,6 +291,7 @@ class PresupuestoFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: FotoAdapter
     private var currentPhotoUri: Uri? = null
+    private var currentPhotoPosition: Int = -1
 
     private lateinit var spinnerTipoVehiculo: AutoCompleteTextView
     private lateinit var spinnerMarcaVehiculo: AutoCompleteTextView
@@ -631,31 +635,47 @@ class PresupuestoFragment : Fragment() {
         }
 
         takePhotoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-            if (success) {
-                currentPhotoUri?.let { uri ->
-                    val pos = adapter.currentPosition
-                    if (pos in 0 until fotoList.size) {
-                        fotoList[pos].imagenUri = uri
-                        fotoList[pos].isFotoTomada = true
-                        adapter.notifyItemChanged(pos)
-                        Log.d("PresupuestoFragment", "Foto capturada exitosamente para posición $pos: $uri")
-                    } else {
-                        Log.e("PresupuestoFragment", "Posición de foto inválida: $pos")
-                    }
+            val pos = if (adapter.currentPosition != -1) adapter.currentPosition else currentPhotoPosition
+            currentPhotoUri?.let { uri ->
+                val hasData = try {
+                    requireContext().contentResolver.openInputStream(uri)?.use { stream ->
+                        stream.available() > 0
+                    } ?: false
+                } catch (_: Exception) {
+                    false
+                }
+
+                if ((success || hasData) && pos in 0 until fotoList.size) {
+                    fotoList[pos].imagenUri = uri
+                    fotoList[pos].isFotoTomada = true
+                    adapter.notifyItemChanged(pos)
+                    Log.d("PresupuestoFragment", "Foto capturada exitosamente para posición $pos: $uri")
+
+                    try {
+                        MediaScannerConnection.scanFile(
+                            requireContext(),
+                            arrayOf(uri.path),
+                            arrayOf("image/jpeg")
+                        ) { path, scannedUri ->
+                            Log.d("PresupuestoFragment", "Foto registrada en Galería: $path -> $scannedUri")
+                        }
+                    } catch (_: Exception) {}
+                } else {
+                    Log.e("PresupuestoFragment", "Error o captura cancelada para posición $pos. success=$success, hasData=$hasData")
                 }
             }
         }
 
         uploadPhotoLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             uri?.let {
-                val pos = adapter.currentPosition
+                val pos = if (adapter.currentPosition != -1) adapter.currentPosition else currentPhotoPosition
                 if (pos in 0 until fotoList.size) {
                     fotoList[pos].imagenUri = it
                     fotoList[pos].isFotoTomada = false
                     adapter.notifyItemChanged(pos)
                     Log.d("PresupuestoFragment", "Foto subida desde galería para posición $pos: $it")
                 } else {
-                    Log.e("PresupuestoFragment", "Posición de foto inválida: $pos")
+                    Log.e("PresupuestoFragment", "Posición de foto inválida en galería: $pos")
                 }
             }
         }
@@ -740,7 +760,27 @@ class PresupuestoFragment : Fragment() {
             }
         )
         recyclerView.adapter = adapter
+
+        if (savedInstanceState != null) {
+            val savedUriStr = savedInstanceState.getString("saved_photo_uri")
+            if (!savedUriStr.isNullOrEmpty()) {
+                currentPhotoUri = savedUriStr.toUri()
+            }
+            val savedPos = savedInstanceState.getInt("saved_photo_pos", -1)
+            if (savedPos != -1) {
+                currentPhotoPosition = savedPos
+                adapter.currentPosition = savedPos
+            }
+        }
+
         return view
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        currentPhotoUri?.let { outState.putString("saved_photo_uri", it.toString()) }
+        val pos = if (::adapter.isInitialized && adapter.currentPosition != -1) adapter.currentPosition else currentPhotoPosition
+        outState.putInt("saved_photo_pos", pos)
     }
 
     override fun onResume() {
@@ -963,24 +1003,37 @@ class PresupuestoFragment : Fragment() {
     private fun tomarFoto(position: Int) {
         Log.d("PresupuestoFragment", "Attempting to take photo for position $position.")
         adapter.currentPosition = position
+        currentPhotoPosition = position
+
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            val photoFile: File? = try {
-                crearArchivoTemporal(fotoList[position].tipoFoto)
-            } catch (ex: IOException) {
-                Log.e("PresupuestoFragment", "Error al crear el archivo temporal para la foto: ${ex.message}", ex)
-                Toast.makeText(requireContext(), "Error al crear el archivo", Toast.LENGTH_SHORT).show()
+            val photoURI: Uri? = try {
+                val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.Images.Media.DISPLAY_NAME, "JPEG_Peritaje_${timeStamp}.jpg")
+                    put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/AutoPeritajeIA")
+                    }
+                }
+                requireContext().contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+            } catch (e: Exception) {
+                Log.e("PresupuestoFragment", "Error al crear URI en MediaStore: ${e.message}", e)
                 null
+            } ?: run {
+                try {
+                    val file = crearArchivoTemporal(fotoList[position].tipoFoto)
+                    FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", file)
+                } catch (e: Exception) {
+                    Log.e("PresupuestoFragment", "Error al crear FileProvider URI: ${e.message}", e)
+                    null
+                }
             }
-            photoFile?.also {
-                val photoURI: Uri = FileProvider.getUriForFile(
-                    requireContext(),
-                    "${requireContext().packageName}.fileprovider",
-                    it
-                )
-                currentPhotoUri = photoURI
-                takePhotoLauncher.launch(photoURI)
-                Log.d("PresupuestoFragment", "Launched camera for URI: $photoURI")
-            }
+
+            photoURI?.let { uri ->
+                currentPhotoUri = uri
+                takePhotoLauncher.launch(uri)
+                Log.d("PresupuestoFragment", "Launched camera for URI: $uri")
+            } ?: Toast.makeText(requireContext(), "Error al preparar la cámara", Toast.LENGTH_SHORT).show()
         } else {
             Log.d("PresupuestoFragment", "Requesting camera permission.")
             requestPermissionLauncher.launch(Manifest.permission.CAMERA)
@@ -995,6 +1048,7 @@ class PresupuestoFragment : Fragment() {
     private fun subirFoto(position: Int) {
         Log.d("PresupuestoFragment", "Attempting to upload photo for position $position.")
         adapter.currentPosition = position
+        currentPhotoPosition = position
         uploadPhotoLauncher.launch("image/*")
     }
 
