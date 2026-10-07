@@ -736,7 +736,10 @@ class PresupuestoFragment : Fragment() {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         etDateOfInspection.setText(sdf.format(Date()))
 
-        fotoList.add(FotoItem())
+        if (fotoList.isEmpty()) {
+            fotoList.add(FotoItem())
+        }
+
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         adapter = FotoAdapter(
@@ -762,6 +765,22 @@ class PresupuestoFragment : Fragment() {
         recyclerView.adapter = adapter
 
         if (savedInstanceState != null) {
+            val savedUris = savedInstanceState.getStringArrayList("saved_foto_uris")
+            val savedTipos = savedInstanceState.getStringArrayList("saved_foto_tipos")
+            val savedTomadas = savedInstanceState.getBooleanArray("saved_foto_tomadas")
+
+            if (!savedUris.isNullOrEmpty() && savedTipos != null && savedTomadas != null) {
+                fotoList.clear()
+                for (i in savedUris.indices) {
+                    val uriStr = savedUris[i]
+                    val uri = if (uriStr.isNotEmpty()) uriStr.toUri() else null
+                    val tipo = if (i < savedTipos.size) savedTipos[i] else ""
+                    val tomada = if (i < savedTomadas.size) savedTomadas[i] else false
+                    fotoList.add(FotoItem(imagenUri = uri, tipoFoto = tipo, isFotoTomada = tomada))
+                }
+                adapter.notifyDataSetChanged()
+            }
+
             val savedUriStr = savedInstanceState.getString("saved_photo_uri")
             if (!savedUriStr.isNullOrEmpty()) {
                 currentPhotoUri = savedUriStr.toUri()
@@ -781,6 +800,20 @@ class PresupuestoFragment : Fragment() {
         currentPhotoUri?.let { outState.putString("saved_photo_uri", it.toString()) }
         val pos = if (::adapter.isInitialized && adapter.currentPosition != -1) adapter.currentPosition else currentPhotoPosition
         outState.putInt("saved_photo_pos", pos)
+
+        val uris = ArrayList<String>()
+        val tipos = ArrayList<String>()
+        val tomadas = BooleanArray(fotoList.size)
+
+        fotoList.forEachIndexed { idx, item ->
+            uris.add(item.imagenUri?.toString() ?: "")
+            tipos.add(item.tipoFoto)
+            tomadas[idx] = item.isFotoTomada
+        }
+
+        outState.putStringArrayList("saved_foto_uris", uris)
+        outState.putStringArrayList("saved_foto_tipos", tipos)
+        outState.putBooleanArray("saved_foto_tomadas", tomadas)
     }
 
     override fun onResume() {
@@ -1008,8 +1041,9 @@ class PresupuestoFragment : Fragment() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             val photoURI: Uri? = try {
                 val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+                val uniqueName = "JPEG_Peritaje_pos${position + 1}_${timeStamp}_${System.currentTimeMillis()}.jpg"
                 val contentValues = ContentValues().apply {
-                    put(MediaStore.Images.Media.DISPLAY_NAME, "JPEG_Peritaje_${timeStamp}.jpg")
+                    put(MediaStore.Images.Media.DISPLAY_NAME, uniqueName)
                     put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/AutoPeritajeIA")
@@ -1021,7 +1055,7 @@ class PresupuestoFragment : Fragment() {
                 null
             } ?: run {
                 try {
-                    val file = crearArchivoTemporal(fotoList[position].tipoFoto)
+                    val file = crearArchivoTemporal("pos${position + 1}_${fotoList[position].tipoFoto.replace(" ", "_")}")
                     FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", file)
                 } catch (e: Exception) {
                     Log.e("PresupuestoFragment", "Error al crear FileProvider URI: ${e.message}", e)
