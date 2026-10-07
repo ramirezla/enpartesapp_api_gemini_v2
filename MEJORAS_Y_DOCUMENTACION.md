@@ -1,24 +1,52 @@
-# 🚗 Documentación de Lógica y Bitácora de Mejoras - AutoPeritajeIA
+# 🚗 Documentación Técnica Completa, Bondades y Bitácora de Mejoras - AutoPeritajeIA
 
 **Archivo Principal:** `PresupuestoFragment.kt`  
-**Propósito:** Gestiona la interfaz de usuario, la captura de datos del vehículo, fotos de evidencias y la comunicación con el modelo de IA Google Gemini para la valoración técnica de siniestros.
+**Diseño de Interfaz:** `fragment_presupuesto.xml`  
+**Propósito:** Módulo central de inspección vehicular que recopila la ficha técnica, captura evidencias fotográficas de daños, ejecuta geolocalización automática y procesa la estimación de costos de peritaje mediante el modelo de Inteligencia Artificial Google Gemini.
 
 ---
 
-## 📌 Datos Críticos de Entrada (Valoración IA)
+## 📌 1. Datos Críticos de Entrada (Valoración IA)
 
-Estos datos afectan directamente la precisión de la estimación de costos e identificación de piezas:
+Estos datos afectan directamente la precisión en la identificación de partes afectadas y la estimación matemática de costos:
 
-1. **Marca y Modelo:** Fundamental para determinar el costo de piezas y complejidad de desmontaje (ej. *Toyota Corolla* vs. *Acura MDX*).
-2. **Año del Vehículo:** Crucial para la compatibilidad de repuestos y componentes tecnológicos (sensores ADAS).
-3. **Evidencias Fotográficas:** El dato primario para que el modelo de IA analice y "vea" el daño físico.
-4. **Ubicación (País/Estado/Ciudad):** Ajusta los precios de repuestos y tarifas de mano de obra al mercado local.
-5. **Costo de Mano de Obra por Hora:** Define la tarifa base para los cálculos matemáticos del presupuesto.
-6. **Color:** Determina el costo de insumos de pintura (ej. pinturas tricapa o perladas).
+1. **Marca y Modelo:** Determina la disponibilidad de repuestos, costos de importación y complejidad de desmontaje (ej. *Toyota Corolla* vs. *Acura MDX*).
+2. **Año del Vehículo:** Esencial para la compatibilidad de repuestos y la presencia de tecnologías avanzadas (sensores de estacionamiento, cámaras o sistemas ADAS).
+3. **Evidencias Fotográficas:** Constituye el insumo primario que la IA analiza visualmente para clasificar la gravedad de las abolladuras, rayones y roturas.
+4. **Ubicación Geográfica (País / Estado / Ciudad):** Ajusta los precios de repuestos y las tarifas de mano de obra al mercado local específico.
+5. **Costo de Mano de Obra por Hora:** Establece la tarifa base por especialidad (Hojalatería, Pintura, Mecánica) para los cálculos matemáticos del informe.
+6. **Color del Vehículo:** Influye en la estimación de insumos de pintura (ej. acabados perla, tricapa o metalizados vs. colores sólidos).
 
 ---
 
-## 🛠️ Historial y Bitácora de Mejoras Aplicadas
+## ✨ 2. Bondades y Características Clave de `PresupuestoFragment`
+
+### 🎨 A. Interfaz Material 3 y Experiencia Visual Premium (`fragment_presupuesto.xml`)
+- **Banner Héroe con Branding 3D:** Encabezado con imagen de fondo automotriz (`fondo_app_reporte_dannos.jpg`), degradado y el isotipo 3D oficial (`logo_autoperitaje_efecto_3d.png`).
+- **Diseño Basado en Tarjetas M3:** Organización en tarjetas (`CardView`) con esquinas redondeadas de 16dp, elevación sutil y separadores temáticos.
+- **Campos desplegables en modo OutlinedBox:** Entradas `TextInputLayout` limpias con íconos descriptivos y menús de selección rápida.
+
+### 🚗 B. Campos Dinámicos y Selección Flexible de Vehículos
+- **Soporte de Entrada Manual ("Otra Marca" / "Otro Modelo"):** Si el vehículo no aparece en la lista de marcas o modelos populares, el sistema despliega automáticamente un campo `TextInputEditText` para escribirlo manualmente.
+- **Selector Modal de Año (`NumberPicker`):** Reemplaza calendarios innecesarios con un selector rápido de año (desde 1950 hasta el año siguiente al actual).
+- **Categorización por Tipo de Vehículo:** Automóviles, Camionetas, Camiones, Motocicletas, Buses, Maquinaria agrícola y Remolques.
+
+### 🗺️ C. Jerarquía Geográfica Multinivel y Geocodificación Inversa
+- **Casos de Uso Multipaís:** Cobertura de listas de estados y ciudades para Venezuela, Colombia, Ecuador, Chile, Argentina, México, Costa Rica, EE.UU., etc.
+- **Spinners Enlazados Dinámicamente:** Seleccionar un Estado/Provincia filtra automáticamente las ciudades correspondientes (ej. *Carabobo* -> *Valencia, Guacara, Puerto Cabello*; *Pichincha* -> *Quito, Cayambe*).
+- **Autodetección GPS (`Geocoder`):** Obtiene las coordenadas del dispositivo en tiempo real y autocompleta el País, Estado y Ciudad con un solo toque.
+
+### 🔒 D. Protección de Pantalla durante el Análisis de IA
+- **Bloqueo Anti-Doble Clic (`FLAG_NOT_TOUCHABLE`):** Durante la consulta asíncrona a la API de Gemini IA, se deshabilita la interacción táctil en toda la pantalla mediante `WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE`.
+- **Indicador de Progreso:** Barra `LinearProgressIndicator` animada en la parte superior que informa al usuario que el proceso de peritaje está en curso.
+
+### 📸 E. Captura Robusta de Fotografías
+- **Visualización en Grilla Adaptativa:** Cada ítem de foto permite seleccionar la categoría (Frontal, Lateral, Posterior, VIN, Detalle) y muestra una miniatura inmediata al tomar o cargar la imagen.
+- **Comprobación de Almacenamiento:** Compatible con almacenamiento en Galería pública (`Pictures/AutoPeritajeIA/`) y verificación directa de bytes grabados en disco (`hasData`).
+
+---
+
+## 🛠️ 3. Historial y Bitácora de Mejoras Aplicadas
 
 ### 📸 1. Captura de Fotos y Gestión de Evidencias
 - **Persistencia Total (`onSaveInstanceState`):** Serialización completa de `fotoList` para preservar las imágenes al pausar o girar la pantalla.
