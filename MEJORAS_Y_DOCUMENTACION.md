@@ -106,9 +106,14 @@ Valores promedio de mercado en USD por hora para talleres independientes (`labor
    - 📸 **Reportes Locales: Muestra de forma inmediata todos los informes PDF y JSON guardados en el almacenamiento del teléfono.**
    - 📸 **Buscar en Nube: Permite consultar siniestros en los servidores remotos por Número de Caso o Token.**
 2. **Historial y Gestor de Archivos Locales ( item_local_report.xml):**
-  - 📸 **Escaneo Automático: Detecta y lista todos los reportes generados en el dispositivo ordenados del más reciente al más antiguo.**
+   - **Escaneo Recursivo de la Carpeta Oficial (ValoracionDeDannos):**
+     - **El método cargarReportesLocales() explora directamente la carpeta oficial ValoracionDeDannos y realiza un recorrido recursivo (walkTopDown()) en las carpetas de descargas y documentos.**
+     - **Todos los informes PDF y JSON guardados se muestran automáticamente listados y ordenados por fecha.**
   - 📸 **Detalles por Informe: Muestra el nombre del caso, el tamaño del archivo (KB / MB) y la fecha/hora exacta de creación.**
   - 📸 **Acciones Rápidas:**
       - 📸 **Abrir:** Abre el PDF directamente con el visor de PDF predeterminado del celular.
       - 📸 **Compartir:** Permite enviar el informe PDF/JSON a través de WhatsApp, correo electrónico u otras apps.
       - 📸 **Borrar:** Elimina el archivo local con diálogo modal de confirmación.
+   - **Botón "🔍 Explorar Teléfono":**
+      - **Se añadió el botón "Explorar Teléfono" en la parte superior del listado.**
+      - **Al presionarlo, abre el explorador de archivos nativo del celular para que puedas buscar y seleccionar cualquier informe PDF o JSON guardado en cualquier ubicación (Google Drive, WhatsApp, Descargas, etc.).**

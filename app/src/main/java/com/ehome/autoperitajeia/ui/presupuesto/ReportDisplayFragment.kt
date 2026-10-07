@@ -11,6 +11,7 @@ import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.DocumentsContract
 import android.util.Log
 import android.view.LayoutInflater
@@ -155,6 +156,17 @@ class ReportDisplayFragment : Fragment() {
         }
     }
 
+    private fun getAppReportsFolder(): File {
+        val publicDownloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val publicAppFolder = File(publicDownloads, "AutoPeritajeIA")
+        if (publicAppFolder.exists() || publicAppFolder.mkdirs()) {
+            return publicAppFolder
+        }
+        val internalFolder = File(requireContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "AutoPeritajeIA")
+        if (!internalFolder.exists()) internalFolder.mkdirs()
+        return internalFolder
+    }
+
     private fun saveReportToLocalStorage() {
         val caseNumber = tvCaseNumberValue?.text.toString()
         val inspectionDate = tvInspectionDateValue?.text.toString()
@@ -164,32 +176,30 @@ class ReportDisplayFragment : Fragment() {
         }
 
         try {
-            // Crear directorio si no existe
-            val reportsDir = File(requireContext().getExternalFilesDir(null), "ValoracionDeDannos")
-            if (!reportsDir.exists()) {
-                reportsDir.mkdirs()
-            }
-
-            // Formatear fecha para nombre de archivo
-            val safeDate = inspectionDate.replace("/", "-").replace(":", "-")
+            val reportsDir = getAppReportsFolder()
+            val safeDate = inspectionDate.replace("/", "-").replace(":", "-").replace(" ", "_")
 
             // Guardar JSON original
             val jsonFile = File(reportsDir, "Reporte_${caseNumber}_${safeDate}.json")
             jsonFile.writeText(apiResponse)
-
-            // Guardar reporte formateado
-            val formattedReport = formatFullReport(apiResponse)
-            val reportFile = File(reportsDir, "Reporte_${caseNumber}_${safeDate}.txt")
-            reportFile.writeText(formattedReport)
 
             // Generar y guardar PDF
             val photoUris = arguments?.getStringArrayList("photo_uris") ?: arrayListOf()
             val pdfFile = File(reportsDir, "Reporte_${caseNumber}_${safeDate}.pdf")
             generatePdfReport(apiResponse, photoUris, pdfFile)
 
+            try {
+                android.media.MediaScannerConnection.scanFile(
+                    requireContext(),
+                    arrayOf(pdfFile.absolutePath, jsonFile.absolutePath),
+                    arrayOf("application/pdf", "application/json"),
+                    null
+                )
+            } catch (_: Exception) {}
+
             Toast.makeText(
                 requireContext(),
-                "Reportes guardados (JSON, TXT, PDF) en:\n${reportsDir.absolutePath}",
+                "Reportes guardados (PDF y JSON) en:\nDescargas/AutoPeritajeIA",
                 Toast.LENGTH_LONG
             ).show()
         } catch (e: Exception) {

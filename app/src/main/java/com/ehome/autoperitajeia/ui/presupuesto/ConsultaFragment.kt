@@ -195,47 +195,48 @@ class ConsultaFragment : Fragment() {
         }
     }
 
+    private fun getAppReportsFolder(): File {
+        val publicDownloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val publicAppFolder = File(publicDownloads, "AutoPeritajeIA")
+        if (publicAppFolder.exists() || publicAppFolder.mkdirs()) {
+            return publicAppFolder
+        }
+        val internalFolder = File(requireContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "AutoPeritajeIA")
+        if (!internalFolder.exists()) internalFolder.mkdirs()
+        return internalFolder
+    }
+
     private fun cargarReportesLocales() {
         val list = mutableListOf<LocalReportFile>()
-
         val targetDirs = mutableListOf<File>()
 
-        // 1. Subdirectorio oficial de reportes de AutoPeritajeIA
+        // Carpeta dedicada oficial de la aplicación: Descargas/AutoPeritajeIA
+        val appFolder = getAppReportsFolder()
+        targetDirs.add(appFolder)
+
+        // Carpeta interna legacy previa
         val valoracionDir = File(requireContext().getExternalFilesDir(null), "ValoracionDeDannos")
         if (valoracionDir.exists()) targetDirs.add(valoracionDir)
-
-        // 2. Directorios raíz de la app
-        requireContext().getExternalFilesDir(null)?.let { targetDirs.add(it) }
-        requireContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.let { targetDirs.add(it) }
-        requireContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)?.let { targetDirs.add(it) }
-
-        // 3. Almacenamiento público
-        targetDirs.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
-        targetDirs.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS))
 
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
         val visitedPaths = HashSet<String>()
 
         targetDirs.distinct().forEach { dir ->
             if (dir.exists() && dir.isDirectory) {
-                try {
-                    dir.walkTopDown().maxDepth(3).forEach { file ->
-                        val path = file.absolutePath
-                        if (!visitedPaths.contains(path) && file.isFile) {
-                            visitedPaths.add(path)
-                            val name = file.name
-                            if (name.endsWith(".pdf", ignoreCase = true) || name.endsWith(".json", ignoreCase = true)) {
-                                val isPdf = name.endsWith(".pdf", ignoreCase = true)
-                                val sizeKb = file.length() / 1024
-                                val sizeStr = if (sizeKb > 1024) "${String.format(Locale.US, "%.1f", sizeKb / 1024f)} MB" else "$sizeKb KB"
-                                val dateStr = sdf.format(Date(file.lastModified()))
+                dir.listFiles()?.forEach { file ->
+                    val path = file.absolutePath
+                    if (!visitedPaths.contains(path) && file.isFile) {
+                        visitedPaths.add(path)
+                        val name = file.name
+                        if (name.endsWith(".pdf", ignoreCase = true) || name.endsWith(".json", ignoreCase = true)) {
+                            val isPdf = name.endsWith(".pdf", ignoreCase = true)
+                            val sizeKb = file.length() / 1024
+                            val sizeStr = if (sizeKb > 1024) "${String.format(Locale.US, "%.1f", sizeKb / 1024f)} MB" else "$sizeKb KB"
+                            val dateStr = sdf.format(Date(file.lastModified()))
 
-                                list.add(LocalReportFile(file, name, sizeStr, dateStr, isPdf))
-                            }
+                            list.add(LocalReportFile(file, name, sizeStr, dateStr, isPdf))
                         }
                     }
-                } catch (e: Exception) {
-                    Log.e("ConsultaFragment", "Error al escanear directorio $dir: ${e.message}")
                 }
             }
         }
@@ -565,7 +566,7 @@ class ConsultaFragment : Fragment() {
                         return@launch
                     }
 
-                    val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    val downloadsDir = getAppReportsFolder()
                     val currentDate = SimpleDateFormat("ddMMyyyy", Locale.getDefault()).format(Date())
                     val newFilename = "Caso-$caseNumber-$currentDate.pdf"
                     val file = File(downloadsDir, newFilename)
