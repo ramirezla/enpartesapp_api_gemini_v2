@@ -100,3 +100,15 @@ Valores promedio de mercado en USD por hora para talleres independientes (`labor
   - 🛰️ **Actualizar Ubicación GPS:** Re-escaneo dinámico de posición.
   - 📜 **Términos y Licencia:** Marco legal y cláusulas del software.
   - ℹ️ **Acerca de:** Resumen del objetivo de AutoPeritajeIA.
+
+### 👤 7.  Consultar Siniestro:
+1. **Selector de Modos Material 3 (MaterialButtonToggleGroup):**
+   - 📸 **Reportes Locales: Muestra de forma inmediata todos los informes PDF y JSON guardados en el almacenamiento del teléfono.**
+   - 📸 **Buscar en Nube: Permite consultar siniestros en los servidores remotos por Número de Caso o Token.**
+2. **Historial y Gestor de Archivos Locales ( item_local_report.xml):**
+  - 📸 **Escaneo Automático: Detecta y lista todos los reportes generados en el dispositivo ordenados del más reciente al más antiguo.**
+  - 📸 **Detalles por Informe: Muestra el nombre del caso, el tamaño del archivo (KB / MB) y la fecha/hora exacta de creación.**
+  - 📸 **Acciones Rápidas:**
+      - 📸 **Abrir:** Abre el PDF directamente con el visor de PDF predeterminado del celular.
+      - 📸 **Compartir:** Permite enviar el informe PDF/JSON a través de WhatsApp, correo electrónico u otras apps.
+      - 📸 **Borrar:** Elimina el archivo local con diálogo modal de confirmación.

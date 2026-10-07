@@ -102,12 +102,14 @@ class ConsultaFragment : Fragment() {
 
     private val requestCodePermissions = 101
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+    private lateinit var openDocumentLauncher: ActivityResultLauncher<Array<String>>
 
     private lateinit var toggleGroupMode: MaterialButtonToggleGroup
     private lateinit var llLocalReportsSection: LinearLayout
     private lateinit var svCloudSearchSection: ScrollView
     private lateinit var rvLocalReports: RecyclerView
     private lateinit var tvEmptyLocalReports: TextView
+    private lateinit var btnBrowseFile: Button
 
     private lateinit var etCaseNumber: EditText
     private lateinit var etCaseToken: EditText
@@ -150,6 +152,26 @@ class ConsultaFragment : Fragment() {
             }
         }
 
+        btnBrowseFile = view.findViewById(R.id.btnBrowseFile)
+        btnBrowseFile.setOnClickListener {
+            openDocumentLauncher.launch(arrayOf("application/pdf", "application/json"))
+        }
+
+        openDocumentLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            uri?.let { fileUri ->
+                val mime = requireContext().contentResolver.getType(fileUri) ?: "application/pdf"
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(fileUri, mime)
+                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                try {
+                    startActivity(intent)
+                } catch (_: ActivityNotFoundException) {
+                    Toast.makeText(requireContext(), "No hay aplicación para abrir este archivo", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
         btnConsultar.setOnClickListener { consultarCaso() }
         btnDownloadPdf.setOnClickListener { downloadPdf() }
 
@@ -176,27 +198,44 @@ class ConsultaFragment : Fragment() {
     private fun cargarReportesLocales() {
         val list = mutableListOf<LocalReportFile>()
 
-        val dirs = listOfNotNull(
-            requireContext().getExternalFilesDir(null),
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        )
+        val targetDirs = mutableListOf<File>()
+
+        // 1. Subdirectorio oficial de reportes de AutoPeritajeIA
+        val valoracionDir = File(requireContext().getExternalFilesDir(null), "ValoracionDeDannos")
+        if (valoracionDir.exists()) targetDirs.add(valoracionDir)
+
+        // 2. Directorios raíz de la app
+        requireContext().getExternalFilesDir(null)?.let { targetDirs.add(it) }
+        requireContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.let { targetDirs.add(it) }
+        requireContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)?.let { targetDirs.add(it) }
+
+        // 3. Almacenamiento público
+        targetDirs.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
+        targetDirs.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS))
 
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+        val visitedPaths = HashSet<String>()
 
-        dirs.forEach { dir ->
+        targetDirs.distinct().forEach { dir ->
             if (dir.exists() && dir.isDirectory) {
-                dir.listFiles()?.forEach { file ->
-                    val name = file.name
-                    if (file.isFile && (name.endsWith(".pdf", ignoreCase = true) || name.endsWith(".json", ignoreCase = true)) &&
-                        (name.startsWith("Reporte_", ignoreCase = true) || name.startsWith("Caso-", ignoreCase = true) || name.contains("Peritaje", ignoreCase = true))) {
+                try {
+                    dir.walkTopDown().maxDepth(3).forEach { file ->
+                        val path = file.absolutePath
+                        if (!visitedPaths.contains(path) && file.isFile) {
+                            visitedPaths.add(path)
+                            val name = file.name
+                            if (name.endsWith(".pdf", ignoreCase = true) || name.endsWith(".json", ignoreCase = true)) {
+                                val isPdf = name.endsWith(".pdf", ignoreCase = true)
+                                val sizeKb = file.length() / 1024
+                                val sizeStr = if (sizeKb > 1024) "${String.format(Locale.US, "%.1f", sizeKb / 1024f)} MB" else "$sizeKb KB"
+                                val dateStr = sdf.format(Date(file.lastModified()))
 
-                        val isPdf = name.endsWith(".pdf", ignoreCase = true)
-                        val sizeKb = file.length() / 1024
-                        val sizeStr = if (sizeKb > 1024) "${String.format(Locale.US, "%.1f", sizeKb / 1024f)} MB" else "$sizeKb KB"
-                        val dateStr = sdf.format(Date(file.lastModified()))
-
-                        list.add(LocalReportFile(file, name, sizeStr, dateStr, isPdf))
+                                list.add(LocalReportFile(file, name, sizeStr, dateStr, isPdf))
+                            }
+                        }
                     }
+                } catch (e: Exception) {
+                    Log.e("ConsultaFragment", "Error al escanear directorio $dir: ${e.message}")
                 }
             }
         }

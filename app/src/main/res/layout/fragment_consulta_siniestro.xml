@@ -90,13 +90,29 @@
             android:orientation="vertical"
             android:visibility="visible">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Informes PDF / JSON guardados en este dispositivo:"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textSize="13sp" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Informes PDF / JSON en este dispositivo:"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBrowseFile"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🔍 Explorar Teléfono"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvLocalReports"
@@ -111,9 +127,9 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="32dp"
-                android:text="No se encontraron reportes PDF o JSON en el teléfono."
+                android:text="No se encontraron reportes PDF o JSON en las carpetas habituales.\n\nUsa 'Explorar Teléfono' arriba para seleccionar un archivo desde otra ubicación."
                 android:textColor="?android:attr/textColorSecondary"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:visibility="gone" />
         </LinearLayout>
 
