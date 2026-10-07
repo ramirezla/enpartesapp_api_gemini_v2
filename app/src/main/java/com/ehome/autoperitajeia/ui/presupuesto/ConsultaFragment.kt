@@ -17,7 +17,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -29,7 +31,10 @@ import androidx.core.graphics.toColorInt
 import androidx.core.net.toUri
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.ehome.autoperitajeia.R
+import com.google.android.material.button.MaterialButtonToggleGroup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -47,36 +52,81 @@ import java.util.Locale
 
 // URL de la API de sulmovsa
 private const val BASE_URL = "http://209.126.106.199/"
-
-//Esta API permite consultar información relacionada con los siniestros almacenados en la
-//base de datos. Puedes buscar registros utilizando case_number o case_token.
 private const val API_webhook_query = "solmovsa/ApiGestorSiniestros/api/Webhook/webhook-query"
-
-//El endpoint GeneratePdf permite generar un documento PDF a partir de un conjunto de
-//datos relacionados con un caso específico proporcionado a través de case_number o
-//case_token.
 private const val API_generate_pdf = "solmovsa/ApiGestorSiniestros/api/Webhook/generate-pdf"
+
+data class LocalReportFile(
+    val file: File,
+    val name: String,
+    val sizeFormatted: String,
+    val dateFormatted: String,
+    val isPdf: Boolean
+)
+
+class LocalReportAdapter(
+    private val reportList: List<LocalReportFile>,
+    private val onOpenClick: (LocalReportFile) -> Unit,
+    private val onShareClick: (LocalReportFile) -> Unit,
+    private val onDeleteClick: (LocalReportFile) -> Unit
+) : RecyclerView.Adapter<LocalReportAdapter.ReportViewHolder>() {
+
+    class ReportViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val imgIcon: ImageView = itemView.findViewById(R.id.imgFileIcon)
+        val tvName: TextView = itemView.findViewById(R.id.tvFileName)
+        val tvDetails: TextView = itemView.findViewById(R.id.tvFileDetails)
+        val btnOpen: Button = itemView.findViewById(R.id.btnOpenFile)
+        val btnShare: Button = itemView.findViewById(R.id.btnShareFile)
+        val btnDelete: Button = itemView.findViewById(R.id.btnDeleteFile)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReportViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_local_report, parent, false)
+        return ReportViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ReportViewHolder, position: Int) {
+        val item = reportList[position]
+        holder.tvName.text = item.name
+        holder.tvDetails.text = "${item.sizeFormatted} • ${item.dateFormatted}"
+        holder.imgIcon.setImageResource(if (item.isPdf) R.drawable.file_format_paper_icon else R.drawable.page_search_icon)
+
+        holder.btnOpen.setOnClickListener { onOpenClick(item) }
+        holder.btnShare.setOnClickListener { onShareClick(item) }
+        holder.btnDelete.setOnClickListener { onDeleteClick(item) }
+    }
+
+    override fun getItemCount(): Int = reportList.size
+}
 
 class ConsultaFragment : Fragment() {
 
-    private val requestCodePermissions = 101 // Código para identificar la solicitud de permisos.
-
-    // Usamos ActivityResultLauncher para manejar los permisos
+    private val requestCodePermissions = 101
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+
+    private lateinit var toggleGroupMode: MaterialButtonToggleGroup
+    private lateinit var llLocalReportsSection: LinearLayout
+    private lateinit var svCloudSearchSection: ScrollView
+    private lateinit var rvLocalReports: RecyclerView
+    private lateinit var tvEmptyLocalReports: TextView
 
     private lateinit var etCaseNumber: EditText
     private lateinit var etCaseToken: EditText
     private lateinit var btnConsultar: Button
     private lateinit var llResultContainer: LinearLayout
     private lateinit var btnDownloadPdf: Button
-    private var pdfUrl: String? = null // Variable para almacenar la URL del PDF
+    private var pdfUrl: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Use the new layout file name here
         val view = inflater.inflate(R.layout.fragment_consulta_siniestro, container, false)
+
+        toggleGroupMode = view.findViewById(R.id.toggleGroupMode)
+        llLocalReportsSection = view.findViewById(R.id.llLocalReportsSection)
+        svCloudSearchSection = view.findViewById(R.id.svCloudSearchSection)
+        rvLocalReports = view.findViewById(R.id.rvLocalReports)
+        tvEmptyLocalReports = view.findViewById(R.id.tvEmptyLocalReports)
 
         etCaseNumber = view.findViewById(R.id.etCaseNumber)
         etCaseToken = view.findViewById(R.id.etCaseToken)
@@ -84,36 +134,149 @@ class ConsultaFragment : Fragment() {
         llResultContainer = view.findViewById(R.id.llResultContainer)
         btnDownloadPdf = view.findViewById(R.id.btnDownloadPdf)
 
-        btnConsultar.setOnClickListener {
-            consultarCaso()
+        toggleGroupMode.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                when (checkedId) {
+                    R.id.btnTabLocalReports -> {
+                        llLocalReportsSection.visibility = View.VISIBLE
+                        svCloudSearchSection.visibility = View.GONE
+                        cargarReportesLocales()
+                    }
+                    R.id.btnTabCloudSearch -> {
+                        llLocalReportsSection.visibility = View.GONE
+                        svCloudSearchSection.visibility = View.VISIBLE
+                    }
+                }
+            }
         }
 
-        btnDownloadPdf.setOnClickListener {
-            downloadPdf()
-        }
+        btnConsultar.setOnClickListener { consultarCaso() }
+        btnDownloadPdf.setOnClickListener { downloadPdf() }
 
-        // Inicializamos el ActivityResultLauncher para los permisos
-        requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+        requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
-                // Permiso concedido, procedemos a descargar el PDF
                 downloadPdf()
             } else {
-                // Permiso denegado, mostramos un mensaje al usuario
                 showErrorDialog(getString(R.string.permiso_de_almacenamiento_denegado))
             }
         }
 
+        cargarReportesLocales()
+
         return view
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (llLocalReportsSection.visibility == View.VISIBLE) {
+            cargarReportesLocales()
+        }
+    }
+
+    private fun cargarReportesLocales() {
+        val list = mutableListOf<LocalReportFile>()
+
+        val dirs = listOfNotNull(
+            requireContext().getExternalFilesDir(null),
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        )
+
+        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+
+        dirs.forEach { dir ->
+            if (dir.exists() && dir.isDirectory) {
+                dir.listFiles()?.forEach { file ->
+                    val name = file.name
+                    if (file.isFile && (name.endsWith(".pdf", ignoreCase = true) || name.endsWith(".json", ignoreCase = true)) &&
+                        (name.startsWith("Reporte_", ignoreCase = true) || name.startsWith("Caso-", ignoreCase = true) || name.contains("Peritaje", ignoreCase = true))) {
+
+                        val isPdf = name.endsWith(".pdf", ignoreCase = true)
+                        val sizeKb = file.length() / 1024
+                        val sizeStr = if (sizeKb > 1024) "${String.format(Locale.US, "%.1f", sizeKb / 1024f)} MB" else "$sizeKb KB"
+                        val dateStr = sdf.format(Date(file.lastModified()))
+
+                        list.add(LocalReportFile(file, name, sizeStr, dateStr, isPdf))
+                    }
+                }
+            }
+        }
+
+        list.sortByDescending { it.file.lastModified() }
+
+        if (list.isEmpty()) {
+            rvLocalReports.visibility = View.GONE
+            tvEmptyLocalReports.visibility = View.VISIBLE
+        } else {
+            rvLocalReports.visibility = View.VISIBLE
+            tvEmptyLocalReports.visibility = View.GONE
+
+            rvLocalReports.layoutManager = LinearLayoutManager(requireContext())
+            rvLocalReports.adapter = LocalReportAdapter(
+                list,
+                onOpenClick = { abrirArchivoReporte(it) },
+                onShareClick = { compartirArchivoReporte(it) },
+                onDeleteClick = { confirmarEliminarReporte(it) }
+            )
+        }
+    }
+
+    private fun abrirArchivoReporte(item: LocalReportFile) {
+        val uri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.fileprovider",
+            item.file
+        )
+        val mime = if (item.isPdf) "application/pdf" else "application/json"
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, mime)
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        try {
+            startActivity(intent)
+        } catch (_: ActivityNotFoundException) {
+            Toast.makeText(requireContext(), "No hay aplicación para abrir este archivo", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun compartirArchivoReporte(item: LocalReportFile) {
+        val uri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.fileprovider",
+            item.file
+        )
+        val mime = if (item.isPdf) "application/pdf" else "application/json"
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = mime
+            putExtra(Intent.EXTRA_STREAM, uri)
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }
+        startActivity(Intent.createChooser(intent, "Compartir Reporte de Siniestro"))
+    }
+
+    private fun confirmarEliminarReporte(item: LocalReportFile) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Eliminar Reporte")
+            .setMessage("¿Desea borrar permanentemente el archivo ${item.name}?")
+            .setPositiveButton("Eliminar") { dialog, _ ->
+                if (item.file.delete()) {
+                    Toast.makeText(requireContext(), "Archivo eliminado", Toast.LENGTH_SHORT).show()
+                    cargarReportesLocales()
+                } else {
+                    Toast.makeText(requireContext(), "No se pudo eliminar el archivo", Toast.LENGTH_SHORT).show()
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
     private fun consultarCaso() {
-        llResultContainer.removeAllViews() // Limpia el contenedor de resultados.
-        pdfUrl = null // Reinicia la URL del PDF.
+        llResultContainer.removeAllViews()
+        pdfUrl = null
 
         val caseNumber = etCaseNumber.text.toString()
         val caseToken = etCaseToken.text.toString()
 
-        // Validar que al menos uno de los campos esté lleno
         if (caseNumber.isEmpty() && caseToken.isEmpty()) {
             showErrorDialog(getString(R.string.ingresar_case_number_token))
             return
@@ -124,14 +287,12 @@ class ConsultaFragment : Fragment() {
             return
         }
 
-        // Crea el objeto JSON para la solicitud.
         val jsonObject = JSONObject().apply {
             put("case_number", caseNumber)
             put("case_token", caseToken)
         }
 
         val jsonString = jsonObject.toString()
-        //val url = "http://209.126.106.199/solmovsa/ApiGestorSiniestros/api/Webhook/webhook-query"
         val url = "$BASE_URL$API_webhook_query"
 
         val client = OkHttpClient()
@@ -151,23 +312,18 @@ class ConsultaFragment : Fragment() {
 
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
-                        // Respuesta exitosa (200 OK)
                         val jsonResponse = JSONObject(responseBody ?: "")
                         displayFormattedData(jsonResponse)
                         Log.d("ConsultaFragment", getString(R.string.respuesta_del_servidor, jsonResponse))
-                        //Log.d("ConsultaFragment", "Respuesta del servidor: $jsonResponse")
 
                         if (jsonResponse.has("pdf_url")) {
                             pdfUrl = jsonResponse.getString("pdf_url")
                         }
 
-                        if (pdfUrl.isNullOrEmpty()) {
-                        } else {
+                        if (!pdfUrl.isNullOrEmpty()) {
                             showPdfConfirmationDialog()
                         }
-
                     } else {
-                        // Respuesta con error (400, 404, 500)
                         val errorMessage = when (response.code) {
                             400 -> getString(R.string.solicitud_incorrecta_verifique_los_datos)
                             404 -> getString(R.string.esperar_10_a_15_minutos)
@@ -175,7 +331,6 @@ class ConsultaFragment : Fragment() {
                             else -> getString(R.string.error_desconocido, response.code)
                         }
                         showErrorDialog(errorMessage)
-                        //Log.e("ConsultaFragment", "Error en la solicitud: ${response.code} - $responseBody")
                         Log.e("ConsultaFragment", getString(R.string.error_en_la_solicitud, response.code, responseBody))
                     }
                 }
@@ -184,7 +339,6 @@ class ConsultaFragment : Fragment() {
                     val errorTextView = TextView(requireContext())
                     errorTextView.text = getString(R.string.error_message, e.message)
                     llResultContainer.addView(errorTextView)
-                    //Log.e("ConsultaFragment", "Error: ${e.message}", e)
                     Log.e("ConsultaFragment", getString(R.string.error, e.message))
                 }
             }
@@ -192,7 +346,6 @@ class ConsultaFragment : Fragment() {
     }
 
     private fun displayFormattedData(jsonResponse: JSONObject) {
-        // Main Title (AI Cloud)
         val mainTitle = TextView(requireContext()).apply {
             text = getString(R.string.AI_cloud)
             textSize = 10f
@@ -208,28 +361,25 @@ class ConsultaFragment : Fragment() {
         }
         llResultContainer.addView(mainTitle)
 
-        // Extract data from the JSON response
         val data = jsonResponse.getJSONObject("data")
         val caseNumber = data.getString("case_number")
         val vinNumber = data.getString("vin_number")
         val pLaborRate = data.getString("p_labor_rate")
         val laborRate = data.getString("labor_rate")
 
-        // Información general
         val generalInfo = TextView(requireContext()).apply {
-            text = getString(R.string.general_info_format, caseNumber, vinNumber, pLaborRate, laborRate) // Format the text using string resources
+            text = getString(R.string.general_info_format, caseNumber, vinNumber, pLaborRate, laborRate)
             setTypeface(null, Typeface.BOLD)
-            setBackgroundColor("#AAACAB".toColorInt()) // Gris medio #AAACAB
-            setTextColor(Color.BLACK) // Set the text color to black
+            setBackgroundColor("#AAACAB".toColorInt())
+            setTextColor(Color.BLACK)
             val params = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
             )
-            params.setMargins(0, 0, 0, 16) // Add a bottom margin (16dp)
-            layoutParams = params // Apply the layout parameters
+            params.setMargins(0, 0, 0, 16)
+            layoutParams = params
         }
-        llResultContainer.addView(generalInfo) // Add the general info to the container
+        llResultContainer.addView(generalInfo)
 
-        // Totals (Moved to the top)
         val subTotalPart = data.getString("sub_total_part")
         val subTotalPaint = data.getString("sub_total_paint")
         val subTotalLabor = data.getString("sub_total_labor")
@@ -237,17 +387,16 @@ class ConsultaFragment : Fragment() {
         val tax = data.getString("tax")
         val total = data.getString("total")
 
-        // Create a container for the totals
         val totalsContainer = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor("#AAACAB".toColorInt()) // Gris medio #AAACAB
+            setBackgroundColor("#AAACAB".toColorInt())
             val params = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
-            params.setMargins(0, 0, 0, 16) // Add a bottom margin
+            params.setMargins(0, 0, 0, 16)
             layoutParams = params
-            setPadding(16, 16, 16, 16) // Add padding
+            setPadding(16, 16, 16, 16)
         }
 
         val totalsTextView = TextView(requireContext()).apply {
@@ -264,62 +413,57 @@ class ConsultaFragment : Fragment() {
             setTypeface(null, Typeface.BOLD)
         }
         totalsContainer.addView(totalsTextView)
-        llResultContainer.addView(totalsContainer) // Add the totals container to the main container
+        llResultContainer.addView(totalsContainer)
 
-        // Details
         val details = data.getJSONArray("details")
         for (i in 0 until details.length()) {
             val detail = details.getJSONObject(i)
 
-            // Create a container for each detail item
             val detailContainer = LinearLayout(requireContext()).apply {
-                orientation = LinearLayout.VERTICAL // Vertical orientation for the detail items
-                //setBackgroundColor(Color.LTGRAY) // Set a light gray background color #d0d2d1
-                setBackgroundColor("#d0d2d1".toColorInt()) // Gris bajo #d0d2d1
+                orientation = LinearLayout.VERTICAL
+                setBackgroundColor("#d0d2d1".toColorInt())
                 val params = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 )
-                params.setMargins(0, 0, 0, 8) // Add a bottom margin (8dp) between detail items
-                layoutParams = params // Apply the layout parameters
-                setPadding(16, 16, 16, 16) // Add padding inside the container (16dp on all sides)
+                params.setMargins(0, 0, 0, 8)
+                layoutParams = params
+                setPadding(16, 16, 16, 16)
             }
 
-            // Detail Title (Car Part)
             val detailTitle = TextView(requireContext()).apply {
-                text = getString(R.string.partes_y_piezas_nombre, detail.getString("car_part")) // Set the title text
-                textSize = 16f // Set the text size
-                setTypeface(null, Typeface.BOLD) // Make the text bold
-                setTextColor(Color.BLACK) // Set the text color to black
+                text = getString(R.string.partes_y_piezas_nombre, detail.getString("car_part"))
+                textSize = 16f
+                setTypeface(null, Typeface.BOLD)
+                setTextColor(Color.BLACK)
                 val params = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 )
-                params.setMargins(0, 0, 0, 8) // Add a bottom margin (8dp)
-                layoutParams = params // Apply the layout parameters
+                params.setMargins(0, 0, 0, 8)
+                layoutParams = params
             }
-            detailContainer.addView(detailTitle) // Add the title to the detail container
+            detailContainer.addView(detailTitle)
 
             val detailInfo = TextView(requireContext()).apply {
                 val formattedText = getString(
                     R.string.detail_info_format,
-                    detail.getString("side_1"), // Replaces %1$s
-                    detail.getString("side_2"), // Replaces %2$s
-                    detail.getString("damage"), // Replaces %3$s
-                    detail.getString("treatment"), // Replaces %4$s
-                    detail.getString("part_cost"), // Replaces %5$s
-                    detail.getString("paint_hour"), // Replaces %6$s
-                    detail.getString("paint_material_cost"), // Replaces %7$s
-                    detail.getString("labour_hour"), // Replaces %8$s
-                    detail.getString("labour_cost") // Replaces %9$s
-                ) // Format the text using string resources
-                // Use HtmlCompat.fromHtml() to parse the HTML
+                    detail.getString("side_1"),
+                    detail.getString("side_2"),
+                    detail.getString("damage"),
+                    detail.getString("treatment"),
+                    detail.getString("part_cost"),
+                    detail.getString("paint_hour"),
+                    detail.getString("paint_material_cost"),
+                    detail.getString("labour_hour"),
+                    detail.getString("labour_cost")
+                )
                 text = HtmlCompat.fromHtml(formattedText, HtmlCompat.FROM_HTML_MODE_LEGACY)
                 setTextColor(Color.BLACK)
             }
-            detailContainer.addView(detailInfo) // Add the detail information to the detail container
+            detailContainer.addView(detailInfo)
 
-            llResultContainer.addView(detailContainer) // Add the detail container to the main container
+            llResultContainer.addView(detailContainer)
         }
     }
 
@@ -335,11 +479,11 @@ class ConsultaFragment : Fragment() {
         val caseNumber = etCaseNumber.text.toString()
         val caseToken = etCaseToken.text.toString()
 
-        if (caseNumber.isEmpty()) {showErrorDialog(getString(R.string.debe_ingresar_case_number_token_para_descargar_el_pdf))
+        if (caseNumber.isEmpty()) {
+            showErrorDialog(getString(R.string.debe_ingresar_case_number_token_para_descargar_el_pdf))
             return
         }
 
-        // Check for permissions
         if (!checkPermissions()) {
             requestPermissions()
             return
@@ -351,7 +495,6 @@ class ConsultaFragment : Fragment() {
         }
 
         val jsonString = jsonObject.toString()
-        //val url = "http://209.126.106.199/solmovsa/ApiGestorSiniestros/api/Webhook/generate-pdf"
         val url = "$BASE_URL$API_generate_pdf"
 
         val client = OkHttpClient()
@@ -367,42 +510,32 @@ class ConsultaFragment : Fragment() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 Log.d("DownloadPDF", getString(R.string.iniciando_descarga))
-                //Log.d("DownloadPDF", "URL: $url")
                 Log.d("DownloadPDF", getString(R.string.url, url))
-                //Log.d("DownloadPDF", "Request Body: $jsonString")
                 Log.d("DownloadPDF", getString(R.string.cuerpo_de_la_solicitud, jsonString))
 
                 val response = client.newCall(request).execute()
 
                 if (response.isSuccessful) {
-                    //Log.d("DownloadPDF", "Respuesta exitosa: ${response.code}")
                     Log.d("DownloadPDF", getString(R.string.respuesta_exitosa, response.code))
 
-                    // Verificar si el cuerpo de la respuesta no está vacío
                     val responseBody = response.body
                     if (responseBody == null) {
                         withContext(Dispatchers.Main) {
                             showErrorDialog(getString(R.string.la_respuesta_del_servidor_esta_vacia))
-                            //Log.e("DownloadPDF", "La respuesta del servidor está vacía.")
                         }
                         return@launch
                     }
 
-                    // Crear el archivo PDF en la carpeta de descargas pública
                     val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                    // Obtener la fecha actual
                     val currentDate = SimpleDateFormat("ddMMyyyy", Locale.getDefault()).format(Date())
-                    // Crear el nombre del archivo con el caseNumber y la fecha
                     val newFilename = "Caso-$caseNumber-$currentDate.pdf"
                     val file = File(downloadsDir, newFilename)
 
                     try {
-                        // Chequea si el archivo existe, si existe lo borra
                         if (file.exists()) {
                             file.delete()
                         }
 
-                        // Guardar el archivo PDF (ahora en Dispatchers.IO)
                         withContext(Dispatchers.IO) {
                             file.outputStream().use { output ->
                                 responseBody.byteStream().use { input ->
@@ -411,14 +544,12 @@ class ConsultaFragment : Fragment() {
                             }
                         }
 
-                        //Log.d("DownloadPDF", "PDF guardado en: ${file.absolutePath}")
                         Log.d("DownloadPDF", getString(R.string.pdf_guardado_en, file.absolutePath))
 
-                        // Abrir el archivo PDF con una aplicación externa (en Dispatchers.Main)
                         withContext(Dispatchers.Main) {
                             val uri = FileProvider.getUriForFile(
                                 requireContext(),
-                                "com.ehome.autoperitajeia.fileprovider", // Ahora coincide con el manifest
+                                "${requireContext().packageName}.fileprovider",
                                 file
                             )
                             val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -438,25 +569,20 @@ class ConsultaFragment : Fragment() {
                     } catch (e: IOException) {
                         withContext(Dispatchers.Main) {
                             showErrorDialog(getString(R.string.error_al_guardar_el_archivo, e.message))
-                            //Log.e("DownloadPDF", "Error al guardar el archivo: ${e.message}", e)
                         }
                     } catch (e: SecurityException) {
                         withContext(Dispatchers.Main) {
                             showErrorDialog(getString(R.string.error_de_seguridad_al_acceder_al_archivo, e.message))
-                            //Log.e("DownloadPDF", "Error de seguridad al acceder al archivo: ${e.message}", e)
                         }
                     } catch (e: Exception) {
                         withContext(Dispatchers.Main) {
                             showErrorDialog("Error desconocido: ${e.message ?: getString(R.string.sin_informacion)}")
-                            //Log.e("DownloadPDF", "Error desconocido", e)
                             e.printStackTrace()
                         }
                     }
                 } else {
-                    // Manejar errores de la respuesta
                     val responseBody = response.body?.string()
-                    Log.e("DownloadPDF",getString(R.string.error_en_la_solicitud, response.code, responseBody))
-                    //Log.e("DownloadPDF", "Error en la respuesta: ${response.code} - $responseBody")
+                    Log.e("DownloadPDF", getString(R.string.error_en_la_solicitud, response.code, responseBody))
                     withContext(Dispatchers.Main) {
                         val errorMessage = when (response.code) {
                             400 -> getString(R.string.solicitud_incorrecta_verifique_los_datos)
@@ -470,25 +596,22 @@ class ConsultaFragment : Fragment() {
             } catch (e: IOException) {
                 withContext(Dispatchers.Main) {
                     showErrorDialog(getString(R.string.error_de_red, e.message))
-                    //Log.e("DownloadPDF", "Error de red: ${e.message}", e)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     showErrorDialog("Error desconocido: ${e.message ?: getString(R.string.sin_informacion)}")
-                    //Log.e("DownloadPDF", "Error desconocido", e)
-                    e.printStackTrace()}
+                    e.printStackTrace()
+                }
             }
         }
     }
 
-    // Muestra un Diálogo de Confirmación para Ver el PDF
     private fun showPdfConfirmationDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.ver_pdf))
             .setMessage(getString(R.string.desea_ver_el_pdf))
-            .setIcon(R.drawable.analyze_list_logs_search_icon) // Ícono personalizado
+            .setIcon(R.drawable.analyze_list_logs_search_icon)
             .setPositiveButton(getString(R.string.si)) { dialog, _ ->
-                // Abrir el PDF usando la URL
                 openPdfFromUrl(pdfUrl)
                 dialog.dismiss()
             }
@@ -516,7 +639,6 @@ class ConsultaFragment : Fragment() {
         }
     }
 
-    // Verifica si los permisos están concedidos
     private fun checkPermissions(): Boolean {
         return if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             ContextCompat.checkSelfPermission(
@@ -524,11 +646,10 @@ class ConsultaFragment : Fragment() {
                 Manifest.permission.READ_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED
         } else {
-            true // Para versiones anteriores a Android 6.0, los permisos se otorgan en la instalación
+            true
         }
     }
 
-    // Solicita los permisos en tiempo de ejecución
     private fun requestPermissions() {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             ActivityCompat.requestPermissions(
@@ -545,10 +666,8 @@ class ConsultaFragment : Fragment() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == requestCodePermissions) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, retry download
                 downloadPdf()
             } else {
-                // Permission denied
                 showErrorDialog(getString(R.string.permiso_de_almacenamiento_denegado))
             }
         }
