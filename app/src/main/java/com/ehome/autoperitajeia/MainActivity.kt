@@ -186,6 +186,42 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
+    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_about -> {
+                mostrarDialogoAcercaDe()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun mostrarDialogoAcercaDe() {
+        val versionStr = try {
+            val packageInfo = packageManager.getPackageInfo(packageName, 0)
+            packageInfo.versionName
+        } catch (_: Exception) {
+            "2.0.1"
+        }
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_about, null)
+        val tvVersion = dialogView.findViewById<TextView>(R.id.tvAboutVersion)
+        val tvObjective = dialogView.findViewById<TextView>(R.id.tvAboutObjective)
+
+        tvVersion.text = getString(R.string.version, versionStr)
+        tvObjective.text = androidx.core.text.HtmlCompat.fromHtml(
+            getString(R.string.about_objective_description),
+            androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY
+        )
+
+        AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setPositiveButton("Cerrar") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()

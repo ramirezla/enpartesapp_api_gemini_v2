@@ -18,6 +18,14 @@
  * 3. Carga Dinámica: El ReportDisplayFragment ahora recibe las rutas de las fotos desde el formulario inicial y las renderiza automáticamente al cargar el informe.
  * 4. Internacionalización: He añadido el recurso de texto necesario en   strings.xml para mantener las buenas prácticas del proyecto.
 
+* Mejorass en el uso de la camara y las fotos tomadas.
+ * 1. Persistencia Total de la Lista de Fotos (onSaveInstanceState):
+    * Se implementó la serialización completa de fotoList (guardando la URI de cada foto, el tipo de foto y el estado).
+    * Al regresar de la cámara para la foto 2, 3 o N, el fragmento restablece toda la lista de fotos anteriores intacta.
+ * 2. Nombres Únicos con Índice de Posición y Millis (uniqueName):
+    * Cada foto generada incluye la posición del item y marcas de milisegundos únicos (ej. JPEG_Peritaje_pos1_..., JPEG_Peritaje_pos2_...).
+    * Esto garantiza que cada foto tenga su propia URI física sin pisar las fotos anteriores.
+
  * Nuevo Mapa de Costos (laborCostByCountry): He definido valores estimados en USD por hora para cada país basándome en promedios de mercado para talleres independientes:
  * Estados Unidos: $120.0
  * Argentina: $60.0 (ajustado por volatilidad)

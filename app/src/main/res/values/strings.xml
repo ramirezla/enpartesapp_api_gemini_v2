@@ -231,6 +231,11 @@
     <string name="title_auto_peritaje">AUTO PERITAJE</string>
     <string name="auto_peritaje">Auto Peritaje</string>
     <string name="iniciando_sesion_por_favor_espere">Iniciando sesión, por favor espere&#8230;</string>
+    <string name="action_about">Acerca de</string>
+    <string name="about_subtitle">Peritaje Automotriz Inteligente</string>
+    <string name="about_objective_title">Objetivo de la Aplicación</string>
+    <string name="about_objective_description">AutoPeritajeIA es una plataforma digital avanzada concebida para transformar y optimizar los procesos de inspección, valoración de daños y estimación de costos en siniestros de vehículos automotores.\n\n<b>Objetivo Principal:</b>\nProporcionar a peritos, talleres, aseguradoras y propietarios de vehículos un informe claro, estructurado, transparente y estandarizado, agilizando la toma de decisiones, reduciendo tiempos de espera y optimizando costos operacionales.</string>
+    <string name="about_copyright">© 2025 AutoPeritajeIA. Todos los derechos reservados.</string>
 
 </resources>
 
