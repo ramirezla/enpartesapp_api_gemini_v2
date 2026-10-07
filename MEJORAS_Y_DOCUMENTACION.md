@@ -103,17 +103,17 @@ Valores promedio de mercado en USD por hora para talleres independientes (`labor
 
 ### 👤 7.  Consultar Siniestro:
 1. **Selector de Modos Material 3 (MaterialButtonToggleGroup):**
-   - 📸 **Reportes Locales: Muestra de forma inmediata todos los informes PDF y JSON guardados en el almacenamiento del teléfono.**
-   - 📸 **Buscar en Nube: Permite consultar siniestros en los servidores remotos por Número de Caso o Token.**
-2. **Historial y Gestor de Archivos Locales ( item_local_report.xml):**
-   - **Escaneo Recursivo de la Carpeta Oficial (ValoracionDeDannos):**
-     - **El método cargarReportesLocales() explora directamente la carpeta oficial ValoracionDeDannos y realiza un recorrido recursivo (walkTopDown()) en las carpetas de descargas y documentos.**
-     - **Todos los informes PDF y JSON guardados se muestran automáticamente listados y ordenados por fecha.**
-  - 📸 **Detalles por Informe: Muestra el nombre del caso, el tamaño del archivo (KB / MB) y la fecha/hora exacta de creación.**
-  - 📸 **Acciones Rápidas:**
-      - 📸 **Abrir:** Abre el PDF directamente con el visor de PDF predeterminado del celular.
-      - 📸 **Compartir:** Permite enviar el informe PDF/JSON a través de WhatsApp, correo electrónico u otras apps.
-      - 📸 **Borrar:** Elimina el archivo local con diálogo modal de confirmación.
-   - **Botón "🔍 Explorar Teléfono":**
+   - **Reportes Locales: Muestra de forma inmediata todos los informes PDF y JSON guardados en el almacenamiento del teléfono.**
+   - **Buscar en Nube: Permite consultar siniestros en los servidores remotos por Número de Caso o Token.**
+2. **Al Guardar Localmente ( ReportDisplayFragment.kt):**
+   - **Cuando presionas "Guardar en Almacenamiento Local", los archivos PDF y JSON se guardan de forma directa e inmediata en la carpeta Descargas/AutoPeritajeIA/.**
+   - **Notifica al escáner del teléfono para que el archivo aparezca de inmediato en cualquier gestor de archivos o la app de Archivos de tu celular.**
+3. **Al Descargar un PDF desde el Servidor ( ConsultaFragment.kt):**
+   - **Al descargar un informe mediante el número de caso/token en la pestaña Nube, se guarda directamente en la misma carpeta Descargas/AutoPeritajeIA/.**
+4. **Al Consultar en "Reportes Locales" ( ConsultaFragment.kt):**
+   - **La pantalla "Consultar Siniestro" lee de forma limpia y exclusiva el contenido de la carpeta Descargas/AutoPeritajeIA/.**
+   - **Muestra instantáneamente todos los reportes PDF y JSON encontrados, ordenados desde el más reciente al más antiguo.**
+   - **También conserva el botón "Explorar Teléfono" por si deseas seleccionar un archivo que hayas guardado manualmente en otra ubicación.**
+   - **Botón "Explorar Teléfono":**
       - **Se añadió el botón "Explorar Teléfono" en la parte superior del listado.**
       - **Al presionarlo, abre el explorador de archivos nativo del celular para que puedas buscar y seleccionar cualquier informe PDF o JSON guardado en cualquier ubicación (Google Drive, WhatsApp, Descargas, etc.).**

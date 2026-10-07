@@ -70,8 +70,7 @@ class MainActivity : AppCompatActivity() {
         // Find the TextView in the footer
         val appVersionTextView: TextView? = footerView?.findViewById(R.id.appVersionTextView)
 
-        // Set the app version
-        // TODO: aun no muestra bien la version, se esta colocando en el layout del footer
+        // Mostrar versión activa de la app en el footer del menú lateral
         try {
             val packageInfo = packageManager.getPackageInfo(packageName, 0)
             val versionName = packageInfo.versionName
@@ -244,7 +243,7 @@ class MainActivity : AppCompatActivity() {
 
         tvContent.text = androidx.core.text.HtmlCompat.fromHtml(
             fullText,
-            androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY
+            androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY,
         )
 
         AlertDialog.Builder(this)

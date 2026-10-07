@@ -180,12 +180,12 @@ class ReportDisplayFragment : Fragment() {
             val safeDate = inspectionDate.replace("/", "-").replace(":", "-").replace(" ", "_")
 
             // Guardar JSON original
-            val jsonFile = File(reportsDir, "Reporte_${caseNumber}_${safeDate}.json")
+            val jsonFile = File(reportsDir, "Reporte_${caseNumber}_$safeDate.json")
             jsonFile.writeText(apiResponse)
 
             // Generar y guardar PDF
             val photoUris = arguments?.getStringArrayList("photo_uris") ?: arrayListOf()
-            val pdfFile = File(reportsDir, "Reporte_${caseNumber}_${safeDate}.pdf")
+            val pdfFile = File(reportsDir, "Reporte_${caseNumber}_$safeDate.pdf")
             generatePdfReport(apiResponse, photoUris, pdfFile)
 
             try {
@@ -294,103 +294,6 @@ class ReportDisplayFragment : Fragment() {
                 }
             }
         }
-    }
-
-    private fun formatFullReport(jsonResponse: String): String {
-        val json = JSONObject(jsonResponse)
-        val builder = StringBuilder()
-
-        // Encabezado
-        builder.append("=== INFORME DE VALORACIÓN DE DAÑOS ===\n\n")
-        builder.append("Fecha generación: ${SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())}\n\n")
-
-        // Obtener el costo por hora de forma robusta
-        val costoHoraStr = tvCostPerHourValue?.text?.toString() ?: "0"
-        val costoHora = extractDouble(costoHoraStr).let { if (it == 0.0) json.findFirstDoubleIgnoreCase("CostoHoraManoObra", "CostoHoraManoObraUSD", "ManoObraCosto", defaultValue = 20.0) else it }
-
-        // Información general
-        builder.append("--- INFORMACIÓN GENERAL ---\n")
-        builder.append("Número de Caso: ${tvCaseNumberValue?.text}\n")
-        builder.append("Fecha de Inspección: ${tvInspectionDateValue?.text}\n")
-        builder.append("Inspector: ${tvInspectorNameValue?.text}\n")
-        builder.append("Email inspector: ${tvInspectorEmailValue?.text}\n\n")
-
-        // Información del vehículo
-        builder.append("--- INFORMACIÓN DEL VEHÍCULO ---\n")
-        builder.append("Marca: ${tvBrandValue?.text}\n")
-        builder.append("Modelo: ${tvModelValue?.text}\n")
-        builder.append("Año: ${tvYearValue?.text}\n")
-        builder.append("Color: ${tvColorValue?.text}\n")
-        builder.append("VIN: ${tvVinValue?.text}\n")
-        builder.append("Ubicación: ${tvLocationValue?.text}\n")
-        builder.append("Costo por hora: ${tvCostPerHourValue?.text}\n\n")
-
-        // Descripción de daños
-        builder.append("--- DESCRIPCIÓN DE DAÑOS ---\n")
-        val damage = json.optJSONObjectIgnoreCase("DescripcionDanosExistentes")
-        damage?.keys()?.forEach { key ->
-            builder.append("$key: ${damage.getString(key)}\n")
-        }
-        builder.append("\n")
-
-        // Piezas afectadas y costos
-        builder.append("--- PIEZAS AFECTADAS Y COSTOS ---\n")
-        val piezas = json.optJSONArrayIgnoreCase("ListadoPiezasAfectadas")
-        
-        var totalManoObra = 0.0
-        var totalPiezas = 0.0
-
-        if (piezas != null) {
-            for (i in 0 until piezas.length()) {
-                val pieza = piezas.getJSONObject(i)
-                
-                // Mapeo flexible e insensible a mayúsculas
-                val nombre = pieza.optStringIgnoreCase("pieza", "Pieza desconocida")
-                // Soporte especial para sugerencia/accion
-                val accion = pieza.findFirstStringIgnoreCase("suguerencia", "sugerencia", "accion", "Accion", defaultValue = "N/A")
-                val costoPieza = pieza.findFirstDoubleIgnoreCase("CostoPieza", "CostoMateriales", "CostoReparacion", "monto", defaultValue = 0.0)
-                val manoObra = getManoObraObject(pieza)
-
-                builder.append("$nombre ($accion)\n")
-                var subtotalManoObraItem = 0.0
-                manoObra?.keys()?.forEach { tipo ->
-                    if (!tipo.equals("TotalHoras", ignoreCase = true)) {
-                        val horas = manoObra.optDouble(tipo, 0.0)
-                        val costo = horas * costoHora
-                        
-                        // Formatear línea de mano de obra
-                        val moLine = "  $tipo: $${"%.2f".format(costo)} (${horas}h * $${costoHora}/h)"
-                        
-                        // Word wrap para líneas de mano de obra largas en el PDF
-                        builder.append(moLine).append("\n")
-                        subtotalManoObraItem += costo
-                    }
-                }
-                totalManoObra += subtotalManoObraItem
-                
-                val labelCosto = if (accion.equals("Reparar", ignoreCase = true)) "Costo Reparación/Mat." else "Costo pieza"
-                builder.append("  $labelCosto: $${"%.2f".format(costoPieza)}\n")
-                builder.append("  SUBTOTAL ÍTEM: $${"%.2f".format(subtotalManoObraItem + costoPieza)}\n\n")
-                totalPiezas += costoPieza
-            }
-        }
-
-        // Totales
-        builder.append("--- TOTALES ---\n")
-        builder.append("Mano de obra: $${"%.2f".format(totalManoObra)}\n")
-        builder.append("Piezas: $${"%.2f".format(totalPiezas)}\n")
-        builder.append("TOTAL: $${"%.2f".format(totalManoObra + totalPiezas)}\n\n")
-
-        // Consideraciones adicionales
-        builder.append("--- CONSIDERACIONES ADICIONALES ---\n")
-        val consideraciones = json.optJSONArrayIgnoreCase("ConsideracionesAdicionales")
-        if (consideraciones != null) {
-            for (i in 0 until consideraciones.length()) {
-                builder.append("- ${consideraciones.getString(i)}\n")
-            }
-        }
-
-        return builder.toString()
     }
 
     private fun generatePdfReport(jsonOrTextResponse: String, photoUris: List<String>, outputFile: File) {
@@ -904,11 +807,8 @@ class ReportDisplayFragment : Fragment() {
             canvas.drawLine(margin, y + rowH, margin + contentWidth, y + rowH, gridLinePaint)
 
             @Suppress("SimplifyBooleanWithConstants")
-            val isCurrentMatch = when (rIdx) {
-                0 -> porcentajeUsado >= 70
-                1 -> porcentajeUsado in 40..69
-                else -> porcentajeUsado < 40
-            }
+            val activeRowIndex = if (porcentajeUsado >= 70) 0 else if (porcentajeUsado >= 40) 1 else 2
+            val isCurrentMatch = (rIdx == activeRowIndex)
 
             val pPaint = if (isCurrentMatch) tableCellBoldPaint else tableCellPaint
             pPaint.textAlign = Paint.Align.CENTER

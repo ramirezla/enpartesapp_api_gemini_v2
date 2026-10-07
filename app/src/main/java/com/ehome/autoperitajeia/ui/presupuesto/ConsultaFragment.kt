@@ -30,6 +30,7 @@ import androidx.core.content.FileProvider
 import androidx.core.graphics.toColorInt
 import androidx.core.net.toUri
 import androidx.core.text.HtmlCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -87,7 +88,7 @@ class LocalReportAdapter(
     override fun onBindViewHolder(holder: ReportViewHolder, position: Int) {
         val item = reportList[position]
         holder.tvName.text = item.name
-        holder.tvDetails.text = "${item.sizeFormatted} • ${item.dateFormatted}"
+        holder.tvDetails.text = String.format(Locale.getDefault(), "%s • %s", item.sizeFormatted, item.dateFormatted)
         holder.imgIcon.setImageResource(if (item.isPdf) R.drawable.file_format_paper_icon else R.drawable.page_search_icon)
 
         holder.btnOpen.setOnClickListener { onOpenClick(item) }
@@ -190,7 +191,7 @@ class ConsultaFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (llLocalReportsSection.visibility == View.VISIBLE) {
+        if (llLocalReportsSection.isVisible) {
             cargarReportesLocales()
         }
     }

@@ -542,7 +542,7 @@ class PresupuestoFragment : Fragment() {
                     false
                 }
 
-                if ((success || hasData) && pos in 0 until fotoList.size) {
+                if ((success || hasData) && (pos in fotoList.indices)) {
                     fotoList[pos].imagenUri = uri
                     fotoList[pos].isFotoTomada = true
                     adapter.notifyItemChanged(pos)
@@ -671,8 +671,8 @@ class PresupuestoFragment : Fragment() {
                 for (i in savedUris.indices) {
                     val uriStr = savedUris[i]
                     val uri = if (uriStr.isNotEmpty()) uriStr.toUri() else null
-                    val tipo = if (i < savedTipos.size) savedTipos[i] else ""
-                    val tomada = if (i < savedTomadas.size) savedTomadas[i] else false
+                    val tipo = savedTipos.getOrNull(i) ?: ""
+                    val tomada = savedTomadas.getOrNull(i) ?: false
                     fotoList.add(FotoItem(imagenUri = uri, tipoFoto = tipo, isFotoTomada = tomada))
                 }
                 adapter.notifyDataSetChanged()
