@@ -188,12 +188,71 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.action_photo_guide -> {
+                mostrarGuiaFotografias()
+                true
+            }
+            R.id.action_update_gps -> {
+                actualizarUbicacionGps()
+                true
+            }
+            R.id.action_terms_license -> {
+                mostrarTerminosYLicencia()
+                true
+            }
             R.id.action_about -> {
                 mostrarDialogoAcercaDe()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun mostrarGuiaFotografias() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_photo_guide, null)
+        AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setPositiveButton("Entendido") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun actualizarUbicacionGps() {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main)
+        val currentFragment = navHostFragment?.childFragmentManager?.fragments?.firstOrNull()
+
+        if (currentFragment is com.ehome.autoperitajeia.ui.presupuesto.PresupuestoFragment) {
+            currentFragment.detectarUbicacionDispositivo()
+            android.widget.Toast.makeText(this, "Sincronizando ubicación GPS...", android.widget.Toast.LENGTH_SHORT).show()
+        } else {
+            android.widget.Toast.makeText(this, "La detección GPS está lista para tu próxima valoración", android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun mostrarTerminosYLicencia() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_terms_license, null)
+        val tvContent = dialogView.findViewById<TextView>(R.id.tvTermsContent)
+
+        val fullText = StringBuilder().apply {
+            append(getString(R.string.licencia_derechos)).append("\n\n")
+            append(getString(R.string.licencia_derechos_2)).append("\n\n")
+            append(getString(R.string.licencia_derechos_3)).append("\n\n")
+            append(getString(R.string.licencia_derechos_4)).append("\n\n")
+            append(getString(R.string.licencia_derechos_5))
+        }.toString()
+
+        tvContent.text = androidx.core.text.HtmlCompat.fromHtml(
+            fullText,
+            androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY
+        )
+
+        AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setPositiveButton("Cerrar") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     private fun mostrarDialogoAcercaDe() {

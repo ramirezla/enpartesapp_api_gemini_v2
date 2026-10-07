@@ -115,6 +115,18 @@
  * Se definió el campo PORCENTAJE_REPARACION en las variantes de compilación de Gradle:
  * Modo Desarrollo (debug): 80% de prioridad para REPARAR vs REEMPLAZAR.
  * Modo Producción (release): 70% de prioridad para REPARAR vs REEMPLAZAR.
+
+ * Detalles de la Implementación:
+ * 1. Menú de Opciones ( res/menu/main.xml):
+    * Se configuró la opción "Acerca de" (R.id.action_about).
+ * 2. Manejador de Eventos ( MainActivity.kt):
+    * Al seleccionar "Acerca de", se despliega un diálogo modal enriquecido (MaterialAlertDialogBuilder) que obtiene dinámicamente el número de versión activa de la app (v2.0.1).
+ * 3. Diseño del Diálogo Modal ( dialog_about.xml):
+    * Muestra en la parte superior el logo 3D de la aplicación (logo_autoperitaje_efecto_3d).
+    * Título: AutoPeritajeIA - Peritaje Automotriz Inteligente.
+    * Muestra el número de versión.
+    * Describe el Objetivo Principal de la Aplicación orientado a la agilidad, transparencia y estandarización de peritajes para aseguradoras, talleres y propietarios, sin revelar detalles de implementación ni prompts internos.
+    * Pie de página con copyright.
  */
 
 package com.ehome.autoperitajeia.ui.presupuesto
@@ -1213,7 +1225,7 @@ class PresupuestoFragment : Fragment() {
      * Si está activo, obtiene la ubicación GPS (caché o tiempo real) y utiliza [Geocoder] para
      * rellenar automáticamente los campos de País, Estado y Ciudad.
      */
-    private fun detectarUbicacionDispositivo() {
+    fun detectarUbicacionDispositivo() {
         configurarModoUbicacion(isEditable = BuildConfig.DEBUG)
 
         val hasFinePermission = ContextCompat.checkSelfPermission(

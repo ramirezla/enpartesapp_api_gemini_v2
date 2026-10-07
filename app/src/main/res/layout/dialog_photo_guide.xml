@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:contentDescription="@string/card_title_evidencia_fotos"
+                android:src="@drawable/ic_menu_camera" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="Guía de Fotografías de Daño"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="?android:attr/listDivider" />
+
+        <!-- Tip 1 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1. Número VIN / Chasis"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="12dp"
+            android:text="Toma una fotografía clara y nítida de la placa metálica o sticker del serial VIN (parabrisas o pilar B del marco de puerta)."
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="13sp" />
+
+        <!-- Tip 2 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2. Ángulo General a 45°"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="12dp"
+            android:text="Captura una toma panorámica del vehículo a 45 grados donde se observe la placa del vehículo y la zona general del siniestro."
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="13sp" />
+
+        <!-- Tip 3 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="3. Detalle del Daño (Primer Plano)"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="12dp"
+            android:text="Acerca la cámara a las piezas afectadas (guardabarros, paragolpes, faros, puertas) mostrando la profundidad de la abolladura o rayón."
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="13sp" />
+
+        <!-- Tip 4 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="4. Luz y Claridad"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Asegura buena iluminación natural o enciende el flash si estás en un garaje. Evita sombras extremas o contraluz directos."
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+</ScrollView>
